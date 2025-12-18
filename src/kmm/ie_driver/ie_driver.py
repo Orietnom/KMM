@@ -1,8 +1,5 @@
-# kmm_core/automation/drivers/kmm_ie_driver.py
-
 from __future__ import annotations
 
-import os
 import time
 import uuid
 import subprocess
@@ -13,7 +10,7 @@ from typing import Optional, Tuple, Union, Callable, Any
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 
 from selenium.common.exceptions import (
@@ -37,9 +34,7 @@ load_dotenv(dotenv_path=r"src\.env")
 @dataclass(frozen=True)
 class IEDriverConfig:
     # Caminho opcional do IEDriverServer.exe; se None, usa o PATH
-    driver_path: Optional[str] = os.getenv("WEBDRIVER_PATH")
-    if not driver_path:
-        raise ValueError("IEDRIVER_PATH não configurado")
+    driver_path: Optional[str] = None
 
     # Timeouts (segundos)
     page_load_timeout: int = 60
@@ -138,7 +133,7 @@ class KMMIEDriver:
             else:
                 self._driver = webdriver.Ie(capabilities=caps)
 
-        # Timeouts importantes
+        # Timeouts
         self._driver.set_page_load_timeout(self.config.page_load_timeout)
         self._driver.set_script_timeout(self.config.script_timeout)
 
@@ -154,7 +149,6 @@ class KMMIEDriver:
         try:
             self._driver.quit()
         except Exception:
-            # IE é IE…
             pass
         finally:
             self._driver = None
@@ -163,24 +157,34 @@ class KMMIEDriver:
             self._kill_ie_processes()
 
     def restart(self) -> WebDriver:
+        print("Reiniciando navegador")
         self.stop()
-        return self.start()
+        driver = self.start()
+        print("Finalizado")
+        return driver
 
     # -----------------------------
     # Navegação / básicos
     # -----------------------------
 
     def open(self, url: str) -> None:
+        print(f"Navegando para {url}")
         self.driver.get(url)
+        print("Finalizado")
 
     def refresh(self) -> None:
+        print("Atualizando a pagina")
         self.driver.refresh()
+        print("Finalizado")
 
     def current_url(self) -> str:
         try:
+            print("Obtendo URL da pagina atual")
             return self.driver.current_url
         except Exception:
             return ""
+        finally:
+            print("Finalizado")
 
     # -----------------------------
     # Locator parser
@@ -217,27 +221,46 @@ class KMMIEDriver:
     # -----------------------------
 
     def wait_visible(self, locator: Locator, timeout: Optional[int] = None):
+        print("Aguardando elemento estar visivel")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
-        return wait.until(EC.visibility_of_element_located((self._by(by), value)))
+        element = wait.until(EC.visibility_of_element_located((self._by(by), value)))
+        print("Fim do método wait")
+        return element
 
     def wait_present(self, locator: Locator, timeout: Optional[int] = None):
+        print("Aguardando elemento estar presente")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
-        return wait.until(EC.presence_of_element_located((self._by(by), value)))
+        element = wait.until(EC.presence_of_element_located((self._by(by), value)))
+        print("Fim do método wait")
+        return element
 
     def wait_clickable(self, locator: Locator, timeout: Optional[int] = None):
+        print("Aguardando elemento estar clicavel")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
-        return wait.until(EC.element_to_be_clickable((self._by(by), value)))
+        element = wait.until(EC.element_to_be_clickable((self._by(by), value)))
+        print("Fim do método wait")
+        return element
 
+    def wait_alert(self, timeout: Optional[int] = None):
+        print("Aguardando alerta aparecer")
+        wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
+        element = wait.until(EC.alert_is_present())
+        print("Fim do método wait")
+        return element
+    
     # -----------------------------
     # safe_* com retry curto
     # -----------------------------
 
     def safe_find(self, locator: Locator, timeout: Optional[int] = None):
         try:
-            return self.wait_present(locator, timeout=timeout)
+            print(f"Procurando um elemento: {locator} com timeout {timeout}")
+            element = self.wait_present(locator, timeout=timeout)
+            print("Finalizado")
+            return element
         except TimeoutException as e:
             self.dump_state("safe_find_timeout")
             raise e
@@ -250,12 +273,15 @@ class KMMIEDriver:
         backoff_s: float = 0.6,
         use_js_fallback: bool = True,
     ) -> None:
+        print(f"Clicado no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
+        
         self._with_retry(
             fn=lambda: self._click_once(locator, timeout, use_js_fallback),
             retries=retries,
             backoff_s=backoff_s,
             on_fail_label="safe_click_fail",
         )
+        print("Finalizado")
 
     def _click_once(self, locator: Locator, timeout: Optional[int], use_js_fallback: bool) -> None:
         el = self.wait_clickable(locator, timeout=timeout)
@@ -276,15 +302,16 @@ class KMMIEDriver:
         retries: int = 2,
         backoff_s: float = 0.6,
     ) -> None:
+        print(f"Escrevendo texto no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
         def _type():
             el = self.wait_visible(locator, timeout=timeout)
             if clear_first:
                 try:
                     el.clear()
                 except Exception:
-                    # alguns inputs no IE falham no clear()
                     self.driver.execute_script("arguments[0].value = '';", el)
             el.send_keys(text)
+            print("Finalizado")
 
         self._with_retry(
             fn=_type,
@@ -300,8 +327,10 @@ class KMMIEDriver:
         retries: int = 2,
         backoff_s: float = 0.4,
     ) -> str:
+        print(f"Obtendo texto do elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
         def _get():
             el = self.wait_visible(locator, timeout=timeout)
+            print("Finalizado")
             return (el.text or "").strip()
 
         return self._with_retry(
@@ -311,9 +340,32 @@ class KMMIEDriver:
             on_fail_label="safe_get_text_fail",
         )
 
+    def safe_get_attribute(
+            self, 
+            locator: Locator,
+            attribute: str,
+            timeout: Optional[int] = None,
+            retries: int = 2,
+            backoff_s: float = 0.4
+            ):
+        print(f"Obtendo atributo {attribute} do locator {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
+        def _get():
+            el = self.wait_present(locator=locator, timeout=timeout)
+            print("Finalizado")
+            return (el.get_attribute(attribute))
+        
+        return self._with_retry(
+            fn=_get,
+            retries=retries,
+            backoff_s=backoff_s,
+            on_fail_label="safe_get_attributes_fail"
+        )
+
     def exists(self, locator: Locator, timeout: int = 2) -> bool:
         try:
+            print(f"Verificando se o locator {locator} existe")
             self.wait_present(locator, timeout=timeout)
+            print("Finalizado")
             return True
         except TimeoutException:
             return False
@@ -328,6 +380,7 @@ class KMMIEDriver:
         last_exc = None
         for attempt in range(retries + 1):
             try:
+                print(f"Tentativa {attempt + 1}")
                 return fn()
             except (StaleElementReferenceException, WebDriverException, TimeoutException, NoSuchElementException) as e:
                 last_exc = e
@@ -346,17 +399,56 @@ class KMMIEDriver:
     # -----------------------------
 
     def switch_to_default(self) -> None:
+        print("Trocando para o conteúdo principal da DOM")
         self.driver.switch_to.default_content()
+        print("Sucesso")
 
-    def switch_to_frame(self, locator: Locator, timeout: Optional[int] = None) -> None:
-        frame = self.wait_present(locator, timeout=timeout)
+    def switch_to_frame(self, principal: bool = True, timeout: Optional[int] = None) -> None:
+        
+        self.driver.switch_to_default_content()
+        frame = self.wait_present("id:principal", timeout=timeout)
         self.driver.switch_to.frame(frame)
 
+        if not principal:
+            frame = self.wait_present("name:iconteudo", timeout=timeout)
+            self.driver.switch_to.frame(frame)
+
+        print("Sucesso")
+
     def switch_to_window(self, index: int = -1) -> None:
+        print("Trocando para a janela {index}")
         handles = self.driver.window_handles
         if not handles:
             raise RuntimeError("Nenhuma janela disponível para switch.")
         self.driver.switch_to.window(handles[index])
+        print("Sucesso")
+    
+    def accept_alert(self) -> str:
+        print("Aceitando um Alert")
+        alert = self.wait_alert()
+        text = alert.text
+        alert.accept()
+        print(f"Texto do alerta {text}")
+        return text
+
+    # -----------------------------
+    # Selects
+    # -----------------------------
+
+    def select_by_value(self, locator: Locator, value:str, timeout: Optional[int] = None) -> None:
+        print(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
+        el = self.wait_present(locator=locator, timeout=timeout)
+        Select(el).select_by_value(value=value)
+
+    def select_by_index(self, locator: Locator, index:int, timeout: Optional[int] = None) -> None:
+        print(f"Selecionando por index {index} no locator {locator} com timeout de {timeout}")
+        el = self.wait_present(locator=locator, timeout=timeout)
+        Select(el).select_by_index(index=index)
+    
+    def select_by_visible_text(self, locator: Locator, value:str, timeout: Optional[int] = None) -> None:
+        print(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
+        el = self.wait_present(locator=locator, timeout=timeout)
+        Select(el).select_by_visible_text(value=value)
 
     # -----------------------------
     # Evidências / Diagnóstico

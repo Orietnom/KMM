@@ -1,0 +1,159 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<script>
+function f_enter(ev) {
+   var v_key = ev.keyCode;
+   if ((v_key == 13)) {
+		f_login();
+	  }
+}
+
+function f_enter_sinc(ev) {
+   var v_key = ev.keyCode;
+   if ((v_key == 13)) {
+		f_login_sinc();
+	  }
+}
+
+function f_login_error_msg(v_msg) {
+	document.getElementById('login_error_msg').innerHTML = v_msg;
+	setTimeout('document.getElementById(\'login_error_msg\').innerHTML = \'\';', 10000);
+}
+
+
+function f_login() {
+	if(document.form_login) {
+		with (document.form_login) {
+			
+			if(!USUARIO.value) {
+				alert('O campo usuário deve ser informado.');
+				return;
+			}
+			
+			if(!SENHA.value) {
+				alert('O campo senha deve ser informado.');
+				return;
+			}
+			
+			target = '_self';
+			method = 'post';
+			action = '/admin.cfm';
+			submit();			
+		}
+	} 
+}
+</script>
+<style type="text/css">
+
+body{
+	background-color:#FFFFFF;	
+	font-family:Calibri, "Trebuchet MS", Arial, sans-serif;
+	}
+
+.titulo{	
+	font-family: Calibri, "Trebuchet MS", Arial, sans-serif;
+	font-size:21px;
+	font-weight:700;
+	color: #005A2C;
+	letter-spacing:1px;
+	padding-left:5px;
+}
+
+
+.btn_entrar{
+	font-family:Calibri, "Trebuchet MS", Arial, sans-serif;
+	font-size:11px;
+	cursor:pointer;
+	color:#666666;
+	padding:1px 15px 1px 15px;;
+	
+	background-image:url(levolog/_imagens/login/btn_entrar.jpg);
+	background-repeat:no-repeat;
+	vertical-align:middle;
+	
+	width:66px;
+	height:24px;
+	border:none;
+}
+
+.campos{
+	font-family: Arial,Calibri, "Trebuchet MS", Arial, sans-serif;
+	font-size:12px;
+	color:#333333;
+	font-weight:bold;
+}
+
+.box{
+	font-family: Arial, Helvetica, sans-serif;
+	color:#333333;
+	font-size:12px;
+	height:18px;
+	border:1px solid #999;
+}
+
+.manter_dados{
+	font-family: Arial, Helvetica, sans-serif;
+	color:#223A16;
+	font-size:10px;
+}
+
+#login{
+	width:			400px;
+	height:			386px;
+	background:		url(levolog/_imagens/login/bg_login.jpg) no-repeat; 	
+}
+</style>
+
+<!-- *********** Fim Estilos *********** -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="/levolog/favicon.ico" rel="shortcut icon" type="image/x-icon"> 
+<title>Sistema KMM</title>
+</head>
+<body>
+<form name="form_login" onkeyup="f_enter(event)" action="" method="post" target="_self">
+<input name="FORCE_DSN" type="hidden" value="LEVOLOG_PRODUCAO">
+<input name="FORCE_SITE" type="hidden" value="levolog/">
+<table align="center" id="login" border="0" cellspacing="0" cellpadding="0">
+  <tbody><tr>
+    <td height="120" align="center">
+    <img width="200" height="80" align="absmiddle" alt="Login" src="levolog/_imagens/login/logo.jpg">
+  </tr>
+  <tr>
+    <td height="180" valign="top"><table width="200" align="center" border="0" cellspacing="3" cellpadding="2">
+      <tbody><tr>
+        <td class="campos">Usuário:</td>
+      </tr>
+      <tr>
+        <td align="left"><input name="USUARIO" class="box" id="USUARIO" style="width: 100%;" type="text"></td>
+      </tr>
+      <tr>
+        <td class="campos">Senha:</td>
+      </tr>
+      <tr>
+        <td align="left"><input name="SENHA" class="box" id="SENHA" style="width: 100%;" type="password"></td>
+      </tr>
+      <tr>
+        <td align="left" class="campos">
+            <label><input name="COD_GESTAO" class="check" type="radio" checked="checked" value="92782">Freto Log</label><br>
+            <label><input name="COD_GESTAO" class="check" type="radio" value="1358961">Levolog Transportes</label><br>
+        </td>
+      </tr>
+      <tr>
+        <td height="10"></td>
+      </tr>
+      <tr>
+        <td align="right" valign="middle"><button title="Entrar" class="btn_entrar" onclick="f_login()" type="button"></button></td>
+        </tr>
+    </tbody></table></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><img width="100" height="33" src="levolog/_imagens/login/logo-kmm.jpg"></td>
+  </tr>
+</tbody></table>
+
+</form>
+	
+
+<script>
+  window.onload = function() { document.forms[0].USUARIO.focus(); }
+</script>
+</body></html>
