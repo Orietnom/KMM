@@ -75,7 +75,22 @@ class KMMActions():
             levolog_lotation=levolog_lotation
         )
         print(f"Filial {value}")
+        self._load_user_profile(user=user, value=value)
 
+    def arcelor_load_user_profie(self, user: str, management: str, center: str):
+        if 'levo' in management.lower().lstrip():
+            if 'mg' in center.lower().lstrip():
+                value = 'LEVO LOG - FILIAL MG'
+            else:
+                value = 'LEVO LOG - MATRIZ SP'
+        else:
+            print("Filial diferente de Levolog")
+            raise "Filial diferente de Levolog"
+
+        self._load_user_profile(user=user, value=value)
+
+
+    def _load_user_profile(self, user, value):
         self.driver.switch_to_frame(principal=False)
         self.driver.select_by_value("id:USUARIO", user)
         self.driver.safe_click("xpath://button[contains(@class, 'botao-16x16')]")
@@ -86,7 +101,35 @@ class KMMActions():
             )
             alert_text = self.driver.accept_alert()
             time.sleep(3)
-        
+
             if not 'lotado com sucesso' in alert_text:
                 print("Falha")
-        
+
+    def _status_cte(self, cte: str, serie: str, driver_name: str) -> bool:
+        self.driver.switch_to_frame(principal=False)
+        self.driver.select_by_visible_text('id:CONHECIMENTO_TIPO_ID', 'Conhecimento de Complemento')
+        self.driver.select_by_visible_text('id:TIPO_COMPLEMENTO_ID', 'CTe de Complemento')
+        self.driver.safe_type('id:NUM_CONHECIMENTO_COMPLEMENTO', cte)
+        self.driver.select_by_value('id:SERIE_COMPLEMENTO', serie)
+        alert = self.driver.wait_alert(5)
+        if alert:
+            return False
+
+        return True
+
+    def emitting_cte(self, cte: str, serie: str, driver_name: str) -> bool:
+        status = self._status_cte(cte, serie, driver_name)
+
+        if not status:
+            raise "CT-e de complemento já gerado"
+
+        self._click_on_negotiation_menu()
+        pass
+
+
+    def _click_on_negotiation_menu(self):
+        aba = self.driver.driver.find_element(self.driver._by('id'), "tbl_abas").find_elements(self.driver._by('tag'), "td")
+        for td in aba:
+            if "Negociação" in td.text:
+                self.driver.execute_js("arguments[0].click();", td)
+                break

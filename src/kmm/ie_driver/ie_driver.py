@@ -244,12 +244,24 @@ class KMMIEDriver:
         print("Fim do método wait")
         return element
 
-    def wait_alert(self, timeout: Optional[int] = None):
-        print("Aguardando alerta aparecer")
+    def wait_frame(self, locator: Locator, timeout: Optional[int] = None):
+        print("Aguardando frame estar disponível")
+        by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
-        element = wait.until(EC.alert_is_present())
+        element = wait.until(EC.frame_to_be_available_and_switch_to_it((self._by(by), value)))
         print("Fim do método wait")
         return element
+
+    def wait_alert(self, timeout: Optional[int] = None) -> Any:
+        print("Aguardando alerta aparecer")
+        wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
+        try:
+            element = wait.until(EC.alert_is_present())
+        except TimeoutException:
+            print("Alerta não apareceu")
+            return False
+        print("Fim do método wait")
+        return element.text
     
     # -----------------------------
     # safe_* com retry curto
@@ -405,13 +417,18 @@ class KMMIEDriver:
 
     def switch_to_frame(self, principal: bool = True, timeout: Optional[int] = None) -> None:
         
-        self.driver.switch_to_default_content()
-        frame = self.wait_present("id:principal", timeout=timeout)
-        self.driver.switch_to.frame(frame)
+        self.driver.switch_to.default_content()
 
+        print("Entrando no frame principal")
+        frame = self.wait_frame(locator='id:principal', timeout=timeout)
+        # frame = self.wait_present("id:principal", timeout=timeout)
+        # self.driver.switch_to.frame(frame)
+        time.sleep(0.2)
         if not principal:
-            frame = self.wait_present("name:iconteudo", timeout=timeout)
-            self.driver.switch_to.frame(frame)
+            print("Entrando no frame iconteudo")
+            frame = self.wait_frame(locator='name:iconteudo', timeout=timeout)
+            # frame = self.wait_present("name:iconteudo", timeout=timeout)
+            # self.driver.switch_to.frame(frame)
 
         print("Sucesso")
 
@@ -448,7 +465,17 @@ class KMMIEDriver:
     def select_by_visible_text(self, locator: Locator, value:str, timeout: Optional[int] = None) -> None:
         print(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
         el = self.wait_present(locator=locator, timeout=timeout)
-        Select(el).select_by_visible_text(value=value)
+        Select(el).select_by_visible_text(text=value)
+
+    #
+    # Execute javascript
+    #
+
+    def execute_js(self, script:str, arguments = None):
+        if arguments:
+            self.driver.execute_script(script, arguments)
+        else:
+            self.driver.execute_script(script)
 
     # -----------------------------
     # Evidências / Diagnóstico

@@ -20,13 +20,14 @@ def main():
         management="fretolog"
     )
     kmm.quick_access(
-        term='lot'
+        term='ectecomp'
     )
-    kmm.belgo_load_user_profile(
-        user=os.getenv("KMM_USER"),
-        management='freto',
-        freto_lotation='sp'
+    kmm.emitting_cte(
+        cte='147928',
+        serie='1',
+        driver_name='LUCAS JOSE ARAUJO AZEVEDO'
     )
+    input('')
     kmm.stop()
     pass
 
