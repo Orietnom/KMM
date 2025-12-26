@@ -9,6 +9,8 @@ from typing import Optional, Tuple, Union, Callable, Any
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
@@ -140,6 +142,7 @@ class KMMIEDriver:
         # IMPORTANTÍSSIMO: não usar implicit wait
         self._driver.implicitly_wait(0)
 
+        self.home_page_id = self._driver.current_window_handle
         return self._driver
 
     def stop(self) -> None:
@@ -185,6 +188,14 @@ class KMMIEDriver:
             return ""
         finally:
             print("Finalizado")
+
+    def close_window(self):
+        print(self.driver.window_handles)
+        for page in self.driver.window_handles:
+            if page != self.home_page_id:
+                self.driver.switch_to.window(page)
+                print(self.driver.title)
+                self.driver.close()
 
     # -----------------------------
     # Locator parser
@@ -261,8 +272,15 @@ class KMMIEDriver:
             print("Alerta não apareceu")
             return False
         print("Fim do método wait")
-        return element.text
-    
+        return element
+
+    def wait_window_by_tile(self, target_title: str, timeout: Optional[int] = None):
+        print(f"Aguardando janela {target_title} aparecer")
+        wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
+
+        element = wait.until(lambda d: any((d.switch_to.window(h) or True) and target_title in (d.title or "").lower()
+        for h in d.window_handles
+        ))
     # -----------------------------
     # safe_* com retry curto
     # -----------------------------
@@ -313,6 +331,7 @@ class KMMIEDriver:
         clear_first: bool = True,
         retries: int = 2,
         backoff_s: float = 0.6,
+        time_between_types: float = None
     ) -> None:
         print(f"Escrevendo texto no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
         def _type():
@@ -320,9 +339,15 @@ class KMMIEDriver:
             if clear_first:
                 try:
                     el.clear()
+                    el.click()
                 except Exception:
                     self.driver.execute_script("arguments[0].value = '';", el)
-            el.send_keys(text)
+            if time_between_types:
+                for char in text:
+                    el.send_keys(char)
+                    time.sleep(time_between_types)
+            else:
+                el.send_keys(text)
             print("Finalizado")
 
         self._with_retry(
@@ -420,25 +445,37 @@ class KMMIEDriver:
         self.driver.switch_to.default_content()
 
         print("Entrando no frame principal")
-        frame = self.wait_frame(locator='id:principal', timeout=timeout)
-        # frame = self.wait_present("id:principal", timeout=timeout)
-        # self.driver.switch_to.frame(frame)
+        self.wait_frame(locator='id:principal', timeout=timeout)
+
         time.sleep(0.2)
         if not principal:
             print("Entrando no frame iconteudo")
-            frame = self.wait_frame(locator='name:iconteudo', timeout=timeout)
-            # frame = self.wait_present("name:iconteudo", timeout=timeout)
-            # self.driver.switch_to.frame(frame)
+            self.wait_frame(locator='name:iconteudo', timeout=timeout)
 
         print("Sucesso")
 
-    def switch_to_window(self, index: int = -1) -> None:
-        print("Trocando para a janela {index}")
-        handles = self.driver.window_handles
-        if not handles:
-            raise RuntimeError("Nenhuma janela disponível para switch.")
-        self.driver.switch_to.window(handles[index])
-        print("Sucesso")
+    def switch_to_window(self, target_title: str = None, timeout: Optional[int] = None, home_window: bool = False) -> bool:
+
+        if home_window:
+            self.driver.switch_to.window(self.home_page_id)
+            return True
+        target = target_title.lower()
+
+        print(f"Pulando para janela => {target_title}")
+
+        try:
+            self.wait_window_by_tile(target_title=target, timeout=timeout)
+        except TimeoutException:
+            print(f"Janela com título contendo '{target_title}' em {timeout}s não encontrada")
+            return False
+
+        for h in self.driver.window_handles:
+            self.driver.switch_to.window(h)
+            if target in (self.driver.title or "").lower():
+                print(f"Janela encontrada e ativada => {self.driver.title}")
+                return True
+
+        return False
     
     def accept_alert(self) -> str:
         print("Aceitando um Alert")
@@ -530,3 +567,26 @@ class KMMIEDriver:
             subprocess.run(["taskkill", "/F", "/IM", "IEDriverServer.exe"], capture_output=True, text=True)
         except Exception:
             pass
+
+    # -----------------------------
+    # Disponibiliza metodos do selenium
+    # -----------------------------
+
+    def __getattr__(self, name: str):
+        """
+        Se alguém chamar kmm.find_element(...), e não existir no wrapper,
+        delega para o self.driver do Selenium.
+        """
+        # Evita loop se driver ainda não iniciou
+        if name == "_driver":
+            raise AttributeError(name)
+
+        drv = object.__getattribute__(self, "_driver")
+        if drv is None:
+            raise AttributeError(
+                f"'{self.__class__.__name__}' não tem '{name}' (e o driver ainda não foi iniciado). "
+                f"Chame start() antes."
+            )
+
+        attr = getattr(drv, name)  # pega do Selenium WebDriver
+        return attr

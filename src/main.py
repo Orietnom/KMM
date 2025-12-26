@@ -17,17 +17,34 @@ def main():
     )
     kmm.login(
         params=params,
-        management="fretolog"
+        management="levo"
     )
-    kmm.quick_access(
-        term='ectecomp'
+
+    kmm.belgo_load_user_profile(
+        user='EMISSAO.AUTOMATICA',
+        management='levo',
+        lotation='mg'
     )
-    kmm.emitting_cte(
-        cte='147928',
+
+    kmm.quick_access('REPOMFRETED')
+    kmm.emitting_contract(
+        contract_value='1',
+        complement_cte='44404',
         serie='1',
-        driver_name='LUCAS JOSE ARAUJO AZEVEDO'
+        submotive='descarga',
+        transport='12341234',
+        liberation_user='FABIANA.HONORATO'
     )
-    input('')
+
+    # kmm.emitting_cte(
+    #     cte='145243',
+    #     serie='1',
+    #     driver_name='givanildo nicacio da silva',
+    #     management='fretolog',
+    #     cte_value=512.41,
+    #     taxes=True
+    # )
+    input('aa')
     kmm.stop()
     pass
 
