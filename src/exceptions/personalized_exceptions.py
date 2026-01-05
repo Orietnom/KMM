@@ -40,6 +40,3 @@ class KMMGetDriverNameError(KMMProcess):
 
 class KMMComplementCTEAlreadyEmitted(KMMProcess):
     pass
-
-class KMMPayementError(KMMProcess):
-    pass

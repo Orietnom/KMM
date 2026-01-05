@@ -126,7 +126,7 @@ class KMMIEDriver:
                     options=options,
                 )
         except TypeError:
-            # fallback para variações de assinatura dependendo do selenium build
+
             if self.config.driver_path:
                 self._driver = webdriver.Ie(
                     self.config.driver_path,

@@ -13,5 +13,5 @@ class VallourecItemProcess(BaseModel):
     recipient: str
     weight: str
 
-class JMNItems(BaseModel):
+class VallourecItems(BaseModel):
     items: List[VallourecItemProcess]

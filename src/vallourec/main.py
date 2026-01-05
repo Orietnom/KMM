@@ -1,12 +1,12 @@
 from kmm.services.kmm_actions import KMMActions, LoginParams
-from kmm.ie_driver.ie_driver import IEDriverConfig
+import exceptions.personalized_exceptions as pe
 from models import VallourecItemProcess
 from dotenv import load_dotenv
 import os
 load_dotenv()
 
 
-class VALLOUREC:
+class Vallourec:
 
     def __init__(self) -> None:
         self.kmm = KMMActions(service='Vallourec')
@@ -42,4 +42,5 @@ class VALLOUREC:
             contract_number=contract_number,
             cod_pessoa_filial=os.getenv("VALLOUREC_COD_PESSOA_FILIAL")
         )
-
+        if not payment:
+            raise pe.KMMPaymentError()

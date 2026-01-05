@@ -466,9 +466,9 @@ class KMMActions:
             contract_value: str,
             complement_cte: str,
             serie:str,
-            submotive: str,
             transport: str,
             liberation_user: str,
+            submotive: str = None,
             control_number: int = 17,
             max_retries: int = 2
     ):
@@ -512,7 +512,8 @@ class KMMActions:
 
                     kmm_pass = password_generate(license_plate=license_plate[-2::], control_number=control_number, p6=False)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
-                    self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
+                    if submotive:
+                        self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
                     time.sleep(3)
                     self.driver.execute_js('f_change_valor_unitario(true);')
 
@@ -563,7 +564,7 @@ class KMMActions:
         except Exception as e:
             raise pe.KMMEmittingContractError(
                 f"Falha ao gerar o contrato. Valor do contrato {contract_value}, cte de complemento {complement_cte} "
-                f"serie {serie} submotivo {submotive}, transporte {transport}, "
+                f"serie {serie}, transporte {transport}, "
             ) from e
 
     def payment(self, contract_number: str, cod_pessoa_filial: str) -> bool:
