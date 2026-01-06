@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from jmendes.kmm_process import process
 from jmendes.models import JMNItemProcess
 from shared.logger import logger
+from db_handler.db_handler import DB
 import exceptions.personalized_exceptions as pe
 load_dotenv()
 
@@ -12,23 +13,27 @@ RABBITMQ_URL = os.getenv("RABBIT_URL")
 QUEUE_NAME = "jmendes"
 
 
-def process_case(case: dict) -> None:
+def process_case() -> None:
 
     try:
-        process(
-            JMNItemProcess(
-                license_plate=case.get('license_plate'),
-                driver_name=case.get('driver_name'),
-                tbe=case.get('tbe'),
-                nature=case.get('nature'),
-                operation=case.get('operation'),
-                route=case.get('route'),
-                card=case.get('card'),
-                sender=case.get('sender'),
-                recipient=case.get('recipient'),
-                weight=case.get('weight')
-            )
+        cases = DB().get_data(
+            table="complementar_jmendes"
         )
+        for case in cases:
+            process(
+                JMNItemProcess(
+                    placa=case.get('PLACA'),
+                    nome_motorista=case.get('NOME_MOTORISTA'),
+                    tbe=case.get('TBE'),
+                    natureza=case.get('NATUREZA'),
+                    operacao=case.get('OPERACAO'),
+                    rota=case.get('ROTA'),
+                    cartao=case.get('CARTAO'),
+                    remetente=case.get('REMETENTE'),
+                    destinatario=case.get('DESTINATARIO'),
+                    peso=case.get('PESO')
+                )
+            )
     except pe.KMMProcess as pe_error:
         logger.exception(pe_error)
     except Exception as e:

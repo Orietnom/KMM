@@ -7,13 +7,13 @@ import os
 load_dotenv()
 
 # Outras classes
-from freto import Freto
+
 # Biliotecas
 import os
 import json
 import time
 import pandas as pd
-from pathlib import Path
+from db_handler.db_handler import DB
 from pipefy_handler import API
 from shared.logger import logger
 import freto_portal
@@ -55,9 +55,25 @@ class Main:
                         logger.info(
                             f"O card de id: {incident['card id']} foi movido para fila \'cte freto\'")
 
-                publisher.rabbit_mq_publisher(
-                    data=incidents,
-                    queue_name="jmendes"
+                df = pd.DataFrame(incidents)
+                df_renamed = df.rename({
+                    "Unidade": "UNIDADE",
+                    "Transporte": "TRANSPORTE",
+                    "Motivo": "MOTIVO",
+                    "Valor a pagar (Contrato)": "VALOR_CONTRATO",
+                    "Valor aprovado emissão (CTe)": "VALOR_CTE",
+                    "Filial": "FILIAL",
+                    "card_id": "CARD_ID",
+                    "motorista": "NOME_MOTORISTA",
+                    "cte_levolog": "CTE_LEVOLOG",
+                    "serie_levolog": "SERIE_LEVOLOG",
+                    "cte_fretolog": "CTE_FRETOLOG",
+                    "serie_fretolog": "SERIE_FRETOLOG"
+                })
+                DB().insert(
+                    table="complementar_arcelor",
+                    df=df_renamed,
+                    unique_keys=["CTE_FRETOLOG"]
                 )
 
             else:

@@ -22,7 +22,7 @@ def get_items(url: str, download_dir: str, file_name: str):
     driver_path = ChromeDriverManager().install()
     driver = webdriver.Chrome(executable_path=driver_path, options=options)
     driver.get(url)
-    flag_download = _wait_file(download_dir, f'{file_name}.xlsx')
+    flag_download = _wait_file(download_dir, f'{file_name}')
     driver.quit()
     return flag_download
 

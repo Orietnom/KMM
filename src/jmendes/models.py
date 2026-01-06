@@ -2,16 +2,16 @@ from typing import Optional, List
 from pydantic import BaseModel
 
 class JMNItemProcess(BaseModel):
-    license_plate: str
-    driver_name: str
+    placa: str
+    nome_motorista: str
     tbe: str
-    nature: str
-    operation: str
-    route: str
-    card: str
-    sender: str
-    recipient: str
-    weight: str
+    natureza: str
+    operacao: str
+    rota: str
+    cartao: str
+    remetente: str
+    destinatario: str
+    peso: str
 
 class JMNItems(BaseModel):
     items: List[JMNItemProcess]
