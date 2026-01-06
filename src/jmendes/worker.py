@@ -22,16 +22,16 @@ def process_case() -> None:
         for case in cases:
             process(
                 JMNItemProcess(
-                    placa=case.get('PLACA'),
-                    nome_motorista=case.get('NOME_MOTORISTA'),
+                    license_plate=case.get('PLACA'),
+                    driver_name=case.get('NOME_MOTORISTA'),
                     tbe=case.get('TBE'),
-                    natureza=case.get('NATUREZA'),
-                    operacao=case.get('OPERACAO'),
-                    rota=case.get('ROTA'),
-                    cartao=case.get('CARTAO'),
-                    remetente=case.get('REMETENTE'),
-                    destinatario=case.get('DESTINATARIO'),
-                    peso=case.get('PESO')
+                    nature=case.get('NATUREZA'),
+                    operation=case.get('OPERACAO'),
+                    route=case.get('ROTA'),
+                    card=case.get('CARTAO'),
+                    sender=case.get('REMETENTE'),
+                    recipient=case.get('DESTINATARIO'),
+                    weight=case.get('PESO')
                 )
             )
     except pe.KMMProcess as pe_error:

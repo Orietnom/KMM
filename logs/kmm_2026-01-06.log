@@ -97,3 +97,152 @@ Traceback (most recent call last):
                       └ "Missing optional dependency 'openpyxl'.  Use pip or conda to install openpyxl."
 
 ImportError: Missing optional dependency 'openpyxl'.  Use pip or conda to install openpyxl.
+2026-01-06 17:02:02 | INFO | freto_portal:login | Login no portal freto | {}
+2026-01-06 17:02:02 | ERROR | freto_portal:login | Falha ao logar. Erro -> Message: invalid argument: 'url' must be a string
+  (Session info: chrome=143.0.7499.170)
+ | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x00000246563BEB90>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 58958, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x00000246563BDB40>
+              └ <__main__.PyDB object at 0x0000024652F56140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\arcelor\\publisher.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x00000246563BDBD0>
+           └ <__main__.PyDB object at 0x0000024652F56140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\arcelor\\publisher.py'
+    │             └ <function execfile at 0x00000246560C1000>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\arcelor\\publisher.py'
+                 └ 'import pandas as pd\nfrom dotenv import load_dotenv\nfrom shared import sharepoint\nfrom rabbitmq import publisher\nimport o...
+
+  File "L:\ergon\dev\Freto\KMM\src\arcelor\publisher.py", line 19, in <module>
+    import freto_portal
+
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+
+  File "L:\ergon\dev\Freto\KMM\src\arcelor\freto_portal.py", line 257, in <module>
+    run([{
+    └ <function run at 0x00000246785FE950>
+
+  File "L:\ergon\dev\Freto\KMM\src\arcelor\freto_portal.py", line 245, in run
+    login_status = login()
+                   └ <function login at 0x00000246785FE7A0>
+
+> File "L:\ergon\dev\Freto\KMM\src\arcelor\freto_portal.py", line 24, in login
+    driver.get(os.getenv("FRETO_PORTAL_URL"))
+    │      │   │  └ <function getenv at 0x00000246530E8820>
+    │      │   └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
+    │      └ <function WebDriver.get at 0x00000246766B89D0>
+    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0f10f4dae0e1dadb558c5bae8951a4d6")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 333, in get
+    self.execute(Command.GET, {'url': url})
+    │    │       │       │            └ None
+    │    │       │       └ 'get'
+    │    │       └ <class 'selenium.webdriver.remote.command.Command'>
+    │    └ <function WebDriver.execute at 0x00000246766B8940>
+    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0f10f4dae0e1dadb558c5bae8951a4d6")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 321, in execute
+    self.error_handler.check_response(response)
+    │    │             │              └ {'status': 400, 'value': '{"value":{"error":"invalid argument","message":"invalid argument: \'url\' must be a string\\n  (Ses...
+    │    │             └ <function ErrorHandler.check_response at 0x00000246766A9D80>
+    │    └ <selenium.webdriver.remote.errorhandler.ErrorHandler object at 0x00000246530FFC40>
+    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0f10f4dae0e1dadb558c5bae8951a4d6")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 242, in check_response
+    raise exception_class(message, screen, stacktrace)
+          │               │        │       └ None
+          │               │        └ None
+          │               └ "invalid argument: 'url' must be a string\n  (Session info: chrome=143.0.7499.170)"
+          └ <class 'selenium.common.exceptions.InvalidArgumentException'>
+
+selenium.common.exceptions.InvalidArgumentException: Message: invalid argument: 'url' must be a string
+  (Session info: chrome=143.0.7499.170)
+
+2026-01-06 17:02:02 | ERROR | freto_portal:run | Erro => Falha no login | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x00000246563BEB90>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 58958, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x00000246563BDB40>
+              └ <__main__.PyDB object at 0x0000024652F56140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\arcelor\\publisher.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x00000246563BDBD0>
+           └ <__main__.PyDB object at 0x0000024652F56140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\arcelor\\publisher.py'
+    │             └ <function execfile at 0x00000246560C1000>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\arcelor\\publisher.py'
+                 └ 'import pandas as pd\nfrom dotenv import load_dotenv\nfrom shared import sharepoint\nfrom rabbitmq import publisher\nimport o...
+
+  File "L:\ergon\dev\Freto\KMM\src\arcelor\publisher.py", line 19, in <module>
+    import freto_portal
+
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+
+  File "L:\ergon\dev\Freto\KMM\src\arcelor\freto_portal.py", line 257, in <module>
+    run([{
+    └ <function run at 0x00000246785FE950>
+
+> File "L:\ergon\dev\Freto\KMM\src\arcelor\freto_portal.py", line 247, in run
+    raise Exception("Falha no login")
+
+Exception: Falha no login

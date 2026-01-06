@@ -29,6 +29,10 @@ class Main:
 
     def run(self):
         try:
+            if not self.incidents:
+                logger.error("Sem casos")
+                return False
+
             incidents = freto_portal.run(
                 incidents=self.incidents
             )
