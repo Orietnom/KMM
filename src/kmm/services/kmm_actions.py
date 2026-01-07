@@ -388,34 +388,46 @@ class KMMActions:
                     self.quick_access('REPOMFRETEA')
 
                     self.driver.switch_to_frame(principal=False)
+
+                    self.driver.safe_type('id:NUM_NATUREZA', nature)
+                    self.driver.execute_js('f_busca_natureza();')
+                    self.driver.safe_type('id:OPERACAO_ID', operation)
+                    self.driver.execute_js('f_busca_operacao();')
+                    self.driver.safe_type('id:ROTA_ID', route)
+                    self.driver.execute_js('f_busca_rota();')
+                    self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
+
+                    self.driver.select_by_value('id:UTILIZA_VALE_PEDAGIO', '0')
+                    self.driver.safe_type('id:CARTAO_NUMERO', card)
+                    self.driver.execute_js('f_muda_cartao();')
                     self.driver.safe_type('id:PLACA_CONTROLE', license_plate)
+                    self.driver.execute_js('f_busca_dado_veiculo();')
 
                     kmm_driver_name = self._get_driver_name()
-
                     if not kmm_driver_name:
                         raise pe.KMMGetDriverNameError("Falha ao obter o nome do motorista")
 
                     if kmm_driver_name != driver_name.lower().lstrip():
                         raise Exception("Divergência no nome do motorista")
 
-                    self.driver.safe_type('id:NUM_NATUREZA', nature)
-                    self.driver.safe_type('id:OPERACAO_ID', operation)
-                    self.driver.safe_type('id:ROTA_ID', route)
-
-                    self.driver.select_by_value('id:UTILIZA_VALE_PEDAGIO', '0')
-                    self.driver.safe_type('id:CARTAO_NUMERO', card)
                     self.driver.safe_type('id:REM_CNPJ', sender)
+                    self.driver.execute_js('f_busca_pessoa("COD_REMETENTE", "REM");')
                     self.driver.safe_type('id:DEST_CNPJ', recipient)
+                    self.driver.execute_js('f_busca_pessoa("COD_DESTINATARIO", "DEST");')
 
                     if contract_value is not None:
                         time.sleep(15)
                         self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
                         self.driver.safe_type('id:PESO', '1')
+                        self.driver.execute_js('f_calcula_peso_ton();')
                         self.driver.safe_type('id:VOLUME', '1')
+                        self.driver.execute_js('f_calcula_peso_ton();')
 
                     if weight is not None:
                         self.driver.safe_type('id:PESO', weight)
+                        self.driver.execute_js('f_calcula_peso_ton();')
                         self.driver.safe_type('id:VOLUME', weight)
+                        self.driver.execute_js('f_calcula_peso_ton();')
 
                     self.driver.select_by_value('id:CON_UNIDADE_COMBO', 'Kg')
 

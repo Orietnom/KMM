@@ -253,19 +253,3 @@ def run(incidents):
     except Exception as e:
         logger.exception(f"Erro => {str(e)}")
         return []
-
-run([{
-  "Unidade": "Juiz de Fora",
-  "Transporte": 6102323416,
-  "Motivo": "Diária",
-  "Valor a pagar (Contrato)": 857.86,
-  "Valor aprovado emissão (CTe)": 1043.33,
-  "Filial": "FRETO LOG - MG",
-  "Série CTe": 1,
-  "card id": 123,
-  "motorista": "LEANDRO RODRIGUES",
-  "cte_levolog": 26120,
-  "serie_levolog": 1,
-  "cte_fretolog": 126290,
-  "serie_fretolog": 1
-}])

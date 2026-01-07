@@ -1,12 +1,15 @@
+from sqlalchemy import column
+
 from kmm.services.kmm_actions import KMMActions, LoginParams
 from models import JMNItemProcess
 from dotenv import load_dotenv
+from shared.db_handler.db_handler import DB
 import os
 import exceptions.personalized_exceptions as pe
 load_dotenv()
 
 def process(queue_item: JMNItemProcess):
-    
+    db = DB()
     with KMMActions(service='JMendes') as kmm:
         kmm.login(
             LoginParams(

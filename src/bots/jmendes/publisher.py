@@ -2,8 +2,8 @@ import pandas as pd
 from dotenv import load_dotenv
 from shared import sharepoint
 from shared.logger import logger
-from rabbitmq import publisher
-from db_handler.db_handler import DB
+
+from shared.db_handler.db_handler import DB
 import os
 
 load_dotenv()
@@ -19,7 +19,8 @@ def run():
 
         if ok:
             full_file_path = os.path.join(download_dir, os.getenv("JMN_EXCEL_FILE_NAME"))
-            df = pd.read_excel(full_file_path, sheet_name=os.getenv("JMN_EXCEL_SHEET_NAME"))
+            df = pd.read_excel(full_file_path, sheet_name=os.getenv("JMN_EXCEL_SHEET_NAME"), dtype="string")
+            df = df = df.drop(columns=["Data"], errors="ignore")
             df_renamed = df.rename(columns={
                 "TB-e": "TBE",
                 "Cartão": "CARTAO",
@@ -36,8 +37,10 @@ def run():
                 "Situação Final": "STATUS_"
             })
             df_renamed = df_renamed.dropna(subset=["TBE"])
+            df_renamed['STATUS_'] = "Pendente"
             if not df_renamed.empty:
-                DB().insert(
+                db = DB()
+                db.insert_ignore_df(
                     table="complementar_jmendes",
                     df=df_renamed,
                     unique_keys=["TBE"]

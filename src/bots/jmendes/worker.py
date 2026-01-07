@@ -2,10 +2,10 @@ import json
 import pika
 import os
 from dotenv import load_dotenv
-from jmendes.kmm_process import process
-from jmendes.models import JMNItemProcess
-from shared.logger import logger
-from db_handler.db_handler import DB
+from src.bots.jmendes.kmm_process import process
+from src.bots.jmendes.models import JMNItemProcess
+from src.shared.logger import logger
+from src.shared.db_handler.db_handler import DB
 import exceptions.personalized_exceptions as pe
 load_dotenv()
 
@@ -16,10 +16,22 @@ QUEUE_NAME = "jmendes"
 def process_case() -> None:
 
     try:
-        cases = DB().get_data(
+        db = DB()
+        cases = db.get_data(
             table="complementar_jmendes"
         )
-        for case in cases:
+    except Exception as e:
+        logger.exception("Falha não mapeada")
+        return False
+
+    for case in cases:
+        try:
+            db.update(
+                table='complementar_jmendes',
+                column='STATUS_',
+                value='Processando',
+                id=case["ID"]
+            )
             process(
                 JMNItemProcess(
                     license_plate=case.get('PLACA'),
@@ -31,13 +43,27 @@ def process_case() -> None:
                     card=case.get('CARTAO'),
                     sender=case.get('REMETENTE'),
                     recipient=case.get('DESTINATARIO'),
-                    weight=case.get('PESO')
+                    weight=case.get('PESO'),
+                    bd_id=case.get("ID")
                 )
             )
-    except pe.KMMProcess as pe_error:
-        logger.exception(pe_error)
-    except Exception as e:
-        logger.exception(f"Falha não mapeada. Erro {str(e)}")
+        except pe.KMMProcess as pe_error:
+            retry = case['RETENTATIVA'] + 1
+            db.update(
+                table='complementar_jmendes',
+                column='STATUS_',
+                value='Falha no KMM',
+                id=case["ID"]
+            )
+            db.update(
+                table='complementar_jmendes',
+                column='RETENTATIVA',
+                value=retry,
+                id=case["ID"]
+            )
+            logger.exception(pe_error)
+        except Exception as e:
+            logger.exception(f"Falha não mapeada. Erro {str(e)}")
 
 def main() -> None:
     params = pika.URLParameters(RABBITMQ_URL)
@@ -77,4 +103,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    process_case()

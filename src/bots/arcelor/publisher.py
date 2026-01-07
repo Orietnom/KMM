@@ -1,7 +1,7 @@
 import pandas as pd
 from dotenv import load_dotenv
 from shared import sharepoint
-from rabbitmq import publisher
+from shared.rabbitmq import publisher
 import os
 
 load_dotenv()
@@ -13,7 +13,7 @@ import os
 import json
 import time
 import pandas as pd
-from db_handler.db_handler import DB
+from shared.db_handler.db_handler import DB
 from pipefy_handler import API
 from shared.logger import logger
 import freto_portal

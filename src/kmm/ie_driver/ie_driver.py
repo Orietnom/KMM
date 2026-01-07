@@ -3,14 +3,14 @@ from __future__ import annotations
 import time
 import uuid
 import subprocess
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple, Union, Callable, Any
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
+from exceptions.personalized_exceptions import HardTimeoutError
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
@@ -36,7 +36,7 @@ load_dotenv(dotenv_path=r"src\.env")
 @dataclass(frozen=True)
 class IEDriverConfig:
     # Caminho opcional do IEDriverServer.exe; se None, usa o PATH
-    driver_path: Optional[str] = None
+    driver_path: Optional[str] = r"C:\IEDriverServer.exe"
 
     # Timeouts (segundos)
     page_load_timeout: int = 60
@@ -59,6 +59,9 @@ class IEDriverConfig:
     # Mata processos no stop() se necessário
     kill_processes_on_stop: bool = True
 
+    # Timeouts caso a ação venha a travar
+    hard_timeout: int = 300
+
 
 Locator = Union[str, Tuple[str, str]]  # "id:foo" ou ("id", "foo")
 
@@ -80,6 +83,10 @@ class KMMIEDriver:
 
         # Garante pasta de evidências
         Path(self.config.evidence_dir).mkdir(parents=True, exist_ok=True)
+
+        # Adiciona os timeouts de precaução
+        self._hard_timeout_fired = False
+        self._watchdog_lock = threading.Lock()
 
     # -----------------------------
     # Ciclo de vida
@@ -165,6 +172,47 @@ class KMMIEDriver:
         driver = self.start()
         print("Finalizado")
         return driver
+
+    def _start_watchdog(self, seconds: int, label: str):
+        """
+        Dispara um Timer que, ao estourar, tenta derrubar o IE/Driver para destravar chamadas travadas.
+        Retorna (timer, fired_event).
+        """
+        fired = threading.Event()
+
+        def _boom():
+            # marca que explodiu
+            fired.set()
+            self._hard_timeout_fired = True
+
+            # tenta evidências (pode falhar se estiver travado)
+            try:
+                self.dump_state(f"hard_timeout_{label}")
+            except Exception:
+                pass
+
+            # tenta quit e depois mata processos (modo “sem misericórdia”)
+            try:
+                if self._driver:
+                    try:
+                        self._driver.quit()
+                    except Exception:
+                        pass
+            finally:
+                if self.config.kill_processes_on_stop:
+                    self._kill_ie_processes()
+
+        t = threading.Timer(seconds, _boom)
+        t.daemon = True
+        t.start()
+        return t, fired
+
+    @staticmethod
+    def _cancel_watchdog(timer: threading.Timer):
+        try:
+            timer.cancel()
+        except Exception:
+            pass
 
     # -----------------------------
     # Navegação / básicos
@@ -304,7 +352,7 @@ class KMMIEDriver:
         use_js_fallback: bool = True,
     ) -> None:
         print(f"Clicado no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
-        
+
         self._with_retry(
             fn=lambda: self._click_once(locator, timeout, use_js_fallback),
             retries=retries,
@@ -378,7 +426,7 @@ class KMMIEDriver:
         )
 
     def safe_get_attribute(
-            self, 
+            self,
             locator: Locator,
             attribute: str,
             timeout: Optional[int] = None,
@@ -390,7 +438,7 @@ class KMMIEDriver:
             el = self.wait_present(locator=locator, timeout=timeout)
             print("Finalizado")
             return (el.get_attribute(attribute))
-        
+
         return self._with_retry(
             fn=_get,
             retries=retries,
@@ -412,15 +460,19 @@ class KMMIEDriver:
         fn: Callable[[], Any],
         on_fail_label: str,
         retries: int = 3,
-        backoff_s: float = 1,
+        backoff_s: float = 1
     ):
         last_exc = None
         for attempt in range(retries + 1):
+            timer = None
+            fired = None
             try:
                 print(f"Tentativa {attempt + 1}")
+
                 return fn()
             except (StaleElementReferenceException, WebDriverException, TimeoutException, NoSuchElementException) as e:
                 last_exc = e
+
                 if attempt < retries:
                     time.sleep(backoff_s * (attempt + 1))
                     continue
@@ -441,7 +493,7 @@ class KMMIEDriver:
         print("Sucesso")
 
     def switch_to_frame(self, principal: bool = True, timeout: Optional[int] = None) -> None:
-        
+
         self.driver.switch_to.default_content()
 
         print("Entrando no frame principal")
@@ -476,7 +528,7 @@ class KMMIEDriver:
                 return True
 
         return False
-    
+
     def accept_alert(self) -> str:
         print("Aceitando um Alert")
         alert = self.wait_alert()
@@ -498,7 +550,7 @@ class KMMIEDriver:
         print(f"Selecionando por index {index} no locator {locator} com timeout de {timeout}")
         el = self.wait_present(locator=locator, timeout=timeout)
         Select(el).select_by_index(index=index)
-    
+
     def select_by_visible_text(self, locator: Locator, value:str, timeout: Optional[int] = None) -> None:
         print(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
         el = self.wait_present(locator=locator, timeout=timeout)
