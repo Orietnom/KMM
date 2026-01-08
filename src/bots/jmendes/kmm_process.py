@@ -18,7 +18,12 @@ def process(queue_item: JMNItemProcess):
                 password= os.getenv('KMM_JMN_PASSWORD')
             )
         )
-    
+
+        kmm.jmendes_load_user_profile(
+            user=os.getenv("KMM_JMN_USERNAME"),
+            center='mg'
+        )
+
         contract_number = kmm.emitting_contract_repomfretea(
             license_plate=queue_item.license_plate,
             driver_name=queue_item.driver_name,

@@ -4,7 +4,9 @@ import time
 import uuid
 import subprocess
 import threading
+import os
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple, Union, Callable, Any
 
@@ -28,7 +30,7 @@ from selenium.common.exceptions import (
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=r"src\.env")
+load_dotenv()
 # -----------------------------
 # Configs / Tipos
 # -----------------------------
@@ -60,33 +62,94 @@ class IEDriverConfig:
     kill_processes_on_stop: bool = True
 
     # Timeouts caso a ação venha a travar
-    hard_timeout: int = 300
+    hard_timeout: int = int(os.getenv("KMM_HARD_TIMEOUT")) or 300
+    hard_grace: int = 5
 
 
 Locator = Union[str, Tuple[str, str]]  # "id:foo" ou ("id", "foo")
 
 
 class KMMIEDriver:
-    """
-    Wrapper “anti-caos” para Selenium + Internet Explorer.
+    _HARD_WRAP = {
+        "open", "refresh",
+        "wait_visible", "wait_present", "wait_clickable", "wait_frame", "wait_alert", "wait_window_by_tile",
+        "safe_find", "safe_click", "safe_type", "safe_get_text", "safe_get_attribute",
+        "select_by_value", "select_by_index", "select_by_visible_text",
+        "switch_to_frame", "switch_to_window", "accept_alert",
+        "execute_js",
+        "stop", "close_window", "start", "restart",
+    }
 
-    Regras:
-      - Sem implicit wait (IE fica zumbi com isso)
-      - Waits explícitos via WebDriverWait
-      - safe_* com retry curto
-      - dump_state para evidências
-    """
+    # métodos que NUNCA devem ser embrulhados
+    _NO_WRAP = {
+        "__getattribute__", "__getattr__", "_call_with_watchdog",
+        "_kill_ie_processes", "dump_state",
+        "_parse_locator", "_by", "_with_retry", "_click_once",
+        "driver",
+    }
 
     def __init__(self, config: Optional[IEDriverConfig] = None):
         self.config = config or IEDriverConfig()
         self._driver: Optional[WebDriver] = None
-
-        # Garante pasta de evidências
         Path(self.config.evidence_dir).mkdir(parents=True, exist_ok=True)
 
-        # Adiciona os timeouts de precaução
-        self._hard_timeout_fired = False
-        self._watchdog_lock = threading.Lock()
+    def __getattribute__(self, name: str):
+        attr = object.__getattribute__(self, name)
+
+        # não embrulhar métodos internos / mágicos
+        if name.startswith("_") or name in object.__getattribute__(self, "_NO_WRAP"):
+            return attr
+
+        hard_wrap = object.__getattribute__(self, "_HARD_WRAP")
+        if callable(attr) and name in hard_wrap:
+            def wrapped(*args, **kwargs):
+                return object.__getattribute__(self, "_call_with_watchdog")(name, attr, *args, **kwargs)
+            return wrapped
+
+        return attr
+
+    def _call_with_watchdog(self, label: str, fn, *args, **kwargs):
+        """
+        Executa fn em outra thread e espera no máximo hard_timeout.
+        Se estourar, mata IE/IEDriverServer e levanta HardTimeoutError.
+
+        Observação: thread não é interrompida. O que destrava é matar os processos.
+        """
+
+        ht = int(getattr(self.config, "hard_timeout", 300))
+        grace = int(getattr(self.config, "hard_grace", 5))
+        timeout_total = ht + grace
+
+        result_box = {"value": None, "exc": None}
+
+        def runner():
+            try:
+                result_box["value"] = fn(*args, **kwargs)
+            except Exception as e:
+                result_box["exc"] = e
+
+        t = threading.Thread(target=runner, daemon=True)
+        t.start()
+
+        # Espera "hard timeout"
+        t.join(timeout_total)
+        print(f"Inicio {datetime.now().time()}")
+
+        # Se ainda estiver rodando, consideramos travado
+        if t.is_alive():
+            # tenta evidência
+            try:
+                self.dump_state(f"hard_timeout_{label}")
+            except Exception:
+                pass
+            self._kill_ie_processes()
+            raise HardTimeoutError(f"Hard timeout em {label} ({timeout_total}s)")
+
+        # Se terminou, ou retornou valor, ou lançou exceção
+        if result_box["exc"] is not None:
+            raise result_box["exc"]
+
+        return result_box["value"]
 
     # -----------------------------
     # Ciclo de vida
@@ -101,7 +164,6 @@ class KMMIEDriver:
     def start(self) -> WebDriver:
         if self._driver:
             return self._driver
-
         caps = DesiredCapabilities.INTERNETEXPLORER.copy()
         caps["pageLoadStrategy"] = self.config.page_load_strategy
         caps["ignoreProtectedModeSettings"] = True

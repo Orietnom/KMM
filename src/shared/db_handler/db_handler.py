@@ -100,14 +100,15 @@ class DB:
         return result.rowcount
 
     def update(self, value: Any, column: str, table: str, id: int):
+        now = datetime.now()
         stmt = text(f"""
             UPDATE Ergondata_Robo.dbo.{table}
-            SET {column} = :value
+            SET {column} = :value, ATUALIZADO_EM = :data
             WHERE ID = :id
         """)
 
         with self.engine.begin() as conn:
-            conn.execute(stmt, {"value": value, "id": id})
+            conn.execute(stmt, {"value": value, "data": now, "id": id})
 
     def close(self):
         self.engine.dispose()

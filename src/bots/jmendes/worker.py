@@ -21,17 +21,19 @@ def process_case() -> None:
             table="complementar_jmendes"
         )
     except Exception as e:
-        logger.exception("Falha não mapeada")
+        logger.exception("Falha ao obter os casos do banco de dados")
         return False
 
     for case in cases:
         try:
+            retry = case['RETENTATIVA'] + 1
             db.update(
                 table='complementar_jmendes',
                 column='STATUS_',
                 value='Processando',
                 id=case["ID"]
             )
+
             process(
                 JMNItemProcess(
                     license_plate=case.get('PLACA'),
@@ -47,8 +49,14 @@ def process_case() -> None:
                     bd_id=case.get("ID")
                 )
             )
+            db.update(
+                table='complementar_jmendes',
+                column='STATUS_',
+                value='OK',
+                id=case["ID"]
+            )
         except pe.KMMProcess as pe_error:
-            retry = case['RETENTATIVA'] + 1
+
             db.update(
                 table='complementar_jmendes',
                 column='STATUS_',
@@ -62,8 +70,34 @@ def process_case() -> None:
                 id=case["ID"]
             )
             logger.exception(pe_error)
+        except RuntimeError as re:
+            db.update(
+                table='complementar_jmendes',
+                column='STATUS_',
+                value='Falha de lentidão KMM',
+                id=case["ID"]
+            )
+            db.update(
+                table='complementar_jmendes',
+                column='RETENTATIVA',
+                value=retry,
+                id=case["ID"]
+            )
+            logger.exception(re)
         except Exception as e:
             logger.exception(f"Falha não mapeada. Erro {str(e)}")
+            db.update(
+                table='complementar_jmendes',
+                column='STATUS_',
+                value='Falha no KMM não mapeada',
+                id=case["ID"]
+            )
+            db.update(
+                table='complementar_jmendes',
+                column='RETENTATIVA',
+                value=retry,
+                id=case["ID"]
+            )
 
 def main() -> None:
     params = pika.URLParameters(RABBITMQ_URL)

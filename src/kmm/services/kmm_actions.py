@@ -115,11 +115,19 @@ class KMMActions:
                 f"Falha ao realizar lotação para o usuário {user} filial {management}"
             ) from e
 
+    def jmendes_load_user_profile(self, user: str, center:str):
+        if 'matriz' in center.lower():
+            value = 'FRETO LOG - MATRIZ'
+        else:
+            value = 'FRETO LOG - MG'
+
+        self._load_user_profile(user, value)
 
     def _load_user_profile(self, user, value):
         try:
+            self.quick_access('lot')
             self.driver.switch_to_frame(principal=False)
-            self.driver.select_by_value("id:USUARIO", user)
+            self.driver.select_by_value("id:USUARIO", user.upper())
             self.driver.safe_click("xpath://button[contains(@class, 'botao-16x16')]")
             user_lotation = self.driver.safe_get_attribute(locator=f"xpath://tr[td[normalize-space()='{value}']]", attribute='class')
             if not 'destaque' in user_lotation:
@@ -429,11 +437,14 @@ class KMMActions:
                         self.driver.safe_type('id:VOLUME', weight)
                         self.driver.execute_js('f_calcula_peso_ton();')
 
-                    self.driver.select_by_value('id:CON_UNIDADE_COMBO', 'Kg')
+                    self.driver.safe_click('id:COD_UNIDADE_COMBO')
+                    self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
 
-                    self.driver.safe_type('id:USUARIO_LIBERACAO', liberation_user)
+                    self.driver.safe_click('id:USUARIO_LIBERACAO')
+                    self.driver.select_by_value('id:USUARIO_LIBERACAO', liberation_user)
 
-                    kmm_pass = password_generate(license_plate=license_plate, control_number=control_number)
+                    lp = license_plate[-2::]
+                    kmm_pass = password_generate(license_plate=lp, control_number=control_number)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     self.driver.safe_type('id:OBSERVACAO', '.')
                     self.driver.safe_click('id:btn_confirmar')
@@ -448,7 +459,7 @@ class KMMActions:
 
                     contract_window = self._find_contract_number_window_handle()
                     if not contract_window:
-                        self.driver.refresh()
+                        self.quick_access(term="REPOMFRETED")
                         continue
 
                     self.driver.switch_to_frame(principal=False)
@@ -460,9 +471,8 @@ class KMMActions:
                 except Exception as e:
                     if attempt == max_retries:
                         raise
-                    self.log.error(f"Falha ao gerar o contrato, tentando novamente. Erro => {str(e)}")
+                    self.log.exception(f"Falha ao gerar o contrato, tentando novamente. Erro => {str(e)}")
                     self.driver.switch_to_window(home_window=True)
-                    self.driver.refresh()
                     self.quick_access(term="REPOMFRETED")
 
         except pe.KMMProcess:
@@ -499,11 +509,18 @@ class KMMActions:
 
 
                     self.driver.select_by_value('id:TIPO_DIARIA', '1')
+                    self.driver.execute_js('f_muda_tipo_diaria();')
                     self.driver.safe_type("id:DIARIA_NUM_CTRC", complement_cte)
+                    self.driver.execute_js('f_busca_ctrc_valor();')
                     self.driver.select_by_value('id:CTRC_DIARIA_SERIE', serie)
                     self.driver.safe_type("id:ROTA_ID", '15')
                     self.driver.execute_js('f_busca_rota()')
+                    self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
                     self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
+                    self.driver.execute_js("""
+                        f_change_valor_unitario(true)
+                        return f_formata_numero_decimal(this,event)
+                    """)
                     self.log.info(f"Valor do contrato => {contract_value}")
 
                     time.sleep(5)
@@ -526,6 +543,7 @@ class KMMActions:
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     if submotive:
                         self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
+
                     time.sleep(3)
                     self.driver.execute_js('f_change_valor_unitario(true);')
 
