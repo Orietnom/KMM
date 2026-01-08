@@ -22,11 +22,11 @@ def get_items(url: str, download_dir: str, file_name: str):
     driver_path = ChromeDriverManager().install()
     driver = webdriver.Chrome(executable_path=driver_path, options=options)
     driver.get(url)
-    flag_download = _wait_file(download_dir, f'{file_name}')
+    flag_download = wait_file(download_dir, f'{file_name}')
     driver.quit()
     return flag_download
 
-def _wait_file(download_dir: str, file_name: str):
+def wait_file(download_dir: str, file_name: str):
     excel_dir = Path(download_dir).joinpath(file_name)
     for i in range(120):
         if excel_dir.is_file():

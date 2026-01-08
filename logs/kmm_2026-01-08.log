@@ -1977,3 +1977,706 @@ Traceback (most recent call last):
 
 NameError: name 'browser_lib' is not defined
 2026-01-08 14:15:59 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 14:38:02 | ERROR | __main__:run | Erro na obtenção dos dados da NF. ERRO: expected string or bytes-like object | {}
+Traceback (most recent call last):
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\mechanize\_mechanize.py", line 266, in _mech_open
+    url.get_full_url
+    └ None
+
+AttributeError: 'NoneType' object has no attribute 'get_full_url'
+
+
+During handling of the above exception, another exception occurred:
+
+
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x0000025CA824A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 59092, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x0000025CA82491B0>
+              └ <__main__.PyDB object at 0x0000025CA4EC6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x0000025CA8249240>
+           └ <__main__.PyDB object at 0x0000025CA4EC6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x0000025CA7762B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom selenium.webdriver.chrome.opt...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 681, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 663, in run
+    self.config()
+    │    └ <function BelgoPortal.config at 0x0000025CA8A1CD30>
+    └ <__main__.BelgoPortal object at 0x0000025CA899EA40>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 54, in config
+    self.br.open(os.getenv("BBA_PORTAL_LOGIN_URL"))
+    │    │  │    │  └ <function getenv at 0x0000025CA5050AF0>
+    │    │  │    └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
+    │    │  └ <function Browser.open at 0x0000025CA8A25FC0>
+    │    └ <mechanize._mechanize.Browser object at 0x0000025CA899C9D0>
+    └ <__main__.BelgoPortal object at 0x0000025CA899EA40>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\mechanize\_mechanize.py", line 257, in open
+    return self._mech_open(url_or_request, data, timeout=timeout)
+           │    │          │               │             └ <object object at 0x0000025CA4F48790>
+           │    │          │               └ None
+           │    │          └ None
+           │    └ <function Browser._mech_open at 0x0000025CA8A26050>
+           └ <mechanize._mechanize.Browser object at 0x0000025CA899C9D0>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\mechanize\_mechanize.py", line 269, in _mech_open
+    scheme, authority = _rfc3986.urlsplit(url)[:2]
+                        │        │        └ None
+                        │        └ <function urlsplit at 0x0000025CA898F490>
+                        └ <module 'mechanize._rfc3986' from 'L:\\ergon\\dev\\Freto\\KMM\\.venv\\lib\\site-packages\\mechanize\\_rfc3986.py'>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\mechanize\_rfc3986.py", line 78, in urlsplit
+    match = SPLIT_MATCH(absolute_uri)
+            │           └ None
+            └ <built-in method match of re.Pattern object at 0x0000025CA5AEEE60>
+
+TypeError: expected string or bytes-like object
+2026-01-08 14:40:22 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 14:40:26 | INFO | __main__:access | Realizando login | {}
+2026-01-08 14:40:26 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 14:40:26 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 14:40:26 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 14:40:41 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 14:40:41 | ERROR | __main__:run | Erro na obtenção dos dados da NF. ERRO: ('Connection aborted.', ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)) | {}
+Traceback (most recent call last):
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 715, in urlopen
+    httplib_response = self._make_request(
+                       │    └ <function HTTPConnectionPool._make_request at 0x000001E79CE5FBE0>
+                       └ <urllib3.connectionpool.HTTPConnectionPool object at 0x000001E79D3B9C90>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 467, in _make_request
+    six.raise_from(e, None)
+    │   └ <function raise_from at 0x000001E79CDCC700>
+    └ <module 'urllib3.packages.six' from 'L:\\ergon\\dev\\Freto\\KMM\\.venv\\lib\\site-packages\\urllib3\\packages\\six.py'>
+
+  File "<string>", line 3, in raise_from
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 462, in _make_request
+    httplib_response = conn.getresponse()
+                       │    └ <function HTTPConnection.getresponse at 0x000001E79BF82290>
+                       └ <urllib3.connection.HTTPConnection object at 0x000001E79D4C1270>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\http\client.py", line 1375, in getresponse
+    response.begin()
+    │        └ <function HTTPResponse.begin at 0x000001E79BF80670>
+    └ <http.client.HTTPResponse object at 0x000001E79E750190>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\http\client.py", line 318, in begin
+    version, status, reason = self._read_status()
+                              │    └ <function HTTPResponse._read_status at 0x000001E79BF805E0>
+                              └ <http.client.HTTPResponse object at 0x000001E79E750190>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\http\client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               │    │           └ 65536
+               │    └ None
+               └ <http.client.HTTPResponse object at 0x000001E79E750190>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           │    │               └ <memory at 0x000001E79D5AC7C0>
+           │    └ None
+           └ <socket.SocketIO object at 0x000001E79E751360>
+
+ConnectionResetError: [WinError 10054] Foi forçado o cancelamento de uma conexão existente pelo host remoto
+
+
+During handling of the above exception, another exception occurred:
+
+
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000001E79C49A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 57745, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001E79C4991B0>
+              └ <__main__.PyDB object at 0x000001E799936140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001E79C499240>
+           └ <__main__.PyDB object at 0x000001E799936140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000001E79C1B2B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom selenium.webdriver.chrome.opt...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 681, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 666, in run
+    self.search_for(term="emissão de cte")
+    │    └ <function BelgoPortal.search_for at 0x000001E79D4D60E0>
+    └ <__main__.BelgoPortal object at 0x000001E79D4C0910>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 107, in search_for
+    text_box = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='incidente_workflows_datatable_filter']/label/input")))
+               │    │     │  │                              │  └ 'xpath'
+               │    │     │  │                              └ <class 'selenium.webdriver.common.by.By'>
+               │    │     │  └ <class 'selenium.webdriver.support.expected_conditions.visibility_of_element_located'>
+               │    │     └ <module 'selenium.webdriver.support.expected_conditions' from 'L:\\ergon\\dev\\Freto\\KMM\\.venv\\lib\\site-packages\\seleniu...
+               │    └ <function WebDriverWait.until at 0x000001E79CF039A0>
+               └ <selenium.webdriver.support.wait.WebDriverWait (session="0a863f963873e7b9930b853c6f03b6dc")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\support\wait.py", line 71, in until
+    value = method(self._driver)
+            │      │    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0a863f963873e7b9930b853c6f03b6dc")>
+            │      └ <selenium.webdriver.support.wait.WebDriverWait (session="0a863f963873e7b9930b853c6f03b6dc")>
+            └ <selenium.webdriver.support.expected_conditions.visibility_of_element_located object at 0x000001E79C4EA350>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 128, in __call__
+    return _element_if_visible(_find_element(driver, self.locator))
+           │                   │             │       │    └ ('xpath', "//*[@id='incidente_workflows_datatable_filter']/label/input")
+           │                   │             │       └ <selenium.webdriver.support.expected_conditions.visibility_of_element_located object at 0x000001E79C4EA350>
+           │                   │             └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0a863f963873e7b9930b853c6f03b6dc")>
+           │                   └ <function _find_element at 0x000001E79D178C10>
+           └ <function _element_if_visible at 0x000001E79D178160>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\support\expected_conditions.py", line 411, in _find_element
+    return driver.find_element(*by)
+           │      │             └ ('xpath', "//*[@id='incidente_workflows_datatable_filter']/label/input")
+           │      └ <function WebDriver.find_element at 0x000001E79CE86290>
+           └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0a863f963873e7b9930b853c6f03b6dc")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 976, in find_element
+    return self.execute(Command.FIND_ELEMENT, {
+           │    │       │       └ 'findElement'
+           │    │       └ <class 'selenium.webdriver.remote.command.Command'>
+           │    └ <function WebDriver.execute at 0x000001E79CE84820>
+           └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0a863f963873e7b9930b853c6f03b6dc")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 319, in execute
+    response = self.command_executor.execute(driver_command, params)
+               │    │                │       │               └ {'using': 'xpath', 'value': "//*[@id='incidente_workflows_datatable_filter']/label/input"}
+               │    │                │       └ 'findElement'
+               │    │                └ <function RemoteConnection.execute at 0x000001E79CE6A290>
+               │    └ <selenium.webdriver.chrome.remote_connection.ChromeRemoteConnection object at 0x000001E79D461E70>
+               └ <selenium.webdriver.chrome.webdriver.WebDriver (session="0a863f963873e7b9930b853c6f03b6dc")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 374, in execute
+    return self._request(command_info[0], url, body=data)
+           │    │        │                │         └ '{"using": "xpath", "value": "//*[@id=\'incidente_workflows_datatable_filter\']/label/input"}'
+           │    │        │                └ 'http://127.0.0.1:57750/session/0a863f963873e7b9930b853c6f03b6dc/element'
+           │    │        └ ('POST', '/session/$sessionId/element')
+           │    └ <function RemoteConnection._request at 0x000001E79CE6A320>
+           └ <selenium.webdriver.chrome.remote_connection.ChromeRemoteConnection object at 0x000001E79D461E70>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\remote_connection.py", line 397, in _request
+    resp = self._conn.request(method, url, body=body, headers=headers)
+           │    │     │       │       │         │             └ {'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8', 'User-Agent': 'selenium/3.141.0 (python wind...
+           │    │     │       │       │         └ '{"using": "xpath", "value": "//*[@id=\'incidente_workflows_datatable_filter\']/label/input"}'
+           │    │     │       │       └ 'http://127.0.0.1:57750/session/0a863f963873e7b9930b853c6f03b6dc/element'
+           │    │     │       └ 'POST'
+           │    │     └ <function RequestMethods.request at 0x000001E79CE5D1B0>
+           │    └ <urllib3.poolmanager.PoolManager object at 0x000001E79D4620B0>
+           └ <selenium.webdriver.chrome.remote_connection.ChromeRemoteConnection object at 0x000001E79D461E70>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\request.py", line 81, in request
+    return self.request_encode_body(
+           │    └ <function RequestMethods.request_encode_body at 0x000001E79CE5D2D0>
+           └ <urllib3.poolmanager.PoolManager object at 0x000001E79D4620B0>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\request.py", line 173, in request_encode_body
+    return self.urlopen(method, url, **extra_kw)
+           │    │       │       │      └ {'headers': {'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8', 'User-Agent': 'selenium/3.141.0 ...
+           │    │       │       └ 'http://127.0.0.1:57750/session/0a863f963873e7b9930b853c6f03b6dc/element'
+           │    │       └ 'POST'
+           │    └ <function PoolManager.urlopen at 0x000001E79CE692D0>
+           └ <urllib3.poolmanager.PoolManager object at 0x000001E79D4620B0>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\poolmanager.py", line 376, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+               │    │       │       │ │              └ {'headers': {'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8', 'User-Agent': 'selenium/3.141.0 ...
+               │    │       │       │ └ <property object at 0x000001E79CE09E90>
+               │    │       │       └ Url(scheme='http', auth=None, host='127.0.0.1', port=57750, path='/session/0a863f963873e7b9930b853c6f03b6dc/element', query=N...
+               │    │       └ 'POST'
+               │    └ <function HTTPConnectionPool.urlopen at 0x000001E79CE5FE20>
+               └ <urllib3.connectionpool.HTTPConnectionPool object at 0x000001E79D3B9C90>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 799, in urlopen
+    retries = retries.increment(
+              │       └ <function Retry.increment at 0x000001E79CDF5E10>
+              └ Retry(total=3, connect=None, read=None, redirect=None, status=None)
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\util\retry.py", line 550, in increment
+    raise six.reraise(type(error), error, _stacktrace)
+          │   │            │       │      └ <traceback object at 0x000001E79D198900>
+          │   │            │       └ ProtocolError('Connection aborted.', ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo ho...
+          │   │            └ ProtocolError('Connection aborted.', ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo ho...
+          │   └ <function reraise at 0x000001E79CDCC670>
+          └ <module 'urllib3.packages.six' from 'L:\\ergon\\dev\\Freto\\KMM\\.venv\\lib\\site-packages\\urllib3\\packages\\six.py'>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\packages\six.py", line 769, in reraise
+    raise value.with_traceback(tb)
+          │                    └ None
+          └ None
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 715, in urlopen
+    httplib_response = self._make_request(
+                       │    └ <function HTTPConnectionPool._make_request at 0x000001E79CE5FBE0>
+                       └ <urllib3.connectionpool.HTTPConnectionPool object at 0x000001E79D3B9C90>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 467, in _make_request
+    six.raise_from(e, None)
+    │   └ <function raise_from at 0x000001E79CDCC700>
+    └ <module 'urllib3.packages.six' from 'L:\\ergon\\dev\\Freto\\KMM\\.venv\\lib\\site-packages\\urllib3\\packages\\six.py'>
+
+  File "<string>", line 3, in raise_from
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\urllib3\connectionpool.py", line 462, in _make_request
+    httplib_response = conn.getresponse()
+                       │    └ <function HTTPConnection.getresponse at 0x000001E79BF82290>
+                       └ <urllib3.connection.HTTPConnection object at 0x000001E79D4C1270>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\http\client.py", line 1375, in getresponse
+    response.begin()
+    │        └ <function HTTPResponse.begin at 0x000001E79BF80670>
+    └ <http.client.HTTPResponse object at 0x000001E79E750190>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\http\client.py", line 318, in begin
+    version, status, reason = self._read_status()
+                              │    └ <function HTTPResponse._read_status at 0x000001E79BF805E0>
+                              └ <http.client.HTTPResponse object at 0x000001E79E750190>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\http\client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               │    │           └ 65536
+               │    └ None
+               └ <http.client.HTTPResponse object at 0x000001E79E750190>
+
+  File "C:\Users\Lucas\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+           │    │               └ <memory at 0x000001E79D5AC7C0>
+           │    └ None
+           └ <socket.SocketIO object at 0x000001E79E751360>
+
+urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None))
+2026-01-08 14:41:34 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 14:41:38 | ERROR | __main__:run | Erro na obtenção dos dados da NF. ERRO: Message: element click intercepted: Element is not clickable at point (469, 878)
+  (Session info: chrome=143.0.7499.171)
+ | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x0000022C5953A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 61063, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x0000022C595391B0>
+              └ <__main__.PyDB object at 0x0000022C56586140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x0000022C59539240>
+           └ <__main__.PyDB object at 0x0000022C56586140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x0000022C59252B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom selenium.webdriver.chrome.opt...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 681, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 664, in run
+    self.open()
+    │    └ <function BelgoPortal.open at 0x0000022C5A55A0E0>
+    └ <__main__.BelgoPortal object at 0x0000022C5A545990>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 70, in open
+    btn.click()
+    │   └ <function WebElement.click at 0x0000022C59634DC0>
+    └ <selenium.webdriver.remote.webelement.WebElement (session="d45b5fc0cfc719ba4b1e75708c6e5332", element="f.892B05A94DAC67AFC7D6...
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webelement.py", line 80, in click
+    self._execute(Command.CLICK_ELEMENT)
+    │    │        │       └ 'clickElement'
+    │    │        └ <class 'selenium.webdriver.remote.command.Command'>
+    │    └ <function WebElement._execute at 0x0000022C59636290>
+    └ <selenium.webdriver.remote.webelement.WebElement (session="d45b5fc0cfc719ba4b1e75708c6e5332", element="f.892B05A94DAC67AFC7D6...
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webelement.py", line 633, in _execute
+    return self._parent.execute(command, params)
+           │    │       │       │        └ {'id': 'f.892B05A94DAC67AFC7D6413F5A24D6AD.d.5CF5C4D8326CA2CCA162B2009B2ABB3F.e.12', 'sessionId': 'd45b5fc0cfc719ba4b1e75708c...
+           │    │       │       └ 'clickElement'
+           │    │       └ <function WebDriver.execute at 0x0000022C59F248B0>
+           │    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="d45b5fc0cfc719ba4b1e75708c6e5332")>
+           └ <selenium.webdriver.remote.webelement.WebElement (session="d45b5fc0cfc719ba4b1e75708c6e5332", element="f.892B05A94DAC67AFC7D6...
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 321, in execute
+    self.error_handler.check_response(response)
+    │    │             │              └ {'status': 400, 'value': '{"value":{"error":"element click intercepted","message":"element click intercepted: Element is not ...
+    │    │             └ <function ErrorHandler.check_response at 0x0000022C59F096C0>
+    │    └ <selenium.webdriver.remote.errorhandler.ErrorHandler object at 0x0000022C5A43A170>
+    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="d45b5fc0cfc719ba4b1e75708c6e5332")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 242, in check_response
+    raise exception_class(message, screen, stacktrace)
+          │               │        │       └ None
+          │               │        └ None
+          │               └ 'element click intercepted: Element is not clickable at point (469, 878)\n  (Session info: chrome=143.0.7499.171)'
+          └ <class 'selenium.common.exceptions.ElementClickInterceptedException'>
+
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element is not clickable at point (469, 878)
+  (Session info: chrome=143.0.7499.171)
+
+2026-01-08 14:43:43 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 14:43:47 | INFO | __main__:access | Realizando login | {}
+2026-01-08 14:46:29 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 14:46:34 | INFO | __main__:access | Realizando login | {}
+2026-01-08 14:54:53 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 14:54:58 | INFO | __main__:access | Realizando login | {}
+2026-01-08 14:54:58 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 14:55:00 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 14:55:00 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 14:55:31 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:16:04 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:16:08 | ERROR | __main__:run | Erro na obtenção dos dados da NF. ERRO: Message: element click intercepted: Element is not clickable at point (469, 881)
+  (Session info: chrome=143.0.7499.171)
+ | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000001E4A210A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 62260, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001E4A21091B0>
+              └ <__main__.PyDB object at 0x000001E4A0B56140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001E4A2109240>
+           └ <__main__.PyDB object at 0x000001E4A0B56140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000001E4A1DE2B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom selenium.webdriver.chrome.opt...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 675, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 658, in run
+    self.open()
+    │    └ <function BelgoPortal.open at 0x000001E4A3169EA0>
+    └ <__main__.BelgoPortal object at 0x000001E4A3155D20>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 70, in open
+    btn.click()
+    │   └ <function WebElement.click at 0x000001E4A2A14DC0>
+    └ <selenium.webdriver.remote.webelement.WebElement (session="3ab38ac147d9f5a895ccffaad7454d60", element="f.853979B0F59ED8AFDAA2...
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webelement.py", line 80, in click
+    self._execute(Command.CLICK_ELEMENT)
+    │    │        │       └ 'clickElement'
+    │    │        └ <class 'selenium.webdriver.remote.command.Command'>
+    │    └ <function WebElement._execute at 0x000001E4A2A16290>
+    └ <selenium.webdriver.remote.webelement.WebElement (session="3ab38ac147d9f5a895ccffaad7454d60", element="f.853979B0F59ED8AFDAA2...
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webelement.py", line 633, in _execute
+    return self._parent.execute(command, params)
+           │    │       │       │        └ {'id': 'f.853979B0F59ED8AFDAA23AEAA741D155.d.0DB63B1770F7F3531A232A4CB4FFED5B.e.10', 'sessionId': '3ab38ac147d9f5a895ccffaad7...
+           │    │       │       └ 'clickElement'
+           │    │       └ <function WebDriver.execute at 0x000001E4A2B148B0>
+           │    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="3ab38ac147d9f5a895ccffaad7454d60")>
+           └ <selenium.webdriver.remote.webelement.WebElement (session="3ab38ac147d9f5a895ccffaad7454d60", element="f.853979B0F59ED8AFDAA2...
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 321, in execute
+    self.error_handler.check_response(response)
+    │    │             │              └ {'status': 400, 'value': '{"value":{"error":"element click intercepted","message":"element click intercepted: Element is not ...
+    │    │             └ <function ErrorHandler.check_response at 0x000001E4A2AFD6C0>
+    │    └ <selenium.webdriver.remote.errorhandler.ErrorHandler object at 0x000001E4A3049BA0>
+    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="3ab38ac147d9f5a895ccffaad7454d60")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 242, in check_response
+    raise exception_class(message, screen, stacktrace)
+          │               │        │       └ None
+          │               │        └ None
+          │               └ 'element click intercepted: Element is not clickable at point (469, 881)\n  (Session info: chrome=143.0.7499.171)'
+          └ <class 'selenium.common.exceptions.ElementClickInterceptedException'>
+
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element is not clickable at point (469, 881)
+  (Session info: chrome=143.0.7499.171)
+
+2026-01-08 15:16:53 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:16:59 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:16:59 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:17:01 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:17:01 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:17:31 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:17:36 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:17:36 | INFO | __main__:get_incidents | Mostrando de 1 até 6 | {}
+2026-01-08 15:17:36 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 15:17:36 | ERROR | __main__:run | Erro na obtenção dos dados da NF. ERRO: Message: invalid selector: Unable to locate an element with the xpath expression xpath://*[@id='incidente_workflows_datatable']/tbody/tr[1]/td[9] because of the following error:
+SyntaxError: Failed to execute 'evaluate' on 'Document': The string 'xpath://*[@id='incidente_workflows_datatable']/tbody/tr[1]/td[9]' is not a valid XPath expression.
+  (Session info: chrome=143.0.7499.171)
+ | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000002778D20A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 59329, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000002778D2091B0>
+              └ <__main__.PyDB object at 0x000002778BC26140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000002778D209240>
+           └ <__main__.PyDB object at 0x000002778BC26140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000002778CEE2B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom selenium.webdriver.chrome.opt...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 676, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 662, in run
+    self.get_incidents()
+    │    └ <function BelgoPortal.get_incidents at 0x000002778E26A200>
+    └ <__main__.BelgoPortal object at 0x000002778E250940>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 166, in get_incidents
+    if not driver.find_element(By.XPATH, line_path.format(item + 1, 9)).text:
+           │      │            │  │      │         │      └ 0
+           │      │            │  │      │         └ <method 'format' of 'str' objects>
+           │      │            │  │      └ "xpath://*[@id='incidente_workflows_datatable']/tbody/tr[{0}]/td[{1}]"
+           │      │            │  └ 'xpath'
+           │      │            └ <class 'selenium.webdriver.common.by.By'>
+           │      └ <function WebDriver.find_element at 0x000002778DC16290>
+           └ <selenium.webdriver.chrome.webdriver.WebDriver (session="f82f7e0203accb269fd8ef06581e0ecd")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 976, in find_element
+    return self.execute(Command.FIND_ELEMENT, {
+           │    │       │       └ 'findElement'
+           │    │       └ <class 'selenium.webdriver.remote.command.Command'>
+           │    └ <function WebDriver.execute at 0x000002778DC14820>
+           └ <selenium.webdriver.chrome.webdriver.WebDriver (session="f82f7e0203accb269fd8ef06581e0ecd")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\webdriver.py", line 321, in execute
+    self.error_handler.check_response(response)
+    │    │             │              └ {'status': 400, 'value': '{"value":{"error":"invalid selector","message":"invalid selector: Unable to locate an element with ...
+    │    │             └ <function ErrorHandler.check_response at 0x000002778DBFD630>
+    │    └ <selenium.webdriver.remote.errorhandler.ErrorHandler object at 0x000002778E149C00>
+    └ <selenium.webdriver.chrome.webdriver.WebDriver (session="f82f7e0203accb269fd8ef06581e0ecd")>
+
+  File "L:\ergon\dev\Freto\KMM\.venv\lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 242, in check_response
+    raise exception_class(message, screen, stacktrace)
+          │               │        │       └ None
+          │               │        └ None
+          │               └ "invalid selector: Unable to locate an element with the xpath expression xpath://*[@id='incidente_workflows_datatable']/tbody...
+          └ <class 'selenium.common.exceptions.InvalidSelectorException'>
+
+selenium.common.exceptions.InvalidSelectorException: Message: invalid selector: Unable to locate an element with the xpath expression xpath://*[@id='incidente_workflows_datatable']/tbody/tr[1]/td[9] because of the following error:
+SyntaxError: Failed to execute 'evaluate' on 'Document': The string 'xpath://*[@id='incidente_workflows_datatable']/tbody/tr[1]/td[9]' is not a valid XPath expression.
+  (Session info: chrome=143.0.7499.171)
+
+2026-01-08 15:20:34 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:20:45 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:20:45 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:20:53 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:20:53 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:21:23 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:21:28 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:21:28 | INFO | __main__:get_incidents | Mostrando de 1 até 6 | {}
+2026-01-08 15:21:28 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 15:29:00 | WARNING | __main__:<module> | Nenhum registro encontrado | {}
+2026-01-08 15:30:15 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:30:21 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:30:21 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:30:24 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:30:24 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:30:54 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:30:59 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:30:59 | INFO | __main__:get_incidents | Mostrando de 1 até 6 | {}
+2026-01-08 15:30:59 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 15:37:00 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:37:06 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:37:07 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:37:08 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:37:08 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:37:38 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:37:43 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:37:43 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 15:37:43 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 15:38:45 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:38:51 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:38:51 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:38:53 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:38:53 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:39:23 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:39:28 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:39:28 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 15:39:28 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 15:41:26 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:41:33 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:41:33 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:41:34 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:41:34 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:42:05 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:42:10 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:42:10 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 15:42:10 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 15:57:57 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 15:58:04 | INFO | __main__:access | Realizando login | {}
+2026-01-08 15:58:04 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 15:58:05 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 15:58:05 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 15:58:36 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 15:58:41 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 15:58:41 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 15:58:41 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 16:05:48 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 16:05:55 | INFO | __main__:access | Realizando login | {}
+2026-01-08 16:05:55 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 16:05:57 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 16:05:57 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 16:06:27 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 16:06:32 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 16:06:32 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 16:06:32 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 16:06:32 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-08 16:07:49 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 16:07:55 | INFO | __main__:access | Realizando login | {}
+2026-01-08 16:07:56 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 16:07:57 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 16:07:57 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 16:08:28 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 16:08:33 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 16:08:33 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 16:08:33 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 16:08:33 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-08 16:11:24 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-08 16:11:30 | INFO | __main__:access | Realizando login | {}
+2026-01-08 16:11:31 | INFO | __main__:access | Botão encontrado | {}
+2026-01-08 16:11:32 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-08 16:11:32 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-08 16:12:03 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-08 16:12:08 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-08 16:12:08 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-08 16:12:08 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-08 16:12:08 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-08 16:12:08 | WARNING | __main__:get_incidents | O motivo do id 149128 esta fora do escopo da automação | {}
