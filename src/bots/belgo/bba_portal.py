@@ -663,5 +663,3 @@ class BelgoPortal:
         finally:
             driver.close()
             return final_data
-
-BelgoPortal([]).run()
