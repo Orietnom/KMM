@@ -522,3 +522,145 @@ FileNotFoundError: [WinError 2] O sistema não pode encontrar o arquivo especifi
 2026-01-09 12:20:20 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
 2026-01-09 12:21:11 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu REPOMFRETEA via acesso rápido | {'service': 'JMendes'}
 2026-01-09 12:21:19 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-09 16:54:33 | INFO | kmm.services.kmm_actions:login | Iniciando login | {'service': 'JMendes'}
+2026-01-09 16:54:44 | INFO | kmm.services.kmm_actions:login | Fim do Login | {'service': 'JMendes'}
+2026-01-09 16:54:44 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu lot via acesso rápido | {'service': 'JMendes'}
+2026-01-09 16:54:52 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-09 16:56:28 | INFO | kmm.services.kmm_actions:login | Iniciando login | {'service': 'JMendes'}
+2026-01-09 16:56:39 | INFO | kmm.services.kmm_actions:login | Fim do Login | {'service': 'JMendes'}
+2026-01-09 16:57:00 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu REPOMFRETEA via acesso rápido | {'service': 'JMendes'}
+2026-01-09 16:57:07 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-09 16:58:47 | ERROR | kmm.services.kmm_actions:emitting_contract_repomfretea | Falha ao gerar o contrato, tentando novamente. Erro => Hard timeout em safe_click (65s) | {'service': 'JMendes'}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 2391, in <module>
+    main()
+    └ <function main at 0x000001C1D0B0F2E0>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 2372, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 52459, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001C1D0B0E290>
+              └ <__main__.PyDB object at 0x000001C1D0C69600>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 1640, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'C:\\Users\\pedro\\Documents\\ERGONDATA\\KMM\\src\\bots\\jmendes\\worker.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001C1D0B0E320>
+           └ <__main__.PyDB object at 0x000001C1D0C69600>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 1647, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'C:\\Users\\pedro\\Documents\\ERGONDATA\\KMM\\src\\bots\\jmendes\\worker.py'
+    │             └ <function execfile at 0x000001C1D0A1E3B0>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.3\\plugins\\python-ce\\helpers\\pydev\...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'C:\\Users\\pedro\\Documents\\ERGONDATA\\KMM\\src\\bots\\jmendes\\worker.py'
+                 └ 'import json\n# import pika\nimport os\nfrom dotenv import load_dotenv\nfrom src.bots.jmendes.kmm_process import process\nfro...
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\jmendes\worker.py", line 144, in <module>
+    process_case()
+    └ <function process_case at 0x000001C1D0CD9480>
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\jmendes\worker.py", line 37, in process_case
+    processed = process(
+                └ <function process at 0x000001C1D0D20AF0>
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\jmendes\kmm_process.py", line 23, in process
+    contract_number = kmm.emitting_contract_repomfretea(
+                      │   └ <function KMMActions.emitting_contract_repomfretea at 0x000001C1D16E3D00>
+                      └ <kmm.services.kmm_actions.KMMActions object at 0x000001C1D1B8D810>
+
+> File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\kmm\services\kmm_actions.py", line 450, in emitting_contract_repomfretea
+    self.driver.safe_click('id:btn_confirmar')
+    │    │      └ <function KMMIEDriver.safe_click at 0x000001C1D160A710>
+    │    └ <kmm.ie_driver.ie_driver.KMMIEDriver object at 0x000001C1D1C8CFA0>
+    └ <kmm.services.kmm_actions.KMMActions object at 0x000001C1D1B8D810>
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\kmm\ie_driver\ie_driver.py", line 106, in wrapped
+    return object.__getattribute__(self, "_call_with_watchdog")(name, attr, *args, **kwargs)
+                                   │                            │     │      │       └ {}
+                                   │                            │     │      └ ('id:btn_confirmar',)
+                                   │                            │     └ <bound method KMMIEDriver.safe_click of <kmm.ie_driver.ie_driver.KMMIEDriver object at 0x000001C1D1C8CFA0>>
+                                   │                            └ 'safe_click'
+                                   └ <kmm.ie_driver.ie_driver.KMMIEDriver object at 0x000001C1D1C8CFA0>
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\kmm\ie_driver\ie_driver.py", line 146, in _call_with_watchdog
+    raise HardTimeoutError(f"Hard timeout em {label} ({timeout_total}s)")
+          └ <class 'exceptions.personalized_exceptions.HardTimeoutError'>
+
+exceptions.personalized_exceptions.HardTimeoutError: Hard timeout em safe_click (65s)
+2026-01-09 16:59:52 | INFO | kmm.services.kmm_actions:login | Iniciando login | {'service': 'JMendes'}
+2026-01-09 17:00:04 | INFO | kmm.services.kmm_actions:login | Fim do Login | {'service': 'JMendes'}
+2026-01-09 17:00:04 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu REPOMFRETEA via acesso rápido | {'service': 'JMendes'}
+2026-01-09 17:00:13 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-09 17:01:10 | ERROR | kmm.services.kmm_actions:emitting_contract_repomfretea | Falha ao gerar o contrato, tentando novamente. Erro => 'bool' object has no attribute 'text' | {'service': 'JMendes'}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 2391, in <module>
+    main()
+    └ <function main at 0x000001F498FAF2E0>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 2372, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 52719, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001F498FAE290>
+              └ <__main__.PyDB object at 0x000001F499109600>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 1640, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'C:\\Users\\pedro\\Documents\\ERGONDATA\\KMM\\src\\bots\\jmendes\\worker.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001F498FAE320>
+           └ <__main__.PyDB object at 0x000001F499109600>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\pydevd.py", line 1647, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'C:\\Users\\pedro\\Documents\\ERGONDATA\\KMM\\src\\bots\\jmendes\\worker.py'
+    │             └ <function execfile at 0x000001F498EBE3B0>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.3\\plugins\\python-ce\\helpers\\pydev\...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.3\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'C:\\Users\\pedro\\Documents\\ERGONDATA\\KMM\\src\\bots\\jmendes\\worker.py'
+                 └ 'import json\n# import pika\nimport os\nfrom dotenv import load_dotenv\nfrom src.bots.jmendes.kmm_process import process\nfro...
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\jmendes\worker.py", line 144, in <module>
+    process_case()
+    └ <function process_case at 0x000001F499179240>
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\jmendes\worker.py", line 37, in process_case
+    processed = process(
+                └ <function process at 0x000001F4991B4B80>
+
+  File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\jmendes\kmm_process.py", line 23, in process
+    contract_number = kmm.emitting_contract_repomfretea(
+                      │   └ <function KMMActions.emitting_contract_repomfretea at 0x000001F499B7FE20>
+                      └ <kmm.services.kmm_actions.KMMActions object at 0x000001F49A02D7B0>
+
+> File "C:\Users\pedro\Documents\ERGONDATA\KMM\src\kmm\services\kmm_actions.py", line 455, in emitting_contract_repomfretea
+    alert_text = alert.text.lower()
+                 └ False
+
+AttributeError: 'bool' object has no attribute 'text'

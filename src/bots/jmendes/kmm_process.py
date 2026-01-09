@@ -20,11 +20,6 @@ def process(queue_item: JMNItemProcess):
             management=queue_item.management
         )
 
-        kmm.jmendes_load_user_profile(
-            user=os.getenv("KMM_JMN_USERNAME"),
-            center='matriz'
-        )
-
         contract_number = kmm.emitting_contract_repomfretea(
             license_plate=queue_item.license_plate,
             driver_name=queue_item.driver_name,

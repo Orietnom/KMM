@@ -447,9 +447,14 @@ class KMMActions:
                     kmm_pass = password_generate(license_plate=lp, control_number=control_number)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     self.driver.safe_type('id:OBSERVACAO', '.')
+
+                    self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
 
                     alert = self.driver.wait_alert(timeout=30)
+                    if not alert:
+                        raise Exception("Alerta não apareceu após clicar no botão \"confirmar\""
+                                        "")
                     alert_text = alert.text.lower()
                     if "sucesso" in alert_text:
                         self.log.info("Contrato enviado a REPOM, aguardando retorno do número do contrato")
