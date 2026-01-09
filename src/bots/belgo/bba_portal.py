@@ -1,3 +1,5 @@
+from typing import Any
+
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -68,7 +70,7 @@ class BelgoPortal:
 
     def open(self):
         logger.info("Acessando o portal BBA")
-        driver.get(os.getenv("BBA_PORTAL_INCIDENTS_URS"))
+        driver.get(os.getenv("BBA_PORTAL_INCIDENTS_URL"))
 
         btn = wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/button")))
         time.sleep(3)
@@ -115,7 +117,7 @@ class BelgoPortal:
 
         text_box = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='incidente_workflows_datatable_filter']/label/input")))
         text_box.send_keys(term)
-        time.sleep(5)
+        time.sleep(10)
 
     def _get_table_headers(self, table_id: str):
         table = driver.find_element(By.ID, table_id)
@@ -136,14 +138,14 @@ class BelgoPortal:
         n_itens = itens_ate - itens_de + 1
         return n_itens
 
-    def get_incidents(self):
+    def get_incidents(self) -> None | list[dict]:
 
         logger.info("Iniciando a obtenção da lista de incidentes")
-        self.incidents = []
+        incidents = []
         validation = driver.find_element(By.TAG_NAME, 'tbody').text
         if validation == "Nenhum registro encontrado":
             logger.warning("Nenhum registro encontrado")
-            return False
+            return None
 
         line_path = "//*[@id='incidente_workflows_datatable']/tbody/tr[{0}]/td[{1}]"
         itens = driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
@@ -220,63 +222,67 @@ class BelgoPortal:
                         "transport": transport,
                         "subreason": subreason
                     }
-                    self.incidents.append(item_data)
+                    incidents.append(item_data)
                     logger.info(f"Dados obtidos: {item_data}")
                 else:
                     logger.warning(f"O motivo {reason} do id {id} esta fora do escopo da automação")
                     continue
 
         logger.info(f"{len(self.incidents)} incidentes são elegíveis para automação tratar")
-        return True
+        return incidents
 
-    def get_incidents_additional_data(self):
+    def get_additional_incident_data(self, incident) -> None | dict:
 
         historic_element = "incidente_workflow_observacao"
         nf_element = "incidente_workflow_incidente_workflow_nfs_attributes_0_numero_nf"
-        index = 0
 
-        for incident in self.incidents:
+        try:
+            logger.info(f"Iniciando a obtenção de dados adicionais para o ID: {incident['id']}")
 
-            try:
-                logger.info(f"Iniciando a obtenção de dados adicionais para o ID: {incident['id']}")
+            url_edit_incident = os.getenv("BBA_PORTAL_EDIT_INCIDENTS_URL").format(incident["id"])
+            driver.get(url_edit_incident)
+            historic_el = wait.until(EC.presence_of_element_located((By.ID, historic_element)))
+            historic = historic_el.text
+            nf = driver.find_element(By.ID, nf_element).get_attribute('value')
 
-                url_edit_incident = os.getenv("BBA_PORTAL_INCIDENTS_URL").replace("*", incident["id"])
-                driver.get(url_edit_incident)
-                historic_el = wait.until(EC.presence_of_element_located((By.ID, historic_element)))
-                historic = historic_el.text
+            cte_value = self.get_cte_value(historic=historic)
 
-                incident['cte_value'] = self.get_cte_value(historic=historic)
-                incident["contract_value"], incident['driver_value'] = self.get_contract_value(historic=historic,
-                                                                                               incident=incident)
-                incident["nf"] = driver.find_element(By.ID, nf_element).get_attribute('value')
+            full_contract_value =self.get_contract_value(historic=historic)
+            contract_value = self.ajusta_valor_moeda(valor=str(full_contract_value))
+            driver_value = self.get_driver_reimbursement_value(valor=float(contract_value))
 
-                if not incident['driver_value'] or not incident['cte_value'] or not incident['contract_value']:
-                    logger.error("Falha ao valor do motorista, cte ou contrato do histórico do caso para p "
-                                 f"ID: {incident['id']}")
+            if not driver_value or not cte_value or not contract_value:
+                logger.error("Falha ao valor do motorista, cte ou contrato do histórico do caso para p "
+                             f"ID: {incident['id']}")
+                return None
 
-                    raise Exception("Driver, cte or contract value not exisits")
+            if float(cte_value) < 7000.00:
 
-                if float(incident['cte_value']) < 7000.00:
-                    self.incidents[index] = incident
+                logger.info(f'Informação de valores encontrados para o ID {incident["id"]}. '
+                            f'Valor motorista: {driver_value} - Valor cte {cte_value} - '
+                           f'N nf {nf}')
+                data = {
+                    'cte_value': cte_value,
+                    'contract_value': contract_value,
+                    'driver_value': driver_value,
+                    'nf': nf
+                }
+                return data
+            else:
+                message = ('Valor de CT-e é maior ou igual a R$ 7.000,00. Informação de valores encontrados '
+                           f'para o ID {incident["id"]}. Valor motorista: {driver_value} '
+                           f'- Valor cte {cte_value} - N nf {nf}')
+                logger.warning(message)
+                return None
 
-                    logger.info(f'Informação de valores encontrados para o ID {incident["id"]}. '
-                                f'Valor motorista: {incident["driver_value"]} - Valor cte {incident["cte_value"]} - '
-                               f'N nf {incident["nf"]}')
-                else:
-                    message = ('Valor de CT-e é maior ou igual a R$ 7.000,00. Informação de valores encontrados '
-                               f'para o ID {incident["id"]}. Valor motorista: {incident["driver_value"]} '
-                               f'- Valor cte {incident["cte_value"]} - N nf {incident["nf"]}')
-                    logger.warning(message)
+        except Exception as error:
+            logger.exception(f"Falha ao obter dados do histórico para o caso {incident['id']}")
+            return None
 
-                index += 1
-
-            except Exception as error:
-                logger.exception(f"Falha ao obter dados do histórico para o caso {incident['id']}")
-                index += 1
-
-    def get_driver_reimbursement_value(self, valor):
-        inss = (float(valor) * 0.2) * 0.114
-        sest_sesnat = (float(valor) * 0.2) * 0.025
+    @staticmethod
+    def get_driver_reimbursement_value(valor):
+        inss = (float(valor) * 0.2) * float(os.getenv("TAX2"))
+        sest_sesnat = (float(valor) * 0.2) * float(os.getenv("TAX4"))
         contrato = round((float(valor) + inss + sest_sesnat), 2)
 
         logger.info(f"Valor do contrato: {contrato}")
@@ -336,16 +342,16 @@ class BelgoPortal:
             return valor_motorista, valor_contrato
 
     @staticmethod
-    def ajusta_valor_moeda(valor):
+    def ajusta_valor_moeda(valor) -> str | None:
         if valor[-3] == '.':
             valor = valor.replace(',', '')
         elif valor[-3] == ',':
             valor = valor.replace('.', '').replace(',', '.')
         else:
-            valor = 'error'
+            return None
         return valor
 
-    def get_cte_value(self, historic):
+    def get_cte_value(self, historic) -> str | None:
         valor_cte = None
 
         try:
@@ -360,8 +366,10 @@ class BelgoPortal:
         finally:
             return valor_cte
 
-    def get_contract_value(self, historic, incident):
+    @staticmethod
+    def get_contract_value(historic):
 
+        valor_contrato = None
         try:
             valor_contrato = re.findall("VALOR TOTAL\s*(?:R?\$?\s*)+(\d+.?\d+.\d{2})", historic)
             if not valor_contrato:
@@ -369,86 +377,89 @@ class BelgoPortal:
                 if not valor_contrato:
                     logger.error("Não foi encontrado o valor do contrato, nem pelo padrão VALOR TOTAL, nem pelo padrão "
                                  "VALOR.")
-                    raise Exception("Problema ao obter o valor do contrato")
+                    return None
 
             valor_contrato = valor_contrato[-1]
 
-            valor_contrato = self.ajusta_valor_moeda(valor=str(valor_contrato))
-            valor_motorista = self.get_driver_reimbursement_value(valor=float(valor_contrato))
-
         except Exception as e:
             valor_contrato = None
-            valor_motorista = None
-
+            logger.exception(f"Problema ao obter o valor do contrato no histórico do caso.")
         finally:
-            return valor_contrato, valor_motorista
+            return valor_contrato
 
-    def get_nfs(self):
+    def get_incident_nf(self, incident):
 
         logger.info("Etapa de obtencao dos cte code")
-        for index, incident in enumerate(self.incidents):
-            try:
-                driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
-                wait.until(EC.presence_of_element_located((By.ID, "nav_dados_transporte")))
+        try:
+            driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
+            wait.until(EC.presence_of_element_located((By.ID, "nav_dados_transporte")))
 
-                for i in range(15):
-                    document_exist = False
-                    try:
-                        url_pdf = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").text
-                        name = re.search("(^Viagem)[A-z]?[0-9]+?", url_pdf)
+            for i in range(15):
+                document_exists = False
+                try:
+                    url_pdf = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").text
+                    name = re.search("(^Viagem)[A-z]?[0-9]+?", url_pdf)
 
-                        if name:
-                            logger.info("Documento viagem existe")
-                            pdf_link = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").get_attribute("href")
-                            document_exist = True
-                            break
-                    except Exception as e:
-                        document_exist = False
-                        logger.info(f"Não existe documento com nome \"Viagem\" para o id {incident['id']}")
+                    if name:
+                        logger.info("Documento viagem existe")
+                        pdf_link = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").get_attribute("href")
                         break
+                except Exception as e:
+                    logger.info(f"Não existe documento com nome \"Viagem\" para o id {incident['id']}")
+                    return None
 
-                if not document_exist:
-                    logger.info(f"Falta documento no portal para o id {incident['id']}")
+            if not document_exists:
+                logger.info(f"Falta documento no portal para o id {incident['id']}")
+                return None
 
-                    index += 1
-                    continue
+            response = self.br.open(pdf_link)
+            with open(OUTPUT_DIR + "/download.pdf", "wb") as f:
+                f.write(response.read())
 
-                response = self.br.open(pdf_link)
-                with open(OUTPUT_DIR + "/download.pdf", "wb") as f:
-                    f.write(response.read())
+            wait_file(OUTPUT_DIR, 'download.pdf')
 
-                wait_file(OUTPUT_DIR, 'download.pdf')
+            dados = self.get_nf_data(nf_portal=int(incident["nf"]))
 
-                dados = self.get_nf_data(nf_portal=int(incident["nf"]))
+            if dados['cte_fretolog_code']:
+                self.get_number_of_incidents(incident=incident)
 
-                if dados['cte_fretolog_code']:
-                    self.get_number_of_incidents(incident=incident)
+            data = {
+                "cte_code_fretolog": dados['cte_fretolog_code'],
+                "cte_code_levolog": dados['cte_levolog_code'],
+                "serie_levolog": dados['serie_levolog'],
+                "serie_fretolog": dados['serie_fretolog'],
+                "pf": dados['pf'],
+                "date": dados['date'],
+                "freto_lot": dados['freto_lot'],
+                "levo_lot": dados['levo_lot']
+            }
+            return data
 
-                self.incidents[index]["cte_code_fretolog"] = dados["cte_fretolog_code"]
-                self.incidents[index]["cte_code_levolog"] = dados["cte_levolog_code"]
-                self.incidents[index]["serie_levolog"] = dados["serie_levolog"]
-                self.incidents[index]["serie_fretolog"] = dados["serie_fretolog"]
-                self.incidents[index]["pf"] = dados["pf"]
-                self.incidents[index]["data"] = dados["data"]
-                self.incidents[index]['freto_lot'] = dados['freto_lot']
-                self.incidents[index]['levo_lot'] = dados['levo_lot']
+            self.incidents[index]["cte_code_fretolog"] = dados["cte_fretolog_code"]
+            self.incidents[index]["cte_code_levolog"] = dados["cte_levolog_code"]
+            self.incidents[index]["serie_levolog"] = dados["serie_levolog"]
+            self.incidents[index]["serie_fretolog"] = dados["serie_fretolog"]
+            self.incidents[index]["pf"] = dados["pf"]
+            self.incidents[index]["data"] = dados["data"]
+            self.incidents[index]['freto_lot'] = dados['freto_lot']
+            self.incidents[index]['levo_lot'] = dados['levo_lot']
 
-                index += 1
+            index += 1
 
-                if self.store.status["code"] == 1:
-                    logger.info(f"Não foi encontrado o CTE ou série no documento acessado para o id {incident['id']}")
+            if self.store.status["code"] == 1:
+                logger.info(f"Não foi encontrado o CTE ou série no documento acessado para o id {incident['id']}")
 
-                    self.store.send_email(
-                        subject=self.subject,
-                        recipients=self.to,
-                        body="Prezados,\nNão foi encontrado o CTE ou série no documento acessado para o id {0}".format(
-                            incident['id'])
-                    )
-            except Exception as e:
-                logger.info("Falha ao extrair dados das NFs ou na obtenção da quantidade de incidentes")
-                browser_lib.screenshot(
-                    filename=OUTPUT_DIR + '\\' + incident['id'] + '_Informacoes_adicionais.png'
+                self.store.send_email(
+                    subject=self.subject,
+                    recipients=self.to,
+                    body="Prezados,\nNão foi encontrado o CTE ou série no documento acessado para o id {0}".format(
+                        incident['id'])
                 )
+        except Exception as e:
+            logger.info("Falha ao extrair dados das NFs ou na obtenção da quantidade de incidentes")
+            browser_lib.screenshot(
+                filename=OUTPUT_DIR + '\\' + incident['id'] + '_Informacoes_adicionais.png'
+            )
 
         logger.info("Etapa de obtencao dos cte finalizada")
 
@@ -558,7 +569,7 @@ class BelgoPortal:
                     "serie_levolog": serie_levolog,
                     "serie_fretolog": serie_fretolog,
                     "pf": pf,
-                    "data": data,
+                    "date": data,
                     "freto_lot": freto_lot[0],
                     "levo_lot": levo_lot[0]
                 }
@@ -640,6 +651,24 @@ class BelgoPortal:
 
         logger.info("Etapa de obtencao da quantidade de incidentes finalizada")
 
+    def get_values_and_nf_data(self, incidents: list[dict]):
+        new_incidents = []
+        for incident in incidents:
+            additional_data = self.get_additional_incident_data(incident)
+            if not additional_data:
+                logger.error(f"Não foi possível obter todas as informações para o id {incident['id']}")
+                continue
+            new_incidents.append({**additional_data, **incident})
+            print(new_incidents)
+
+        return new_incidents
+
+    def get_nfs_data(self, incidents: list[dict]):
+        new_incidents = []
+        for incident in incidents:
+            nfs_data = self.get_nf_data(incident)
+            print(nfs_data)
+
     def run(self):
         try:
             self.config()
@@ -654,6 +683,8 @@ class BelgoPortal:
                 logger.info(f"Nenhum Registro encontrado")
                 return
 
+            enriched_incidents = self.get_values_and_nf_data(incidents)
+            self.get_nfs_data(enriched_incidents)
             self.get_incidents_additional_data()
             self.get_nfs()
 
