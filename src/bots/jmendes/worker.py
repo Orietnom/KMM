@@ -34,7 +34,7 @@ def process_case() -> None:
                 id=case["ID"]
             )
 
-            process(
+            processed = process(
                 JMNItemProcess(
                     license_plate=case.get('PLACA'),
                     driver_name=case.get('NOME_MOTORISTA'),
@@ -46,15 +46,19 @@ def process_case() -> None:
                     sender=case.get('REMETENTE'),
                     recipient=case.get('DESTINATARIO'),
                     weight=case.get('PESO'),
-                    bd_id=case.get("ID")
+                    bd_id=case.get("ID"),
+                    management=case.get('GESTAO'),
                 )
             )
-            db.update(
-                table='complementar_jmendes',
-                column='STATUS_',
-                value='OK',
-                id=case["ID"]
-            )
+            if processed:
+                db.update(
+                    table='complementar_jmendes',
+                    column='STATUS_',
+                    value='OK',
+                    id=case["ID"]
+                )
+            else:
+                raise Exception("Falha ao processar o caso de TBE {case.get('TBE')}")
         except pe.KMMProcess as pe_error:
 
             db.update(

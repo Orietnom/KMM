@@ -129,6 +129,14 @@ class BelgoPortal:
             count += 1
         return headers_dict
 
+    def _get_number_of_incidentes_button(self):
+        ul = driver.find_element(By.XPATH, '/html/body/div[3]/div/div/div[2]/div/div/div/div[6]/ul')
+
+        for btn in ul.find_elements(By.TAG_NAME, 'li'):
+            if 'incidentes' in btn.text.lower().lstrip():
+                return btn
+        return None
+
     @staticmethod
     def _get_table_size():
         itens = driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
@@ -252,7 +260,7 @@ class BelgoPortal:
             driver_value = self.get_driver_reimbursement_value(valor=float(contract_value))
 
             if not driver_value or not cte_value or not contract_value:
-                logger.error("Falha ao valor do motorista, cte ou contrato do histórico do caso para p "
+                logger.error("Falha ao encontrar valor do motorista, cte ou contrato do histórico do caso para p "
                              f"ID: {incident['id']}")
                 return None
 
@@ -403,6 +411,7 @@ class BelgoPortal:
                     if name:
                         logger.info("Documento viagem existe")
                         pdf_link = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").get_attribute("href")
+                        document_exists = True
                         break
                 except Exception as e:
                     logger.info(f"Não existe documento com nome \"Viagem\" para o id {incident['id']}")
@@ -416,111 +425,70 @@ class BelgoPortal:
             with open(OUTPUT_DIR + "/download.pdf", "wb") as f:
                 f.write(response.read())
 
-            wait_file(OUTPUT_DIR, 'download.pdf')
+            file_downloaded = wait_file(OUTPUT_DIR, 'download.pdf')
+            if not file_downloaded:
+                return None
 
-            dados = self.get_nf_data(nf_portal=int(incident["nf"]))
+            data = self.get_nf_data(nf_portal=int(incident["nf"]))
 
-            if dados['cte_fretolog_code']:
-                self.get_number_of_incidents(incident=incident)
-
-            data = {
-                "cte_code_fretolog": dados['cte_fretolog_code'],
-                "cte_code_levolog": dados['cte_levolog_code'],
-                "serie_levolog": dados['serie_levolog'],
-                "serie_fretolog": dados['serie_fretolog'],
-                "pf": dados['pf'],
-                "date": dados['date'],
-                "freto_lot": dados['freto_lot'],
-                "levo_lot": dados['levo_lot']
-            }
             return data
 
-            self.incidents[index]["cte_code_fretolog"] = dados["cte_fretolog_code"]
-            self.incidents[index]["cte_code_levolog"] = dados["cte_levolog_code"]
-            self.incidents[index]["serie_levolog"] = dados["serie_levolog"]
-            self.incidents[index]["serie_fretolog"] = dados["serie_fretolog"]
-            self.incidents[index]["pf"] = dados["pf"]
-            self.incidents[index]["data"] = dados["data"]
-            self.incidents[index]['freto_lot'] = dados['freto_lot']
-            self.incidents[index]['levo_lot'] = dados['levo_lot']
-
-            index += 1
-
-            if self.store.status["code"] == 1:
-                logger.info(f"Não foi encontrado o CTE ou série no documento acessado para o id {incident['id']}")
-
-                self.store.send_email(
-                    subject=self.subject,
-                    recipients=self.to,
-                    body="Prezados,\nNão foi encontrado o CTE ou série no documento acessado para o id {0}".format(
-                        incident['id'])
-                )
         except Exception as e:
-            logger.info("Falha ao extrair dados das NFs ou na obtenção da quantidade de incidentes")
-            browser_lib.screenshot(
-                filename=OUTPUT_DIR + '\\' + incident['id'] + '_Informacoes_adicionais.png'
-            )
-
-        logger.info("Etapa de obtencao dos cte finalizada")
+            logger.exception("Falha ao extrair dados das NFs ou na obtenção da quantidade de incidentes")
+            return None
 
     def get_nf_data(self, nf_portal):
 
-        serie_fretolog = None
+        file_path = os.path.join(OUTPUT_DIR, "download.pdf")
         cte_fretolog_code = None
         cte_levolog_code = None
         serie_levolog = None
-        data = None
-        pf = False
-        freto_lot = None
-        levo_lot = None
         index = 0
-        dados = {}
+        nf_data = {}
 
         try:
             logger.info("Inicio de obtenção de dados da nf")
             flag = False
-            with pdfplumber.open(OUTPUT_DIR + "/download.pdf") as pdf:
+            with pdfplumber.open(file_path) as pdf:
                 pdf_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
-
-            # pdf.open_pdf(OUTPUT_DIR + "/download.pdf")
-            # text = pdf.get_text_from_pdf(OUTPUT_DIR + "/download.pdf")
-            # strTexto = json.dumps(text)
 
             logger.info("Texto do pdf obtido")
 
-            nfs = re.findall("(Notas*\sf*F*iscais:*\s*\d+/?)(\d+)?", strTexto)
-            verify = re.findall('(levo log)', strTexto.lower())
-            data = re.findall('\d{2}/\d{2}/\d{4}', strTexto)
-            freto_lot = re.findall('(?<=INÍCIO DA PRESTAÇÃO\\n).*?(?=TÉRMINO DA PRESTAÇÃO)',
-                                   strTexto.encode('utf-8').decode('unicode_escape'))
+            nfs = re.findall("(Notas*\sf*F*iscais:*\s*\d+/?)(\d+)?", pdf_text)
+            verify = re.findall('(levo log)', pdf_text.lower())
+            data = re.findall('\d{2}/\d{2}/\d{4}', pdf_text)
+            freto_lot = re.findall(
+                r'(?:INÍCIO DESCARGA DATA \/ HORA\n[0-9 \/:]*)([A-Za-z -]+)(?=.*\nTÉRMINO)',
+                pdf_text
+            )
 
             if not freto_lot:
                 freto_lot = re.findall('(?<=INÍCIO DA PRESTAÇÃO\\n).*?(?=INÍCIO)',
-                                       strTexto.encode('utf-8').decode('unicode_escape'))
+                                       pdf_text.encode('utf-8').decode('unicode_escape'))
 
             if verify:
 
                 pf = True
 
-                levo_lot = re.findall("(?:FILIAL\s)([A-Z -]+)(?=NOME)", strTexto)
-                cte_levolog_code = re.findall(r"CTE\\n[0-9]+", strTexto)
-                serie_levolog = re.findall(r"\\n\d+MODELO", strTexto)
+                levo_lot = re.findall("(?:FILIALLEVO LOG - )(FILIAL [A-Z]{2})", pdf_text)
+                cte_levolog_code = re.findall(r"(?:INÍCIO DESCARGA DATA \/ HORA\n)([0-9]+)", pdf_text)
+                serie_levolog = re.findall(r"(?:INÍCIO DESCARGA DATA \/ HORA\n[0-9]+ )([0-9]{1})", pdf_text)
 
-                serie_fretolog = re.findall(r"(?:N* \d* Serie) (\d)", strTexto)
+                serie_fretolog = re.findall(r"(?:N* \d* Serie) (\d)", pdf_text)
 
                 if not cte_fretolog_code:
-                    cte_fretolog_code = re.findall(r"(?:N*)(\d*) (?:Serie \d)", strTexto)
+                    cte_fretolog_code = re.findall(r"(?:N*)(\d*) (?:Serie \d)", pdf_text)
 
                 if not serie_fretolog:
-                    serie_fretolog = re.findall(r"Serie\s+(\d+)", strTexto, flags=re.IGNORECASE)
+                    serie_fretolog = re.findall(r"Serie\s+(\d+)", pdf_text, flags=re.IGNORECASE)
 
                 if not cte_fretolog_code:
-                    cte_fretolog_code = re.findall(r"\bN[oº]?\s*(\d+)", strTexto, flags=re.IGNORECASE)
+                    cte_fretolog_code = re.findall(r"\bN[oº]?\s*(\d+)", pdf_text, flags=re.IGNORECASE)
 
             else:
                 pf = False
-                cte_fretolog_code = re.findall(r"CTE\\n[0-9]+", strTexto)
-                serie_fretolog = re.findall(r"\\n\d+MODELO", strTexto)
+                cte_fretolog_code = re.findall(r"(?:INÍCIO DESCARGA DATA \/ HORA\n)([0-9]+)", pdf_text)
+                serie_fretolog = re.findall(r"(?:INÍCIO DESCARGA DATA \/ HORA\n[0-9]+ )([0-9]{1})", pdf_text)
                 levo_lot = ['fretolog']
 
             if len(nfs) > 0:
@@ -531,8 +499,8 @@ class BelgoPortal:
                         if str(nf_portal) in number:
                             flag = True
                             if pf:
-                                cte_levolog_code = cte_levolog_code[index].replace("CTE\\n", "")
-                                serie_levolog = serie_levolog[index].replace("\\n", "").replace("MODELO", "")
+                                cte_levolog_code = cte_levolog_code[index]
+                                serie_levolog = serie_levolog[index]
                                 data = data[index]
 
                                 if cte_fretolog_code:
@@ -543,8 +511,8 @@ class BelgoPortal:
 
                                 cte_levolog_code = "Não foi possível obter o dado na nota fiscal."
                                 serie_levolog = "Não foi possível obter o dado na nota fiscal."
-                                cte_fretolog_code = cte_fretolog_code[index].replace("CTE\\n", "")
-                                serie_fretolog = serie_fretolog[index].replace("\\n", "").replace("MODELO", "")
+                                cte_fretolog_code = cte_fretolog_code[index]
+                                serie_fretolog = serie_fretolog[index]
                                 data = data[0]
                             break
 
@@ -554,16 +522,15 @@ class BelgoPortal:
                         break
 
             if not flag:
-
-                logger.warning(
+                logger.error(
                     'Numero da NF não encontrada no arquivo Viagem'
                 )
-                raise Exception
+                return None
 
             else:
 
                 logger.info("Sucesso ao obter os dados da nf")
-                dados = {
+                nf_data = {
                     "cte_levolog_code": cte_levolog_code,
                     "cte_fretolog_code": cte_fretolog_code,
                     "serie_levolog": serie_levolog,
@@ -573,25 +540,16 @@ class BelgoPortal:
                     "freto_lot": freto_lot[0],
                     "levo_lot": levo_lot[0]
                 }
+                return nf_data
 
         except Exception as e:
-            logger.error("Falha ao obter os dados da nf")
-
-            dados = {
-                "cte_levolog_code": None,
-                "cte_fretolog_code": None,
-                "serie_levolog": None,
-                "serie_fretolog": None,
-                "pf": None,
-                "data": None,
-                "freto_lot": None,
-                "levo_lot": None
-            }
+            logger.exception("Falha ao obter os dados da nf")
+            return None
 
         finally:
-            logger.info(dados)
-            os.remove(OUTPUT_DIR + "/download.pdf")
-            return dados
+            if os.path.isfile(file_path):
+                os.remove(os.path.join(OUTPUT_DIR, "download.pdf"))
+            return nf_data
 
     def get_number_of_incidents(self, incident):
 
@@ -606,20 +564,17 @@ class BelgoPortal:
         counter = 0
 
         try:
-            for idx in range(1, 21):
-                text = driver.find_element(By.XPATH, f'/html/body/div[3]/div/div/div[2]/div/div/div/div[6]/ul/li[{idx}]/a').text
-
-                if text.lower() == 'incidentes':
-                    btn = driver.find_element(By.XPATH, f"/html/body/div[3]/div/div/div[2]/div/div/div/div[6]/ul/li[{idx}]/a")
-                    btn.click()
-                    break
-
+            btn = self._get_number_of_incidentes_button()
+            if btn:
+                btn.click()
+            else:
+                logger.error("Botão \"Incidentes\" não encontrado")
+                return None
         except Exception as e:
-            logger.error('Menu \"Incidentes\" não foi encontrado.')
-            incident['number_of_incidents'] = None
+            logger.error("Botão \"Incidentes\" não encontrado")
+            return None
 
         number_of_incidents = len(driver.find_elements(By.XPATH, "//*[@id='incidentes']/div"))
-        # number_of_incidents = browser_lib.get_element_count('//*[@id="incidentes"]/div')
 
         for item in range(1, number_of_incidents + 1):
 
@@ -647,9 +602,8 @@ class BelgoPortal:
 
                     incident['incident_status'] = True
 
-        incident['number_of_incidents'] = counter
-
-        logger.info("Etapa de obtencao da quantidade de incidentes finalizada")
+        logger.info(f"Foram obtidos {counter} incidentes")
+        return counter
 
     def get_values_and_nf_data(self, incidents: list[dict]):
         new_incidents = []
@@ -664,12 +618,26 @@ class BelgoPortal:
         return new_incidents
 
     def get_nfs_data(self, incidents: list[dict]):
-        new_incidents = []
+        nf_data = []
         for incident in incidents:
-            nfs_data = self.get_nf_data(incident)
+            nfs_data = self.get_incident_nf(incident)
+            if nfs_data:
+                nf_data.append({**incident, **nfs_data})
             print(nfs_data)
+        return nf_data
 
-    def run(self):
+    def get_incidents_number_of_incidents(self, incidents: list[dict]):
+        final_data = []
+        for incident in incidents:
+            number_of_incidents = self.get_number_of_incidents(incident=incident)
+            if number_of_incidents:
+                final_data.append({**incident, "number_of_incidents": number_of_incidents})
+
+        return final_data
+
+
+    def run(self) -> None | list:
+        final_data = []
         try:
             self.config()
             self.open()
@@ -684,16 +652,16 @@ class BelgoPortal:
                 return
 
             enriched_incidents = self.get_values_and_nf_data(incidents)
-            self.get_nfs_data(enriched_incidents)
-            self.get_incidents_additional_data()
-            self.get_nfs()
+            enriched_nf_data_incidents = self.get_nfs_data(enriched_incidents)
+            final_data = self.get_incidents_number_of_incidents(enriched_nf_data_incidents)
 
             logger.info("Fim da obtenção dos casos, inserindo-os na fila.")
 
         except Exception as e:
-            logger.exception(f"Erro na obtenção dos dados da NF.")
+            logger.exception(f"Erro na obtenção dos dados.")
+            return None
         finally:
             driver.close()
-            return self.incidents
+            return final_data
 
 BelgoPortal([]).run()

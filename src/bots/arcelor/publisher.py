@@ -1,22 +1,14 @@
-import pandas as pd
-from dotenv import load_dotenv
-from shared import sharepoint
-from shared.rabbitmq import publisher
-import os
-
-load_dotenv()
-
-# Outras classes
-
 # Biliotecas
 import os
-import json
-import time
 import pandas as pd
+import freto_portal
 from shared.db_handler.db_handler import DB
 from pipefy_handler import API
 from shared.logger import logger
-import freto_portal
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 OUTPUT_DIR = f"{os.getcwd()}/output"
 INPUT_DIR = f"{os.getcwd()}/input"

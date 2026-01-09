@@ -13,6 +13,7 @@ class JMNItemProcess(BaseModel):
     recipient: str
     weight: str
     bd_id: int
+    management: str
 
 class JMNItems(BaseModel):
     items: List[JMNItemProcess]
