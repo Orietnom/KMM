@@ -511,3 +511,1016 @@ Traceback (most recent call last):
     └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
 
 FileNotFoundError: [WinError 2] O sistema não pode encontrar o arquivo especificado: 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\downloads/download.pdf'
+2026-01-09 14:00:56 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:01:02 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:01:02 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:01:04 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:01:04 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:01:35 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:01:45 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:01:45 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-09 14:01:45 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:01:45 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:01:45 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:01:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:01:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:01:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:01:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:01:45 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:01:45 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:08:43 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 149128 | {}
+2026-01-09 14:08:44 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 477.08 | {}
+2026-01-09 14:08:44 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 149128. Valor motorista: 477.08 - Valor cte 606.77 - N nf 000003301 | {}
+2026-01-09 14:09:03 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 14:09:03 | ERROR | __main__:get_nf_data | Falha ao obter os dados da nf | {}
+2026-01-09 14:09:03 | INFO | __main__:get_nf_data | {'cte_levolog_code': None, 'cte_fretolog_code': None, 'serie_levolog': None, 'serie_fretolog': None, 'pf': None, 'data': None, 'freto_lot': None, 'levo_lot': None} | {}
+2026-01-09 14:09:03 | ERROR | __main__:run | Erro na obtenção dos dados da NF. | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x0000026F972AA200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 52538, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x0000026F972A91B0>
+              └ <__main__.PyDB object at 0x0000026F94366140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x0000026F972A9240>
+           └ <__main__.PyDB object at 0x0000026F94366140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x0000026F96F82B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 699, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 687, in run
+    self.get_nfs_data(enriched_incidents)
+    │    │            └ [{'cte_value': '606.77', 'contract_value': '464.18', 'driver_value': 477.08, 'nf': '000003301', 'id': '149128', 'center': 'FR...
+    │    └ <function BelgoPortal.get_nfs_data at 0x0000026F985EE9E0>
+    └ <__main__.BelgoPortal object at 0x0000026F985D6FE0>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 669, in get_nfs_data
+    nfs_data = self.get_nf_data(incident)
+               │    │           └ {'cte_value': '606.77', 'contract_value': '464.18', 'driver_value': 477.08, 'nf': '000003301', 'id': '149128', 'center': 'FRE...
+               │    └ <function BelgoPortal.get_nf_data at 0x0000026F985EE830>
+               └ <__main__.BelgoPortal object at 0x0000026F985D6FE0>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 593, in get_nf_data
+    os.remove(OUTPUT_DIR + "/download.pdf")
+    │  │      └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\downloads'
+    │  └ <built-in function remove>
+    └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
+
+FileNotFoundError: [WinError 2] O sistema não pode encontrar o arquivo especificado: 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\downloads/download.pdf'
+2026-01-09 14:10:15 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:10:21 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:10:21 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:10:23 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:10:23 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:10:53 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:11:03 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:11:03 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-09 14:11:03 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:11:03 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:11:03 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:11:04 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:11:04 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:11:04 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:11:04 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:11:04 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:11:04 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:11:43 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 149128 | {}
+2026-01-09 14:11:44 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 477.08 | {}
+2026-01-09 14:11:44 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 149128. Valor motorista: 477.08 - Valor cte 606.77 - N nf 000003301 | {}
+2026-01-09 14:12:56 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 14:12:56 | ERROR | __main__:get_nf_data | Falha ao obter os dados da nf | {}
+2026-01-09 14:12:56 | INFO | __main__:get_nf_data | {'cte_levolog_code': None, 'cte_fretolog_code': None, 'serie_levolog': None, 'serie_fretolog': None, 'pf': None, 'data': None, 'freto_lot': None, 'levo_lot': None} | {}
+2026-01-09 14:12:56 | ERROR | __main__:run | Erro na obtenção dos dados da NF. | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000001BF32AFA200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 61065, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001BF32AF91B0>
+              └ <__main__.PyDB object at 0x000001BF2FB46140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001BF32AF9240>
+           └ <__main__.PyDB object at 0x000001BF2FB46140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000001BF32812B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 699, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 687, in run
+    self.get_nfs_data(enriched_incidents)
+    │    │            └ [{'cte_value': '606.77', 'contract_value': '464.18', 'driver_value': 477.08, 'nf': '000003301', 'id': '149128', 'center': 'FR...
+    │    └ <function BelgoPortal.get_nfs_data at 0x000001BF33DCA9E0>
+    └ <__main__.BelgoPortal object at 0x000001BF33DAEFE0>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 669, in get_nfs_data
+    nfs_data = self.get_nf_data(incident)
+               │    │           └ {'cte_value': '606.77', 'contract_value': '464.18', 'driver_value': 477.08, 'nf': '000003301', 'id': '149128', 'center': 'FRE...
+               │    └ <function BelgoPortal.get_nf_data at 0x000001BF33DCA830>
+               └ <__main__.BelgoPortal object at 0x000001BF33DAEFE0>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 593, in get_nf_data
+    os.remove(os.path.join(OUTPUT_DIR, "download.pdf"))
+    │  │      │  │    │    └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\downloads'
+    │  │      │  │    └ <function join at 0x000001BF3008B910>
+    │  │      │  └ <module 'ntpath' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\ntpath.py'>
+    │  │      └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
+    │  └ <built-in function remove>
+    └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
+
+FileNotFoundError: [WinError 2] O sistema não pode encontrar o arquivo especificado: 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\downloads\\download.pdf'
+2026-01-09 14:14:12 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:14:18 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:14:18 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:14:20 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:14:20 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:14:50 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:15:00 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:15:00 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-09 14:15:00 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:15:01 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:15:01 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:15:01 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:15:01 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:15:01 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:15:01 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:15:01 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:15:01 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:15:14 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 149128 | {}
+2026-01-09 14:15:15 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 477.08 | {}
+2026-01-09 14:15:15 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 149128. Valor motorista: 477.08 - Valor cte 606.77 - N nf 000003301 | {}
+2026-01-09 14:15:19 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 14:15:31 | ERROR | __main__:<module> | Falha ao obter os dados da nf | {}
+2026-01-09 14:18:48 | INFO | __main__:get_nf_data | {} | {}
+2026-01-09 14:18:57 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:19:03 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:19:03 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:19:05 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:19:05 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:19:35 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:19:45 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:19:45 | INFO | __main__:_get_table_size | Mostrando de 1 até 6 | {}
+2026-01-09 14:19:45 | INFO | __main__:get_incidents | 6 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:19:45 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:19:45 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:19:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:19:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:19:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:19:45 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:19:45 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:19:45 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:20:13 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 149128 | {}
+2026-01-09 14:20:14 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 477.08 | {}
+2026-01-09 14:20:14 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 149128. Valor motorista: 477.08 - Valor cte 606.77 - N nf 000003301 | {}
+2026-01-09 14:20:19 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 14:25:15 | INFO | __main__:get_nf_data | {} | {}
+2026-01-09 14:25:22 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:25:29 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:25:29 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:25:31 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:25:31 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:26:01 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:26:11 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:26:12 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 14:26:12 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:26:12 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 14:26:12 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:27:34 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 149128 | {}
+2026-01-09 14:27:35 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 477.08 | {}
+2026-01-09 14:27:35 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 149128. Valor motorista: 477.08 - Valor cte 606.77 - N nf 000003301 | {}
+2026-01-09 14:27:36 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 14:27:37 | INFO | __main__:get_incident_nf | Não existe documento com nome "Viagem" para o id 149128 | {}
+2026-01-09 14:31:25 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:31:31 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:31:31 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:31:32 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:31:32 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:32:03 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:32:13 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:32:13 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 14:32:13 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:32:13 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:32:13 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 14:32:14 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 14:32:14 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:32:35 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 151967 | {}
+2026-01-09 14:32:36 | ERROR | __main__:get_cte_value | Problema ao procurar o valor do CTE | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x0000022C948FA200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 57220, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x0000022C948F91B0>
+              └ <__main__.PyDB object at 0x0000022C91986140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x0000022C948F9240>
+           └ <__main__.PyDB object at 0x0000022C91986140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x0000022C94602B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 701, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 688, in run
+    enriched_incidents = self.get_values_and_nf_data(incidents)
+                         │    │                      └ [{'id': '151967', 'center': 'FRETO LOG - MATRIZ', 'transport': '0014698369', 'subreason': 'DIÁRIA NA DESCARGA'}]
+                         │    └ <function BelgoPortal.get_values_and_nf_data at 0x0000022C95C3E950>
+                         └ <__main__.BelgoPortal object at 0x0000022C95C27040>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 659, in get_values_and_nf_data
+    additional_data = self.get_additional_incident_data(incident)
+                      │    │                            └ {'id': '151967', 'center': 'FRETO LOG - MATRIZ', 'transport': '0014698369', 'subreason': 'DIÁRIA NA DESCARGA'}
+                      │    └ <function BelgoPortal.get_additional_incident_data at 0x0000022C95C3E440>
+                      └ <__main__.BelgoPortal object at 0x0000022C95C27040>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 248, in get_additional_incident_data
+    cte_value = self.get_cte_value(historic=historic)
+                │    │                      └ '--------------------\nUSUÁRIO: VINICIUS HENRIQUE DA MATA\nDATA:    08/12/2025 11:35:25\n\nID 151771 - PROBLEMA NA ENTREGA: C...
+                │    └ <function BelgoPortal.get_cte_value at 0x0000022C95C3E680>
+                └ <__main__.BelgoPortal object at 0x0000022C95C27040>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 361, in get_cte_value
+    raise ValueError('CTE')
+
+ValueError: CTE
+2026-01-09 14:32:36 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 329.14 | {}
+2026-01-09 14:32:36 | ERROR | __main__:get_additional_incident_data | Falha ao valor do motorista, cte ou contrato do histórico do caso para p ID: 151967 | {}
+2026-01-09 14:35:42 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:35:48 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:35:48 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:35:50 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:35:50 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:36:20 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:36:30 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:36:30 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 14:36:30 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:36:30 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:36:30 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:36:30 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:36:30 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:36:30 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:36:30 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:36:31 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:36:31 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 14:36:31 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 14:36:31 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:37:00 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 14:37:02 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 14:37:02 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 14:39:06 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 14:39:15 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 14:39:15 | INFO | __main__:get_incident_nf | Falta documento no portal para o id 148495 | {}
+2026-01-09 14:40:23 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 14:40:26 | INFO | __main__:get_nf_data | Texto do pdf obtido | {}
+2026-01-09 14:40:26 | ERROR | __main__:get_nf_data | Falha ao obter os dados da nf | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000002715A68A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 60155, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000002715A6891B0>
+              └ <__main__.PyDB object at 0x0000027157AB6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000002715A689240>
+           └ <__main__.PyDB object at 0x0000027157AB6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000002715A382B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 701, in <module>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 689, in run
+    enriched_incidents = self.get_values_and_nf_data(incidents)
+                         │    │                      └ [{'id': '148495', 'center': 'FRETO LOG - MATRIZ', 'transport': '0014538080', 'subreason': 'TICKET DE PEDÁGIO NÃO EMITIDO'}]
+                         │    └ <function BelgoPortal.get_values_and_nf_data at 0x000002715B9DE9E0>
+                         └ <__main__.BelgoPortal object at 0x000002715B9C7040>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 671, in get_nfs_data
+    for incident in incidents:
+        │           └ [{'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FR...
+        └ {'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FRE...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 413, in get_incident_nf
+    logger.info(f"Falta documento no portal para o id {incident['id']}")
+    │      └ <function Logger.info at 0x000002715B583D00>
+    └ <loguru.logger handlers=[(id=1, level=20, sink=<stderr>), (id=2, level=20, sink='L:\ergon\dev\Freto\KMM\logs\kmm_{time:YYYY-M...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1196, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+    │    │                │       │      │      │    │             └ []
+    │    │                │       │      │      │    └ 'trace'
+    │    │                │       │      │      └ None
+    │    │                │       │      └ 'line'
+    │    │                │       └ <frame at 0x000002715AB890B0, file 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py', line 413, code get_incident...
+    │    │                └ <_MainThread(MainThread, started 7588)>
+    │    └ <function PyDB._do_wait_suspend at 0x000002715A688B80>
+    └ <__main__.PyDB object at 0x0000027157AB6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1210, in _do_wait_suspend
+    self.process_internal_commands()
+    │    └ <function PyDB.process_internal_commands at 0x000002715A6880D0>
+    └ <__main__.PyDB object at 0x0000027157AB6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 896, in process_internal_commands
+    int_cmd.do_it(self)
+    │       │     └ <__main__.PyDB object at 0x0000027157AB6140>
+    │       └ <function InternalConsoleExec.do_it at 0x000002715A4956C0>
+    └ <_pydevd_bundle.pydevd_comm.InternalConsoleExec object at 0x000002715BC1FBE0>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydevd_bundle\pydevd_comm.py", line 1897, in do_it
+    result, exception_occurred = pydevd_console_integration.console_exec(self.thread_id, self.frame_id, self.expression, dbg)
+                                 │                          │            │    │          │    │         │    │           └ <__main__.PyDB object at 0x0000027157AB6140>
+                                 │                          │            │    │          │    │         │    └ 'dados = self.get_nf_data(nf_portal=int(incident["nf"]))@LINE@'
+                                 │                          │            │    │          │    │         └ <_pydevd_bundle.pydevd_comm.InternalConsoleExec object at 0x000002715BC1FBE0>
+                                 │                          │            │    │          │    └ '2685876605104'
+                                 │                          │            │    │          └ <_pydevd_bundle.pydevd_comm.InternalConsoleExec object at 0x000002715BC1FBE0>
+                                 │                          │            │    └ 'pid_796_id_2685827143600'
+                                 │                          │            └ <_pydevd_bundle.pydevd_comm.InternalConsoleExec object at 0x000002715BC1FBE0>
+                                 │                          └ <function console_exec at 0x000002715A4783A0>
+                                 └ <module '_pydevd_bundle.pydevd_console_integration' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-c...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydevd_bundle\pydevd_console_integration.py", line 236, in console_exec
+    Exec(code, updated_globals, updated_globals)
+    │    │     │                └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │    │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │    └ <code object <module> at 0x000002715A41F310, file "<input>", line 1>
+    └ <function Exec at 0x000002715A382C20>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydevd_bundle\pydevd_exec2.py", line 3, in Exec
+    exec(exp, global_vars, local_vars)
+         │    │            └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+         │    └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+         └ <code object <module> at 0x000002715A41F310, file "<input>", line 1>
+
+  File "<input>", line 1, in <module>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 492, in get_nf_data
+
+NameError: name 'strTexto' is not defined
+2026-01-09 14:40:26 | INFO | __main__:get_nf_data | {'cte_levolog_code': None, 'cte_fretolog_code': None, 'serie_levolog': None, 'serie_fretolog': None, 'pf': None, 'data': None, 'freto_lot': None, 'levo_lot': None} | {}
+2026-01-09 14:40:36 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 14:40:42 | INFO | __main__:access | Realizando login | {}
+2026-01-09 14:40:42 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 14:40:44 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 14:40:44 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 14:41:14 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 14:41:25 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 14:41:25 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 14:41:25 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 14:41:25 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 14:41:25 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 14:42:03 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 14:42:04 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 14:42:04 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 14:42:06 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 14:42:15 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 14:42:21 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 15:14:22 | INFO | __main__:get_nf_data | {} | {}
+2026-01-09 15:14:22 | INFO | __main__:get_incident_nf | Falha ao extrair dados das NFs ou na obtenção da quantidade de incidentes | {}
+2026-01-09 15:14:22 | ERROR | __main__:run | Erro na obtenção dos dados da NF. | {}
+Traceback (most recent call last):
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 424, in get_incident_nf
+    if dados['cte_fretolog_code']:
+       └ {}
+
+KeyError: 'cte_fretolog_code'
+
+
+During handling of the above exception, another exception occurred:
+
+
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000001CC2CF9A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 53577, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001CC2CF991B0>
+              └ <__main__.PyDB object at 0x000001CC2A456140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001CC2CF99240>
+           └ <__main__.PyDB object at 0x000001CC2A456140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000001CC2CCB2B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 702, in <module>
+    return self.incidents
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 690, in run
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 672, in get_nfs_data
+    new_incidents = []
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 461, in get_incident_nf
+    browser_lib.screenshot(
+
+NameError: name 'browser_lib' is not defined
+2026-01-09 15:14:29 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 15:14:35 | INFO | __main__:access | Realizando login | {}
+2026-01-09 15:14:35 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 15:14:37 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 15:14:37 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 15:15:08 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 15:15:18 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 15:15:18 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 15:15:18 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 15:15:18 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 15:15:18 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 15:17:44 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 15:17:45 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 15:17:45 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 15:17:49 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 15:17:57 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 15:18:17 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 15:18:27 | INFO | __main__:get_nf_data | Texto do pdf obtido | {}
+2026-01-09 15:18:27 | INFO | __main__:get_nf_data | Sucesso ao obter os dados da nf | {}
+2026-01-09 15:51:19 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 15:51:26 | INFO | __main__:access | Realizando login | {}
+2026-01-09 15:51:27 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 15:51:33 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 15:51:33 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 15:52:03 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 15:52:13 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 15:52:13 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 15:52:13 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 15:52:13 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 15:52:13 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 15:52:14 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 15:52:20 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 15:52:22 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 15:52:22 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 15:52:53 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 15:53:04 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 15:53:10 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 15:53:20 | INFO | __main__:get_nf_data | Texto do pdf obtido | {}
+2026-01-09 15:53:20 | INFO | __main__:get_nf_data | Sucesso ao obter os dados da nf | {}
+2026-01-09 15:56:13 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 15:56:19 | INFO | __main__:access | Realizando login | {}
+2026-01-09 15:56:19 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 15:56:21 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 15:56:21 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 15:56:52 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 15:57:02 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 15:57:02 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 15:57:02 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 15:57:02 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 15:57:02 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 15:58:24 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 15:58:25 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 15:58:25 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 15:58:34 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 15:58:41 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 15:58:51 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 15:59:02 | INFO | __main__:get_nf_data | Texto do pdf obtido | {}
+2026-01-09 15:59:02 | INFO | __main__:get_nf_data | Sucesso ao obter os dados da nf | {}
+2026-01-09 15:59:06 | INFO | __main__:get_number_of_incidents | Etapa de obtencao da quantidade de incidentes | {}
+2026-01-09 15:59:06 | INFO | __main__:get_number_of_incidents | Foram obtidos 0 incidentes | {}
+2026-01-09 15:59:16 | INFO | __main__:get_number_of_incidents | Etapa de obtencao da quantidade de incidentes | {}
+2026-01-09 15:59:18 | INFO | __main__:get_number_of_incidents | Foram obtidos 0 incidentes | {}
+2026-01-09 16:01:15 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:01:21 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:01:21 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:01:21 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:01:21 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:01:52 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:02:02 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:02:02 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:02:02 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:02:02 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:02:02 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:03:17 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:03:18 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:03:18 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:03:26 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:03:36 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:03:36 | ERROR | __main__:run | Erro na obtenção dos dados da NF. | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000002A83B05A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 49250, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000002A83B0591B0>
+              └ <__main__.PyDB object at 0x000002A8384B6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000002A83B059240>
+           └ <__main__.PyDB object at 0x000002A8384B6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000002A83AD52B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 664, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 652, in run
+    enriched_nf_data_incidents = self.get_nfs_data(enriched_incidents)
+                                 │    │            └ [{'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FR...
+                                 │    └ <function BelgoPortal.get_nfs_data at 0x000002A83C39A9E0>
+                                 └ <__main__.BelgoPortal object at 0x000002A83C383130>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 621, in get_nfs_data
+    nfs_data = self.get_incident_nf(incident)
+               │    │               └ {'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FRE...
+               │    └ <function BelgoPortal.get_incident_nf at 0x000002A83C39A7A0>
+               └ <__main__.BelgoPortal object at 0x000002A83C383130>
+
+SystemError: _PyEval_EvalFrameDefault returned NULL without setting an exception
+2026-01-09 16:04:58 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:05:04 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:05:04 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:05:06 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:05:06 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:05:36 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:05:46 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:05:46 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:05:46 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:05:46 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:05:46 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:05:46 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:05:46 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:05:47 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:05:47 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:05:47 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:05:47 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:05:47 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:05:47 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:05:51 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:05:52 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:05:52 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:05:52 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:06:01 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:06:01 | ERROR | __main__:run | Erro na obtenção dos dados. | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x0000029EAB70A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 60327, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x0000029EAB7091B0>
+              └ <__main__.PyDB object at 0x0000029EA8B06140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x0000029EAB709240>
+           └ <__main__.PyDB object at 0x0000029EA8B06140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x0000029EAB3E2B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 664, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 652, in run
+    enriched_nf_data_incidents = self.get_nfs_data(enriched_incidents)
+                                 │    │            └ [{'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FR...
+                                 │    └ <function BelgoPortal.get_nfs_data at 0x0000029EACA4E950>
+                                 └ <__main__.BelgoPortal object at 0x0000029EACA36CB0>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 621, in get_nfs_data
+    nfs_data = self.get_incident_nf(incident)
+               │    │               └ {'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FRE...
+               │    └ <function BelgoPortal.get_incident_nf at 0x0000029EACA4E710>
+               └ <__main__.BelgoPortal object at 0x0000029EACA36CB0>
+
+SystemError: _PyEval_EvalFrameDefault returned NULL without setting an exception
+2026-01-09 16:09:43 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:09:51 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:09:51 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:09:53 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:09:53 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:10:23 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:10:33 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:10:33 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:10:33 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:10:33 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:10:34 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:11:45 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:11:46 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:11:46 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:11:46 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:11:56 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:12:46 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 16:13:20 | INFO | __main__:get_nf_data | Texto do pdf obtido | {}
+2026-01-09 16:15:13 | INFO | __main__:get_nf_data | Sucesso ao obter os dados da nf | {}
+2026-01-09 16:16:53 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:16:59 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:17:00 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:17:01 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:17:01 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:17:31 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:17:41 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:17:41 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:17:41 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:17:41 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:17:42 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:18:46 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:18:48 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:18:48 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:18:48 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:18:56 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:18:57 | ERROR | __main__:run | Erro na obtenção dos dados. | {}
+Traceback (most recent call last):
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2392, in <module>
+    main()
+    └ <function main at 0x000001F614B7A200>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 2373, in main
+    globals = debugger.run(setup['file'], None, None, is_module)
+              │        │   │                          └ False
+              │        │   └ {'port': 59298, 'vm_type': None, 'client': '127.0.0.1', 'server': False, 'DEBUG_RECORD_SOCKET_READS': False, 'multiproc': Fal...
+              │        └ <function PyDB.run at 0x000001F614B791B0>
+              └ <__main__.PyDB object at 0x000001F611FD6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1641, in run
+    return self._exec(is_module, entry_point_fn, module_name, file, globals, locals)
+           │    │     │          │               │            │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+           │    │     │          │               │            └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+           │    │     │          │               └ None
+           │    │     │          └ ''
+           │    │     └ False
+           │    └ <function PyDB._exec at 0x000001F614B79240>
+           └ <__main__.PyDB object at 0x000001F611FD6140>
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1648, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    │             │        │     │        └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+    │             │        └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+    │             └ <function execfile at 0x000001F614852B00>
+    └ <module '_pydev_bundle.pydev_imports' from 'C:\\Program Files\\JetBrains\\PyCharm 2025.2.1.1\\plugins\\python-ce\\helpers\\py...
+
+  File "C:\Program Files\JetBrains\PyCharm 2025.2.1.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+                 │              │              │     └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              │              └ {'__name__': '__main__', '__doc__': None, '__package__': '', '__loader__': <_frozen_importlib_external.SourceFileLoader objec...
+                 │              └ 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\bba_portal.py'
+                 └ 'from typing import Any\n\nfrom selenium import webdriver\nfrom webdriver_manager.chrome import ChromeDriverManager\nfrom sel...
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 666, in <module>
+    BelgoPortal([]).run()
+    └ <class '__main__.BelgoPortal'>
+
+> File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 654, in run
+    enriched_nf_data_incidents = self.get_nfs_data(enriched_incidents)
+                                 │    │            └ [{'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FR...
+                                 │    └ <function BelgoPortal.get_nfs_data at 0x000001F615EBE9E0>
+                                 └ <__main__.BelgoPortal object at 0x000001F615EA6D10>
+
+  File "L:\ergon\dev\Freto\KMM\src\bots\belgo\bba_portal.py", line 624, in get_nfs_data
+    nf_data.append({**incident, **nfs_data})
+    │       │         │           └ None
+    │       │         └ {'cte_value': '141.95', 'contract_value': '108.60', 'driver_value': 111.62, 'nf': '000252205', 'id': '148495', 'center': 'FRE...
+    │       └ <method 'append' of 'list' objects>
+    └ []
+
+TypeError: 'NoneType' object is not a mapping
+2026-01-09 16:19:20 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:19:26 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:19:26 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:19:28 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:19:28 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:19:58 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:20:08 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:20:08 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:20:08 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:20:08 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:20:08 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:20:08 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:20:09 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:27:19 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:27:21 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:27:21 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:27:21 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:27:29 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:27:53 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:27:59 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:27:59 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:28:01 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:28:01 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:28:31 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:28:41 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:28:41 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:28:41 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:28:42 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:28:42 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:28:48 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:28:49 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:28:49 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:28:49 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:28:57 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:30:59 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:31:05 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:31:05 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:31:07 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:31:07 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:31:37 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:31:47 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:31:47 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:31:47 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:31:47 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:31:47 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:31:47 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:31:47 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:31:47 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:31:47 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:31:47 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:31:48 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:31:48 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:31:48 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:32:11 | INFO | __main__:open | Acessando o portal BBA | {}
+2026-01-09 16:32:17 | INFO | __main__:access | Realizando login | {}
+2026-01-09 16:32:17 | INFO | __main__:access | Botão encontrado | {}
+2026-01-09 16:32:19 | INFO | __main__:access | Login realizado com sucesso | {}
+2026-01-09 16:32:19 | INFO | __main__:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-09 16:32:49 | INFO | __main__:search_for | Alerta não apareceu | {}
+2026-01-09 16:32:59 | INFO | __main__:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-09 16:32:59 | INFO | __main__:_get_table_size | Mostrando de 1 até 8 | {}
+2026-01-09 16:32:59 | INFO | __main__:get_incidents | 8 incidentes encontrados. Filtrando... | {}
+2026-01-09 16:32:59 | INFO | __main__:get_incidents | Página 1 | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-09 16:32:59 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153378 esta fora do escopo da automação | {}
+2026-01-09 16:33:00 | WARNING | __main__:get_incidents | O motivo REEMBOLSO do id 153792 esta fora do escopo da automação | {}
+2026-01-09 16:33:00 | INFO | __main__:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-09 16:33:35 | INFO | __main__:get_additional_incident_data | Iniciando a obtenção de dados adicionais para o ID: 148495 | {}
+2026-01-09 16:33:36 | INFO | __main__:get_driver_reimbursement_value | Valor do contrato: 111.62 | {}
+2026-01-09 16:33:36 | INFO | __main__:get_additional_incident_data | Informação de valores encontrados para o ID 148495. Valor motorista: 111.62 - Valor cte 141.95 - N nf 000252205 | {}
+2026-01-09 16:33:36 | INFO | __main__:get_incident_nf | Etapa de obtencao dos cte code | {}
+2026-01-09 16:33:46 | INFO | __main__:get_incident_nf | Documento viagem existe | {}
+2026-01-09 16:33:46 | INFO | shared.sharepoint:wait_file | Aguardando o download do arquivo L:\ergon\dev\Freto\KMM\src\bots\belgo\downloads\download.pdf | {}
+2026-01-09 16:33:46 | INFO | shared.sharepoint:wait_file | Download concluído | {}
+2026-01-09 16:35:06 | INFO | __main__:get_nf_data | Inicio de obtenção de dados da nf | {}
+2026-01-09 16:35:09 | INFO | __main__:get_nf_data | Texto do pdf obtido | {}
+2026-01-09 16:35:09 | INFO | __main__:get_nf_data | Sucesso ao obter os dados da nf | {}

@@ -16,7 +16,8 @@ def process(queue_item: JMNItemProcess):
                 url = os.getenv('KMM_URL'),
                 username = os.getenv('KMM_JMN_USERNAME'),
                 password= os.getenv('KMM_JMN_PASSWORD')
-            )
+            ),
+            management=queue_item.management
         )
 
         kmm.jmendes_load_user_profile(
