@@ -21,7 +21,7 @@ def process(queue_item: JMNItemProcess):
 
         kmm.jmendes_load_user_profile(
             user=os.getenv("KMM_JMN_USERNAME"),
-            center='mg'
+            center='matriz'
         )
 
         contract_number = kmm.emitting_contract_repomfretea(

@@ -511,3 +511,14 @@ Traceback (most recent call last):
     └ <module 'os' from 'C:\\Users\\Lucas\\AppData\\Roaming\\uv\\python\\cpython-3.10.12-windows-x86_64-none\\lib\\os.py'>
 
 FileNotFoundError: [WinError 2] O sistema não pode encontrar o arquivo especificado: 'L:\\ergon\\dev\\Freto\\KMM\\src\\bots\\belgo\\downloads/download.pdf'
+2026-01-09 12:17:50 | INFO | kmm.services.kmm_actions:login | Iniciando login | {'service': 'JMendes'}
+2026-01-09 12:18:08 | INFO | kmm.services.kmm_actions:login | Fim do Login | {'service': 'JMendes'}
+2026-01-09 12:18:08 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu lot via acesso rápido | {'service': 'JMendes'}
+2026-01-09 12:18:18 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-09 12:18:41 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu REPOMFRETEA via acesso rápido | {'service': 'JMendes'}
+2026-01-09 12:19:59 | INFO | kmm.services.kmm_actions:login | Iniciando login | {'service': 'JMendes'}
+2026-01-09 12:20:12 | INFO | kmm.services.kmm_actions:login | Fim do Login | {'service': 'JMendes'}
+2026-01-09 12:20:12 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu lot via acesso rápido | {'service': 'JMendes'}
+2026-01-09 12:20:20 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-09 12:21:11 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu REPOMFRETEA via acesso rápido | {'service': 'JMendes'}
+2026-01-09 12:21:19 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}

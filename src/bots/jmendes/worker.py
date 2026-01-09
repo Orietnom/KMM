@@ -1,5 +1,5 @@
 import json
-import pika
+# import pika
 import os
 from dotenv import load_dotenv
 from src.bots.jmendes.kmm_process import process
@@ -99,41 +99,41 @@ def process_case() -> None:
                 id=case["ID"]
             )
 
-def main() -> None:
-    params = pika.URLParameters(RABBITMQ_URL)
-    connection = pika.BlockingConnection(params)
-    channel = connection.channel()
-
-    channel.queue_declare(queue=QUEUE_NAME, durable=True)
-
-    channel.basic_qos(prefetch_count=1)
-
-    def on_message(ch, method, properties, body: bytes):
-        try:
-            case = json.loads(body.decode("utf-8"))
-            process_case(case)
-
-            # ACK só depois de processar (garante “at least once”)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-
-        except Exception as e:
-            print("Erro processando mensagem:", e)
-
-            # Opção 1 (mais segura): requeue=True tenta de novo (cuidado com loop infinito)
-            # ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
-
-            # Opção 2: descarta (requeue=False)
-            # ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-
-    channel.basic_consume(queue=QUEUE_NAME, on_message_callback=on_message)
-
-    print("Aguardando mensagens... Ctrl+C pra sair")
-    try:
-        channel.start_consuming()
-    except KeyboardInterrupt:
-        print("Parando...")
-    finally:
-        connection.close()
+# def main() -> None:
+#     params = pika.URLParameters(RABBITMQ_URL)
+#     connection = pika.BlockingConnection(params)
+#     channel = connection.channel()
+#
+#     channel.queue_declare(queue=QUEUE_NAME, durable=True)
+#
+#     channel.basic_qos(prefetch_count=1)
+#
+#     def on_message(ch, method, properties, body: bytes):
+#         try:
+#             case = json.loads(body.decode("utf-8"))
+#             process_case(case)
+#
+#             # ACK só depois de processar (garante “at least once”)
+#             ch.basic_ack(delivery_tag=method.delivery_tag)
+#
+#         except Exception as e:
+#             print("Erro processando mensagem:", e)
+#
+#             # Opção 1 (mais segura): requeue=True tenta de novo (cuidado com loop infinito)
+#             # ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+#
+#             # Opção 2: descarta (requeue=False)
+#             # ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+#
+#     channel.basic_consume(queue=QUEUE_NAME, on_message_callback=on_message)
+#
+#     print("Aguardando mensagens... Ctrl+C pra sair")
+#     try:
+#         channel.start_consuming()
+#     except KeyboardInterrupt:
+#         print("Parando...")
+#     finally:
+#         connection.close()
 
 
 if __name__ == "__main__":
