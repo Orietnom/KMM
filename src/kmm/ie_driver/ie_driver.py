@@ -177,9 +177,9 @@ class KMMIEDriver:
         options = webdriver.IeOptions()
         options.ignore_zoom_level = self.config.ignore_zoom_level
         options.ignore_protected_mode_settings = self.config.ignore_protected_mode_settings
-        options.require_window_focus = self.config.require_window_focus
-        options.native_events = self.config.native_events
-        options.ensure_clean_session = self.config.ensure_clean_session
+        # options.require_window_focus = self.config.require_window_focus
+        # options.native_events = self.config.native_events
+        # options.ensure_clean_session = self.config.ensure_clean_session
 
         # Cria driver
         try:

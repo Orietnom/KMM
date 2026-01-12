@@ -323,6 +323,15 @@ class KMMActions:
                 f"Motorista {driver_name}."
             ) from e
 
+    def _force_CC(self):
+        self.driver.switch_to_frame(principal=False)
+        self.driver.execute_js("""
+        sel = document.getElementById("ORGANIZACIONAL_ID")
+        inp = document.getElementById("COD_ORGANIZACIONAL")
+        opt = sel.options[sel.selectedIndex]
+        inp.value = opt.getAttribute("codigo");
+        """)
+
     def _get_contract_number(self) -> str:
         try:
             for _ in range(18):
@@ -447,7 +456,8 @@ class KMMActions:
                     kmm_pass = password_generate(license_plate=lp, control_number=control_number)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     self.driver.safe_type('id:OBSERVACAO', '.')
-
+                    time.sleep(3)
+                    self._force_CC()
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
 
