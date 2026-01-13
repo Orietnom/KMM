@@ -2435,3 +2435,23 @@ exceptions.personalized_exceptions.KMMLoginError: Erro ao realizar o login no KM
 2026-01-12 16:00:16 | INFO | kmm.services.kmm_actions:login | Fim do Login | {'service': 'JMendes'}
 2026-01-12 16:00:16 | INFO | kmm.services.kmm_actions:quick_access | Acessando menu REPOMFRETEA via acesso rápido | {'service': 'JMendes'}
 2026-01-12 16:00:37 | INFO | kmm.services.kmm_actions:quick_access | Fim do acesso rápido | {'service': 'JMendes'}
+2026-01-12 16:13:04 | WARNING | __main__:run | Sem novos casos no Pipefy a serem tratados | {}
+2026-01-12 16:15:21 | INFO | bba_portal:open | Acessando o portal BBA | {}
+2026-01-12 16:15:27 | INFO | bba_portal:access | Realizando login | {}
+2026-01-12 16:15:28 | INFO | bba_portal:access | Botão encontrado | {}
+2026-01-12 16:15:29 | INFO | bba_portal:access | Login realizado com sucesso | {}
+2026-01-12 16:15:29 | INFO | bba_portal:search_for | Realizando busca pelo termo: emissão de cte | {}
+2026-01-12 16:15:59 | INFO | bba_portal:search_for | Alerta não apareceu | {}
+2026-01-12 16:16:09 | INFO | bba_portal:get_incidents | Iniciando a obtenção da lista de incidentes | {}
+2026-01-12 16:16:09 | INFO | bba_portal:_get_table_size | Mostrando de 1 até 7 | {}
+2026-01-12 16:16:09 | INFO | bba_portal:get_incidents | 7 incidentes encontrados. Filtrando... | {}
+2026-01-12 16:16:10 | INFO | bba_portal:get_incidents | Página 1 | {}
+2026-01-12 16:16:10 | WARNING | bba_portal:get_incidents | O motivo REEMBOLSO do id 149128 esta fora do escopo da automação | {}
+2026-01-12 16:16:10 | WARNING | bba_portal:get_incidents | O motivo DIÁRIA EXTERNA do id 151780 esta fora do escopo da automação | {}
+2026-01-12 16:16:10 | WARNING | bba_portal:get_incidents | O motivo DIÁRIA EXTERNA do id 151967 esta fora do escopo da automação | {}
+2026-01-12 16:16:10 | WARNING | bba_portal:get_incidents | O motivo DIÁRIA INTERNA do id 152001 esta fora do escopo da automação | {}
+2026-01-12 16:16:10 | WARNING | bba_portal:get_incidents | O motivo DIÁRIA EXTERNA do id 152033 esta fora do escopo da automação | {}
+2026-01-12 16:16:11 | WARNING | bba_portal:get_incidents | O motivo REEMBOLSO do id 152394 esta fora do escopo da automação | {}
+2026-01-12 16:16:11 | WARNING | bba_portal:get_incidents | O motivo REEMBOLSO do id 153137 esta fora do escopo da automação | {}
+2026-01-12 16:16:11 | INFO | bba_portal:get_incidents | 0 incidentes são elegíveis para automação tratar | {}
+2026-01-12 16:16:11 | INFO | bba_portal:run | Nenhum Registro encontrado | {}

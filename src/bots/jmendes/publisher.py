@@ -20,7 +20,7 @@ def run():
         if ok:
             full_file_path = os.path.join(download_dir, os.getenv("JMN_EXCEL_FILE_NAME"))
             df = pd.read_excel(full_file_path, sheet_name=os.getenv("JMN_EXCEL_SHEET_NAME"), dtype="string")
-            df = df = df.drop(columns=["Data"], errors="ignore")
+            df = df.drop(columns=["Data"], errors="ignore")
             df_renamed = df.rename(columns={
                 "TB-e": "TBE",
                 "Cartão": "CARTAO",

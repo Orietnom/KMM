@@ -204,7 +204,7 @@ class BelgoPortal:
                     logger.warning(f"ID {cte_attempt} possui tentativa de CTe")
                     continue
 
-                reason = driver.find_element(By.XPATH, line_path.format(item, headers['Natureza'])).text
+                reason = driver.find_element(By.XPATH, line_path.format(item, headers['Submotivo'])).text
                 if reason in [
                     "DESCARGA",
                     "TICKET DE PEDÁGIO NÃO EMITIDO",
@@ -553,7 +553,7 @@ class BelgoPortal:
 
     def get_number_of_incidents(self, incident):
 
-        logger.info("Etapa de obtencao da quantidade de incidentes")
+        logger.info(f"Etapa de obtencao da quantidade de incidentes para o id {incident['id']}")
 
         incident_names = [
             'diáriaexterna',
@@ -575,6 +575,9 @@ class BelgoPortal:
             return None
 
         number_of_incidents = len(driver.find_elements(By.XPATH, "//*[@id='incidentes']/div"))
+        if not number_of_incidents:
+            logger.error("Não há nenhum incidente para este caso")
+            return None
 
         for item in range(1, number_of_incidents + 1):
 
@@ -591,16 +594,20 @@ class BelgoPortal:
 
             if name.lower() in incident_names:
 
-                id = re.findall('[0-9]+', splited_text[0])[0]
+                id_ = re.findall('[0-9]+', splited_text[0])[0]
                 phase = splited_text[1].replace("Etapa: ", "")
                 status = splited_text[2].replace("Status: ", "")
 
-                if id == incident['id'] and phase.lower() == 'emissão de cte' and status.lower() == 'em aberto':
+                if id_ == incident['id'] and phase.lower() == 'emissão de cte' and status.lower() == 'em aberto':
                     counter += 1
-                    logger.info(f"Incidente encontrado para o ID buscado. Id => {id} - Nome => {name} - "
+                    logger.info(f"Incidente encontrado para o ID buscado. Id => {id_} - Nome => {name} - "
                                 f"Fase => {phase} - Status => {status}")
 
                     incident['incident_status'] = True
+                else:
+                    logger.error(f"Incidente com id ou fase não correspondente id {id_} - fase {phase} - status {status}")
+            else:
+                logger.error(f"Nome do incidente {name} não corresponde a 'diária externa', 'diária interna', 'pedágio' ou 'reembolso'")
 
         logger.info(f"Foram obtidos {counter} incidentes")
         return counter

@@ -13,3 +13,5 @@ venv
 .env
 
 evidence/
+logs/
+*.log

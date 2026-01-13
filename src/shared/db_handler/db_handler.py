@@ -1,15 +1,14 @@
 import os
-from typing import Any
-
-import numpy as np
-from datetime import datetime
-
 import pandas as pd
+import numpy as np
+from typing import Any
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
+from shared.logger import logger
 load_dotenv()
 
 class DB:
@@ -66,6 +65,7 @@ class DB:
         allowed_tables = [
             "complementar_jmendes",
             "complementar_arcelor",
+            "complementar_belgo2"
         ]
         if table not in allowed_tables:
             raise ValueError("Tabela não permitida")
@@ -93,7 +93,7 @@ class DB:
         """)
 
         rows = df.where(pd.notna(df), None).to_dict(orient="records")  # NaN -> NULL
-
+        logger.info(f"Inserindo {len(rows)} linhas no banco de dados")
         with self.engine.begin() as conn:
             result = conn.execute(stmt, rows)
 

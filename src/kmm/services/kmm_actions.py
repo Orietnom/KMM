@@ -445,6 +445,7 @@ class KMMActions:
                         self.driver.execute_js('f_calcula_peso_ton();')
                         self.driver.safe_type('id:VOLUME', weight)
                         self.driver.execute_js('f_calcula_peso_ton();')
+                        self.driver.execute_js('f_formata_numero_decimal(this,event);')
 
                     self.driver.safe_click('id:COD_UNIDADE_COMBO')
                     self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
@@ -468,6 +469,7 @@ class KMMActions:
                     alert_text = alert.text.lower()
                     if "sucesso" in alert_text:
                         self.log.info("Contrato enviado a REPOM, aguardando retorno do número do contrato")
+                        alert.accept()
 
                     else:
                         raise pe.KMMEmittingContractError(f"Falha ao gerar o contrato. Mensagem da pop-up: {alert_text}")

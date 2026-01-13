@@ -22,7 +22,7 @@ class Main:
     def run(self):
         try:
             if not self.incidents:
-                logger.error("Sem casos")
+                logger.warning("Sem novos casos no Pipefy a serem tratados")
                 return False
 
             incidents = freto_portal.run(
