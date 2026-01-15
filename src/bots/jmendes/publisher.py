@@ -27,7 +27,7 @@ def run():
                 "Placa": "PLACA",
                 "Motorista": "NOME_MOTORISTA",
                 "Gestão": "GESTAO",
-                "Peso": "PESO",
+                "Valor": "VALOR_CONTRATO",
                 "Natureza": "NATUREZA",
                 "Operação": "OPERACAO",
                 "Rota": "ROTA",

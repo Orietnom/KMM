@@ -10,6 +10,8 @@ class Main:
         incidents = self.db.get_data('complementar_belgo2')
         bba = BelgoPortal(incidents)
         new_incidents = bba.run()
+        if not new_incidents:
+            return
         df = pd.DataFrame(new_incidents)
         df = df.drop(columns=["pf", "incident_status"])
         df["date"] = pd.to_datetime(

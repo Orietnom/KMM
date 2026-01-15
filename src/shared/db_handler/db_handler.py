@@ -45,6 +45,7 @@ class DB:
             WHERE CRIADO_EM >= :dt_min
               AND RETENTATIVA < 3
               AND STATUS_ <> 'OK'
+              AND CONTRATO IS NULL
         """)
 
         df = pd.read_sql(query, self.engine, params={"dt_min": dt_min})
@@ -97,6 +98,8 @@ class DB:
         with self.engine.begin() as conn:
             result = conn.execute(stmt, rows)
 
+        if result.rowcount:
+            logger.success(f"Foram inseridas {result.rowcount} linhas")
         return result.rowcount
 
     def update(self, value: Any, column: str, table: str, id: int):

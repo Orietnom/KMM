@@ -489,7 +489,7 @@ class BelgoPortal:
                 pf = False
                 cte_fretolog_code = re.findall(r"(?:INÍCIO DESCARGA DATA \/ HORA\n)([0-9]+)", pdf_text)
                 serie_fretolog = re.findall(r"(?:INÍCIO DESCARGA DATA \/ HORA\n[0-9]+ )([0-9]{1})", pdf_text)
-                levo_lot = ['fretolog']
+                levo_lot = []
 
             if len(nfs) > 0:
 
@@ -509,8 +509,8 @@ class BelgoPortal:
 
                             else:
 
-                                cte_levolog_code = "Não foi possível obter o dado na nota fiscal."
-                                serie_levolog = "Não foi possível obter o dado na nota fiscal."
+                                cte_levolog_code = None
+                                serie_levolog = None
                                 cte_fretolog_code = cte_fretolog_code[index]
                                 serie_fretolog = serie_fretolog[index]
                                 data = data[0]

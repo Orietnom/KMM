@@ -31,7 +31,7 @@ def process(queue_item: JMNItemProcess):
             recipient=queue_item.recipient,
             liberation_user=os.getenv("JMN_LIBERATION_USER"),
             control_number=21,
-            weight=queue_item.weight,
+            contract_value=queue_item.contract_value,
         )
     
         if not contract_number:
@@ -52,4 +52,4 @@ def process(queue_item: JMNItemProcess):
         if not payment:
             raise pe.KMMPaymentError()
 
-
+        return True

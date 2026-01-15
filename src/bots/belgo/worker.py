@@ -1,9 +1,8 @@
 import json
-# import pika
 import os
 from dotenv import load_dotenv
-from src.bots.jmendes.kmm_process import process
-from src.bots.jmendes.models import JMNItemProcess
+from src.bots.belgo.kmm_process import process
+from src.bots.belgo.models import BelgoItemProcess
 from src.shared.logger import logger
 from src.shared.db_handler.db_handler import DB
 import exceptions.personalized_exceptions as pe
@@ -18,7 +17,7 @@ def process_case() -> None:
     try:
         db = DB()
         cases = db.get_data(
-            table="complementar_jmendes"
+            table="complementar_belgo2"
         )
     except Exception as e:
         logger.exception("Falha ao obter os casos do banco de dados")
@@ -28,37 +27,30 @@ def process_case() -> None:
         try:
             retry = case['RETENTATIVA'] + 1
             db.update(
-                table='complementar_jmendes',
+                table='complementar_belgo2',
                 column='STATUS_',
                 value='Processando',
                 id=case["ID"]
             )
             db.update(
-                table='complementar_jmendes',
+                table='complementar_belgo2',
                 column='RETENTATIVA',
                 value=retry,
                 id=case["ID"]
             )
 
             processed = process(
-                JMNItemProcess(
-                    license_plate=case.get('PLACA'),
-                    driver_name=case.get('NOME_MOTORISTA'),
-                    tbe=case.get('TBE'),
-                    nature=case.get('NATUREZA'),
-                    operation=case.get('OPERACAO'),
-                    route=case.get('ROTA'),
-                    card=case.get('CARTAO'),
-                    sender=case.get('REMETENTE'),
-                    recipient=case.get('DESTINATARIO'),
-                    contract_value=case.get('VALOR_CONTRATO'),
-                    bd_id=case.get("ID"),
-                    management=case.get('GESTAO'),
+                BelgoItemProcess(
+                    bd_id=case.get('ID'),
+                    transport=case.get('TRANSPORTE'),
+                    center=case.get('FILIAL'),
+                    freto_lot=case.get('LOTACAO_FRETOLOG'),
+                    levo_lot=case.get('LOTACAO_LEVOLOG') if case.get('LOTACAO_LEVOLOG') != 'fretolog'
                 )
             )
             if processed:
                 db.update(
-                    table='complementar_jmendes',
+                    table='complementar_belgo2',
                     column='STATUS_',
                     value='OK',
                     id=case["ID"]
@@ -67,7 +59,7 @@ def process_case() -> None:
                 raise Exception(f"Falha ao processar o caso de TBE {case.get('TBE')}")
         except pe.KMMProcess as pe_error:
             db.update(
-                table='complementar_jmendes',
+                table='complementar_belgo2',
                 column='STATUS_',
                 value='Falha no KMM',
                 id=case["ID"]
@@ -75,7 +67,7 @@ def process_case() -> None:
             logger.exception(pe_error)
         except RuntimeError as re:
             db.update(
-                table='complementar_jmendes',
+                table='complementar_belgo2',
                 column='STATUS_',
                 value='Falha de lentidão KMM',
                 id=case["ID"]
@@ -84,7 +76,7 @@ def process_case() -> None:
         except Exception as e:
             logger.exception(f"Falha não mapeada. Erro {str(e)}")
             db.update(
-                table='complementar_jmendes',
+                table='complementar_belgo2',
                 column='STATUS_',
                 value='Falha no KMM não mapeada',
                 id=case["ID"]

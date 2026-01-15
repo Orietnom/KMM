@@ -447,27 +447,25 @@ class KMMActions:
                     self.driver.execute_js('f_busca_pessoa("COD_REMETENTE", "REM");')
                     self.driver.safe_type('id:DEST_CNPJ', recipient)
                     self.driver.execute_js('f_busca_pessoa("COD_DESTINATARIO", "DEST");')
+                    if not contract_value:
+                        raise Exception("Valor do contrato não existe")
 
-                    # contract_value = round((int(weight)/1000) * float(os.getenv(f"OPERACAO{operation}")), 2)
-                    if contract_value is not None:
-                        # time.sleep(15)
-                        # self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
-                        self.driver.safe_type('id:PESO', '1')
-                        self.driver.execute_js('f_calcula_peso_ton();')
-                        self.driver.safe_type('id:VOLUME', '1')
-                        self.driver.execute_js('f_calcula_peso_ton();')
-                        self.driver.safe_click('id:COD_UNIDADE_COMBO')
-                        self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
-                        self._fill_contract_value(contract_value)
-
-                    else:
-                        self.driver.safe_type('id:PESO', weight)
-                        self.driver.execute_js('f_calcula_peso_ton();')
-                        self.driver.safe_type('id:VOLUME', weight)
-                        self.driver.execute_js('f_calcula_peso_ton();')
-                        self.driver.execute_js('f_formata_numero_decimal(this,event);')
-                        self.driver.safe_click('id:COD_UNIDADE_COMBO')
-                        self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
+                    # time.sleep(15)
+                    # self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
+                    self.driver.safe_type('id:PESO', '1')
+                    self.driver.execute_js('f_calcula_peso_ton();')
+                    self.driver.safe_type('id:VOLUME', '1')
+                    self.driver.execute_js('f_calcula_peso_ton();')
+                    self.driver.safe_click('id:COD_UNIDADE_COMBO')
+                    self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
+                    self._fill_contract_value(contract_value)
+                    # self.driver.safe_type('id:PESO', weight)
+                    # self.driver.execute_js('f_calcula_peso_ton();')
+                    # self.driver.safe_type('id:VOLUME', weight)
+                    # self.driver.execute_js('f_calcula_peso_ton();')
+                    # self.driver.execute_js('f_formata_numero_decimal(this,event);')
+                    # self.driver.safe_click('id:COD_UNIDADE_COMBO')
+                    # self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
 
                     self.driver.safe_click('id:USUARIO_LIBERACAO')
                     self.driver.select_by_value('id:USUARIO_LIBERACAO', liberation_user)
@@ -643,9 +641,11 @@ class KMMActions:
             self.driver.safe_click('xpath:/html/body/form/table/tbody/tr/td/div/table/tbody/tr/td[8]/button')
             self.log.info("Clicado no ícone de quitação")
 
+            self.driver.safe_click('id:COD_PESSOA_FILIAL')
             self.driver.select_by_value('id:COD_PESSOA_FILIAL', cod_pessoa_filial)
             self.log.info("Filial inserida")
 
+            self.driver.safe_click("id:COD_CENTRO_CUSTO")
             self.driver.select_by_value("id:COD_CENTRO_CUSTO", "370")
             self.log.info("Centro de custo inserido")
 

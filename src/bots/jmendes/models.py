@@ -11,7 +11,7 @@ class JMNItemProcess(BaseModel):
     card: str
     sender: str
     recipient: str
-    weight: str
+    contract_value: str
     bd_id: int
     management: str
 
