@@ -26,11 +26,32 @@ def process_case() -> None:
 
     for case in cases:
         try:
+            if not case.get('PESO'):
+                logger.error("Falta Peso ou valor do contrar")
+                db.update(
+                    table='complementar_jmendes',
+                    column='STATUS_',
+                    value='Falha nos valores',
+                    id=case["ID"]
+                )
+                db.update(
+                    table='complementar_jmendes',
+                    column='RETENTATIVA',
+                    value=3,
+                    id=case["ID"]
+                )
+
             retry = case['RETENTATIVA'] + 1
             db.update(
                 table='complementar_jmendes',
                 column='STATUS_',
                 value='Processando',
+                id=case["ID"]
+            )
+            db.update(
+                table='complementar_jmendes',
+                column='RETENTATIVA',
+                value=retry,
                 id=case["ID"]
             )
 
@@ -60,17 +81,10 @@ def process_case() -> None:
             else:
                 raise Exception(f"Falha ao processar o caso de TBE {case.get('TBE')}")
         except pe.KMMProcess as pe_error:
-
             db.update(
                 table='complementar_jmendes',
                 column='STATUS_',
                 value='Falha no KMM',
-                id=case["ID"]
-            )
-            db.update(
-                table='complementar_jmendes',
-                column='RETENTATIVA',
-                value=retry,
                 id=case["ID"]
             )
             logger.exception(pe_error)
@@ -81,12 +95,6 @@ def process_case() -> None:
                 value='Falha de lentidão KMM',
                 id=case["ID"]
             )
-            db.update(
-                table='complementar_jmendes',
-                column='RETENTATIVA',
-                value=retry,
-                id=case["ID"]
-            )
             logger.exception(re)
         except Exception as e:
             logger.exception(f"Falha não mapeada. Erro {str(e)}")
@@ -94,12 +102,6 @@ def process_case() -> None:
                 table='complementar_jmendes',
                 column='STATUS_',
                 value='Falha no KMM não mapeada',
-                id=case["ID"]
-            )
-            db.update(
-                table='complementar_jmendes',
-                column='RETENTATIVA',
-                value=retry,
                 id=case["ID"]
             )
 

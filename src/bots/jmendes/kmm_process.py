@@ -36,7 +36,20 @@ def process(queue_item: JMNItemProcess):
     
         if not contract_number:
             raise Exception("Número do contrato não foi gerado")
-    
-        payment = kmm.payment(contract_number=contract_number, cod_pessoa_filial=os.getenv("JMN_COD_PESSOA_FILIAL"))
+
+        db.update(
+            table='complementar_jmendes',
+            column='CONTRATO',
+            value=contract_number,
+            id=queue_item.bd_id
+        )
+        if 'levo' in queue_item.management.lower():
+            cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_LEVO")
+        else:
+            cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_FRETO")
+
+        payment = kmm.payment(contract_number=contract_number, cod_pessoa_filial=cod_pessoa_filial)
         if not payment:
             raise pe.KMMPaymentError()
+
+

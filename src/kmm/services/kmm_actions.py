@@ -10,6 +10,9 @@ from urllib.parse import unquote
 import exceptions.personalized_exceptions as pe
 import re
 from shared.logger import logger
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 @dataclass(frozen=True)
 class LoginParams:
@@ -343,7 +346,7 @@ class KMMActions:
                 )
 
                 if contract_number:
-                    self.log.info("Contrato obtido com sucesso")
+                    self.log.info(f"Contrato {contract_number} obtido com sucesso")
                     self.driver.close_window()
                     self.driver.switch_to_window(home_window=True)
                     return contract_number
@@ -381,6 +384,19 @@ class KMMActions:
                     return True
         
         return False
+
+    def _fill_contract_value(self, contract_value):
+        for i in range(3):
+            self.driver.execute_js(
+                f"document.getElementById('VALOR_UNITARIO').value = '{str(contract_value)}'")
+            self.driver.execute_js("return f_formata_numero_decimal(this,event);")
+            time.sleep(3)
+            value = self.driver.safe_get_attribute("id:VALOR_UNITARIO", "value")
+            if float(value):
+                break
+            time.sleep(3)
+            if i == 2:
+                raise Exception("Valor inserido no campo 'Valor Unitário' não está se mantendo")
 
     def emitting_contract_repomfretea(
             self,
@@ -432,23 +448,26 @@ class KMMActions:
                     self.driver.safe_type('id:DEST_CNPJ', recipient)
                     self.driver.execute_js('f_busca_pessoa("COD_DESTINATARIO", "DEST");')
 
+                    # contract_value = round((int(weight)/1000) * float(os.getenv(f"OPERACAO{operation}")), 2)
                     if contract_value is not None:
-                        time.sleep(15)
-                        self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
+                        # time.sleep(15)
+                        # self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
                         self.driver.safe_type('id:PESO', '1')
                         self.driver.execute_js('f_calcula_peso_ton();')
                         self.driver.safe_type('id:VOLUME', '1')
                         self.driver.execute_js('f_calcula_peso_ton();')
+                        self.driver.safe_click('id:COD_UNIDADE_COMBO')
+                        self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
+                        self._fill_contract_value(contract_value)
 
-                    if weight is not None:
+                    else:
                         self.driver.safe_type('id:PESO', weight)
                         self.driver.execute_js('f_calcula_peso_ton();')
                         self.driver.safe_type('id:VOLUME', weight)
                         self.driver.execute_js('f_calcula_peso_ton();')
                         self.driver.execute_js('f_formata_numero_decimal(this,event);')
-
-                    self.driver.safe_click('id:COD_UNIDADE_COMBO')
-                    self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
+                        self.driver.safe_click('id:COD_UNIDADE_COMBO')
+                        self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
 
                     self.driver.safe_click('id:USUARIO_LIBERACAO')
                     self.driver.select_by_value('id:USUARIO_LIBERACAO', liberation_user)
@@ -479,7 +498,7 @@ class KMMActions:
                         self.quick_access(term="REPOMFRETED")
                         continue
 
-                    self.driver.switch_to_frame(principal=False)
+                    self.driver.wait_frame('name:iconteudo')
 
                     contract_number = self._get_contract_number()
                     self.driver.switch_to_window(home_window=True)
@@ -533,11 +552,7 @@ class KMMActions:
                     self.driver.safe_type("id:ROTA_ID", '15')
                     self.driver.execute_js('f_busca_rota()')
                     self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
-                    self.driver.safe_type('id:VALOR_UNITARIO', contract_value)
-                    self.driver.execute_js("""
-                        f_change_valor_unitario(true)
-                        return f_formata_numero_decimal(this,event)
-                    """)
+                    self._fill_contract_value(contract_value)
                     self.log.info(f"Valor do contrato => {contract_value}")
 
                     time.sleep(5)
@@ -562,7 +577,6 @@ class KMMActions:
                         self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
 
                     time.sleep(3)
-                    self.driver.execute_js('f_change_valor_unitario(true);')
 
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
@@ -655,6 +669,7 @@ class KMMActions:
             alert_text = alert.text.lower()
             if 'quitado' in alert_text:
                 self.log.info("Quitado com sucesso")
+                alert.accept()
                 return True
             else:
                 raise pe.KMMPaymentError(f"Falha na quitação. Mensagem da pop-up {alert_text}")
