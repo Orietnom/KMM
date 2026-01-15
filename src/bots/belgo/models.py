@@ -18,3 +18,6 @@ class BelgoItemProcess(BaseModel):
     levo_serie: Optional[str] = None
     n_incidents: int
     incident_id: str
+    complement_cte_fretolog: Optional[str] = None
+    complement_cte_levolog: Optional[str] = None
+    contract: Optional[str] = None

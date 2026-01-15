@@ -20,29 +20,32 @@ def process(queue_item: JMNItemProcess):
             management=queue_item.management
         )
 
-        contract_number = kmm.emitting_contract_repomfretea(
-            license_plate=queue_item.license_plate,
-            driver_name=queue_item.driver_name,
-            nature=queue_item.nature,
-            operation=queue_item.operation,
-            route=queue_item.route,
-            card=queue_item.card,
-            sender=queue_item.sender,
-            recipient=queue_item.recipient,
-            liberation_user=os.getenv("JMN_LIBERATION_USER"),
-            control_number=21,
-            contract_value=queue_item.contract_value,
-        )
-    
-        if not contract_number:
-            raise Exception("Número do contrato não foi gerado")
+        if not queue_item.contract:
+            contract_number = kmm.emitting_contract_repomfretea(
+                license_plate=queue_item.license_plate,
+                driver_name=queue_item.driver_name,
+                nature=queue_item.nature,
+                operation=queue_item.operation,
+                route=queue_item.route,
+                card=queue_item.card,
+                sender=queue_item.sender,
+                recipient=queue_item.recipient,
+                liberation_user=os.getenv("JMN_LIBERATION_USER"),
+                control_number=21,
+                contract_value=queue_item.contract_value,
+            )
+            if not contract_number:
+                raise Exception("Número do contrato não foi gerado")
+            db.update(
+                table='complementar_jmendes',
+                column='CONTRATO',
+                value=contract_number,
+                id=queue_item.bd_id
+            )
 
-        db.update(
-            table='complementar_jmendes',
-            column='CONTRATO',
-            value=contract_number,
-            id=queue_item.bd_id
-        )
+        else:
+            contract_number = queue_item.contract
+
         if 'levo' in queue_item.management.lower():
             cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_LEVO")
         else:

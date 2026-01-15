@@ -14,6 +14,7 @@ class JMNItemProcess(BaseModel):
     contract_value: str
     bd_id: int
     management: str
+    contract: Optional[str] = None
 
 class JMNItems(BaseModel):
     items: List[JMNItemProcess]

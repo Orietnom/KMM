@@ -54,6 +54,7 @@ def process_case() -> None:
                     contract_value=case.get('VALOR_CONTRATO'),
                     bd_id=case.get("ID"),
                     management=case.get('GESTAO'),
+                    contract=case.get('CONTRATO')
                 )
             )
             if processed:
