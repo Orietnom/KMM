@@ -48,10 +48,12 @@ def process(queue_item: JMNItemProcess):
 
         if 'levo' in queue_item.management.lower():
             cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_LEVO")
+            cod_centro_custo = os.getenv("JMN_COD_CENTRO_CUSTO_LEVO")
         else:
             cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_FRETO")
+            cod_centro_custo = os.getenv("JMN_COD_CENTRO_CUSTO_FRETO")
 
-        payment = kmm.payment(contract_number=contract_number, cod_pessoa_filial=cod_pessoa_filial)
+        payment = kmm.payment(contract_number=contract_number, cod_pessoa_filial=cod_pessoa_filial, cod_centro_custo=cod_centro_custo)
         if not payment:
             raise pe.KMMPaymentError()
 

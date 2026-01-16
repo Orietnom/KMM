@@ -25,7 +25,7 @@ class KMMActions:
         self.driver = driver or KMMIEDriver(config)
         self._started = False
         self.log = logger.bind(service=service)
-    
+
     # --- lifecycle ---
     def start(self) -> None:
         if not self._started:
@@ -626,7 +626,7 @@ class KMMActions:
                 f"serie {serie}, transporte {transport}, "
             ) from e
 
-    def payment(self, contract_number: str, cod_pessoa_filial: str) -> bool:
+    def payment(self, contract_number: str, cod_pessoa_filial: str, cod_centro_custo: str) -> bool:
 
         try:
             self.quick_access('LTREPOMFRETE')
@@ -646,7 +646,7 @@ class KMMActions:
             self.log.info("Filial inserida")
 
             self.driver.safe_click("id:COD_CENTRO_CUSTO")
-            self.driver.select_by_value("id:COD_CENTRO_CUSTO", "370")
+            self.driver.select_by_value("id:COD_CENTRO_CUSTO", cod_centro_custo)
             self.log.info("Centro de custo inserido")
 
             self.driver.safe_type('id:PESO_ENTREGA', '1.00')

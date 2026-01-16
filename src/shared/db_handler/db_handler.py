@@ -36,7 +36,7 @@ class DB:
 
         return create_engine(conn_str, future=True, pool_pre_ping=True)
 
-    def get_data(self, table: str) -> list[dict]:
+    def get_data(self, table: str, ) -> list[dict]:
         dt_min = datetime.now() - relativedelta(days=7)
 
         query = text(f"""
@@ -49,6 +49,19 @@ class DB:
 
         df = pd.read_sql(query, self.engine, params={"dt_min": dt_min})
         return df.to_dict(orient="records")
+
+    def get_data_to_excel(self, table: str) -> list[dict]:
+        dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        dt_max = dt_min + relativedelta(days=1)
+
+        query = text(f"""
+            SELECT *
+            FROM Ergondata_Robo.dbo.{table}
+            WHERE CRIADO_EM >= :dt_min and CRIADO_EM < :dt_max
+        """)
+
+        df = pd.read_sql(query, self.engine, params={"dt_min": dt_min, "dt_max": dt_max})
+        return df
 
     def insert_ignore_df(
             self,
@@ -98,7 +111,7 @@ class DB:
             result = conn.execute(stmt, rows)
 
         if result.rowcount:
-            logger.success(f"Foram inseridas {result.rowcount} linhas")
+            logger.success(f"Foram inseridas {len(rows)} linhas")
         return result.rowcount
 
     def update(self, value: Any, column: str, table: str, id: int):

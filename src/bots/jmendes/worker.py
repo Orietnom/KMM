@@ -1,7 +1,8 @@
 import json
-# import pika
+import pandas as pd
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 from src.bots.jmendes.kmm_process import process
 from src.bots.jmendes.models import JMNItemProcess
 from src.shared.logger import logger
@@ -91,5 +92,16 @@ def process_case() -> None:
                 id=case["ID"]
             )
 
+def create_return_excel():
+    try:
+        today = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+        db = DB()
+        data = db.get_data_to_excel(table='complementar_jmendes')
+        data.to_excel(fr'.\output\JMENDES_RETORNO_{today}.xlsx', index=False)
+        print(data)
+    except Exception:
+        logger.exception("Falha ao obter dados para gerar excel")
+
 if __name__ == "__main__":
     process_case()
+    create_return_excel()
