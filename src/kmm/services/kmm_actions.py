@@ -11,7 +11,9 @@ import exceptions.personalized_exceptions as pe
 import re
 from shared.logger import logger
 from dotenv import load_dotenv
+from datetime import datetime
 import os
+import requests
 load_dotenv()
 
 @dataclass(frozen=True)
@@ -155,6 +157,7 @@ class KMMActions:
             alert = self.driver.wait_alert(5)
             if alert:
                 self.log.info(alert.text)
+                alert.accept()
                 return alert.text
             return False
         except Exception as e:
@@ -220,9 +223,9 @@ class KMMActions:
             serie: str,
             cte_value: float,
             management: str,
-            driver_name: str = None,
             markup: float = None,
             taxes: bool = False,
+            driver_name: Optional[str] = None,
             incident_number: Optional[int] = 1
     ) -> str:
 
@@ -239,6 +242,7 @@ class KMMActions:
                 kmm_incident_number = re.findall("\d+", status)[0]
                 kmm_incident_number = int(kmm_incident_number[0]) if kmm_incident_number else 0
                 if kmm_incident_number >= incident_number:
+                    logger.error(f"Mensagem da pop-up => {status}")
                     raise pe.KMMComplementCTEAlreadyEmitted(
                         f"Numero de ctes emitidos maior ou igual a quantidade de incidentes no portal. Incidentes no "
                         f"portal {incident_number} no KMM {kmm_incident_number}"
@@ -680,3 +684,101 @@ class KMMActions:
             raise pe.KMMPaymentError(
                 f"Falha ao realizar o pagamento. Numero do contrato {contract_number}"
             ) from e
+
+    def _find_correct_xml(self):
+        self.driver.switch_to_frame(principal=False)
+        rows = len(self.driver.find_elements(
+            by='xpath',
+            value='//*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr'
+        ))
+        counter = 0
+        for row in range(1, (rows + 1)):
+            status = cte_date = self.driver.safe_get_text(
+                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[3]',
+                timeout=60
+            )
+            if not 'autorizado' in status.lower():
+                logger.info(f"XML não autorizado => {status}")
+                continue
+
+            cte_date = self.driver.safe_get_text(
+                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[5]',
+                timeout=60
+            )
+            today = datetime.today().strftime("%d/%m/%Y")
+
+            if cte_date == today:
+                time.sleep(3)
+                el = self.driver.find_elements(by='name', value='LISTA_DOCUMENTO_ID')[counter]
+                document_id = el.get_attribute('value')
+                el.click()
+                return document_id
+            else:
+                counter += 1
+                continue
+        return None
+
+    def _download_xml(self, document_id):
+        out_dir = r"./downloads"
+        session = requests.Session()
+
+        # Repassa cookies do Selenium → Requests
+        for c in self.driver.get_cookies():
+            session.cookies.set(c["name"], c["value"])
+
+        url = "https://levolog.kmm.com.br/modulos/cte/cte_lista/exportar.cfm"
+
+        payload = {
+            "AUTORIZA_MDFE": "1",
+            "DATA_INICIO": "19/01/2026",
+            "DATA_TERMINO": "19/01/2026",
+            "LISTA_DOCUMENTO_ID": document_id,
+            "OPERACAO": "1",
+            # múltiplos SITUACAO_ID → requests aceita lista
+            "SITUACAO_ID": ["0,1", "2", "3", "4", "5"],
+            "SOMENTE_FILIAL": "1",
+            "TIPO": "XML"
+        }
+
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Referer": "https://levolog.kmm.com.br/modulos/cte/cte_lista/"
+        }
+
+        r = session.post(url, data=payload, headers=headers, stream=True)
+        r.raise_for_status()
+
+        # Descobre nome do arquivo no header
+        filename = "exportacao_cte.zip"
+        cd = r.headers.get("Content-Disposition")
+        if cd and "filename=" in cd:
+            filename = unquote(cd.split("filename=")[1].replace('"', ''))
+
+        os.makedirs(out_dir, exist_ok=True)
+        filepath = os.path.join(out_dir, filename)
+
+        with open(filepath, "wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 256):
+                if chunk:
+                    f.write(chunk)
+        logger.success("Sucesso ao baixar o xml")
+        return filepath
+
+
+    def get_xml(self, complement_cte: str):
+        self.quick_access('DACTE')
+        self.driver.switch_to_frame(principal=False)
+
+        self.driver.safe_type('id:NUM_CTE', complement_cte, timeout=600)
+        self.driver.switch_to_frame(principal=True)
+        self.driver.safe_click('id:btn_confirmar')
+        self.driver.switch_to_frame(principal=False)
+        self.driver.wait_present('id:LISTA_DOCUMENTO_ID')
+
+        document_id = self._find_correct_xml()
+        if not document_id:
+            logger.error("XML não encontrado")
+            return False
+
+        file_path = self._download_xml(document_id)
+        return file_path

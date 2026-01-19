@@ -643,7 +643,7 @@ class BelgoPortal:
         return final_data
 
 
-    def run(self) -> None | list:
+    def get_incidents_in_bba_portal(self) -> None | list:
         final_data = []
         try:
             self.config()
@@ -670,3 +670,39 @@ class BelgoPortal:
         finally:
             driver.close()
             return final_data
+
+    @staticmethod
+    def _go_to_incident_page(incident_id):
+        url_edit_incident = os.getenv("BBA_PORTAL_EDIT_INCIDENTS_URL").format(incident_id)
+        driver.get(url_edit_incident)
+
+    @staticmethod
+    def _edit_info(complement_cte, file_path):
+        driver.find_element(By.ID, 'incidente_workflow_campos_numero_cte').send_keys(complement_cte)
+        for btn in driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
+            if btn.text.lower() == 'adicionar anexo':
+                btn.click()
+        inp = driver.find_element(
+            By.CSS_SELECTOR,
+            "input[type='file'][id$='_anexo']"
+        )
+        inp.send_keys(file_path)
+        print("OK")
+
+    def insert_xml(self, id_, complement_cte, file_path):
+        try:
+            self.config()
+            self.open()
+            access = self.access()
+            if not access:
+                logger.error("Falha ao acessar o portal BBA")
+                raise Exception
+            self._go_to_incident_page(id_)
+            self._edit_info(complement_cte, file_path)
+        except Exception as e:
+            logger.exception(f"Erro na edição dos dados.")
+            return None
+        finally:
+            driver.close()
+
+BelgoPortal([]).insert_xml('149128', '152386', r'C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\belgo\downloads\exportacao_cte_XML_19012026_150913.zip')

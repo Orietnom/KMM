@@ -35,7 +35,7 @@ def process_case() -> None:
             db.update(
                 table='complementar_belgo2',
                 column='RETENTATIVA',
-                value=retry,
+                value=0,
                 id=case["ID"]
             )
 
@@ -45,15 +45,15 @@ def process_case() -> None:
                     transport=case.get('TRANSPORTE'),
                     center=case.get('FILIAL'),
                     freto_lot=case.get('LOTACAO_FRETOLOG'),
-                    levo_lot=case.get('LOTACAO_LEVOLOG') if case.get('LOTACAO_LEVOLOG') != 'fretolog' else None,
+                    levo_lot=case.get('LOTACAO_LEVOLOG'),
                     nf=case.get('NOTA_FISCAL'),
                     submotive=case.get('SUBMOTIVO'),
                     cte_value=case.get('VALOR_CTE'),
                     contract_value=case.get('VALOR_CONTRATO'),
                     driver_value=case.get('VALOR_MOTORISTA'),
-                    frete_cte=case.get('CTE_FRETOLOG'),
+                    freto_cte=case.get('CTE_FRETOLOG'),
                     freto_serie=case.get('SERIE_FRETOLOG'),
-                    levo_cte=ase.get('CTE_LEVOLOG'),
+                    levo_cte=case.get('CTE_LEVOLOG'),
                     levo_serie=case.get('SERIE_LEVOLOG'),
                     n_incidents=case.get('N_INCIDENTES'),
                     incident_id=case.get('ID_INCIDENTE'),

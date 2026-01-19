@@ -9,7 +9,7 @@ class Main:
     def get_incidents(self):
         incidents = self.db.get_data('complementar_belgo2')
         bba = BelgoPortal(incidents)
-        new_incidents = bba.run()
+        new_incidents = bba.get_incidents_in_bba_portal()
         if not new_incidents:
             return
         df = pd.DataFrame(new_incidents)
@@ -37,6 +37,7 @@ class Main:
             "levo_lot": "LOTACAO_LEVOLOG",
             "number_of_incidents": "N_INCIDENTES"
         })
+        df_renamed['STATUS_'] = "Pendente"
         self.db.insert_ignore_df(table='complementar_belgo2', df=df_renamed, unique_keys=['CTE_FRETOLOG'])
 
 if __name__ == '__main__':

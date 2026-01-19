@@ -22,19 +22,22 @@ def process(queue_item: BelgoItemProcess):
             management='freto'
         )
 
-        freto_kmm.arcelor_load_user_profile(
+        freto_kmm.belgo_load_user_profile(
             user=os.getenv('KMM_BELGO_USERNAME'),
             management='freto',
-            center=queue_item.center
+            lotation=queue_item.center
         )
+
+        file_path = freto_kmm.get_xml('337521')
 
         if not queue_item.complement_cte_fretolog:
             fretolog_cte_complement = freto_kmm.emitting_cte(
-                cte=queue_item.cte_fretolog,
-                serie=queue_item.serie_fretolog,
-                cte_value=queue_item.cte_fretolog_value,
+                cte=queue_item.freto_cte,
+                serie=queue_item.freto_serie,
+                cte_value=queue_item.cte_value,
                 management='freto',
-                driver_name=queue_item.driver_name
+                incident_number=queue_item.n_incidents,
+                taxes=True
             )
 
             if not fretolog_cte_complement:
@@ -115,7 +118,9 @@ def process(queue_item: BelgoItemProcess):
                 serie=queue_item.serie_levolog,
                 cte_value=queue_item.cte_value_levolog,
                 management='levo',
-                driver_name=queue_item.driver_name
+                driver_name=queue_item.driver_name,
+                incident_number=queue_item.n_incidents,
+                markup=0.98
             )
 
             if not levolog_cte_complement:

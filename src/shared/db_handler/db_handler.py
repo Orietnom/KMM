@@ -37,7 +37,7 @@ class DB:
         return create_engine(conn_str, future=True, pool_pre_ping=True)
 
     def get_data(self, table: str, ) -> list[dict]:
-        dt_min = datetime.now() - relativedelta(days=7)
+        dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=7)
 
         query = text(f"""
             SELECT *
