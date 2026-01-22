@@ -1,5 +1,7 @@
 from typing import Optional, List
 from pydantic import BaseModel
+from datetime import datetime
+
 
 class BelgoItemProcess(BaseModel):
     bd_id: int
@@ -21,3 +23,4 @@ class BelgoItemProcess(BaseModel):
     complement_cte_fretolog: Optional[str] = None
     complement_cte_levolog: Optional[str] = None
     contract: Optional[str] = None
+    complement_cte_fretolog_date: Optional[datetime] = None

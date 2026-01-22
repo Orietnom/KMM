@@ -118,12 +118,12 @@ class DB:
         now = datetime.now()
         stmt = text(f"""
             UPDATE Ergondata_Robo.dbo.{table}
-            SET {column} = :value, ATUALIZADO_EM = :data
+            SET {column} = :value, ATUALIZADO_EM = :date
             WHERE ID = :id
         """)
 
         with self.engine.begin() as conn:
-            conn.execute(stmt, {"value": value, "data": now, "id": id})
+            conn.execute(stmt, {"value": value, "date": now, "id": id})
 
     def close(self):
         self.engine.dispose()

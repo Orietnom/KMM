@@ -154,12 +154,13 @@ class KMMActions:
             self.driver.select_by_visible_text('id:TIPO_COMPLEMENTO_ID', 'CTe de Complemento')
             self.driver.safe_type('id:NUM_CONHECIMENTO_COMPLEMENTO', cte)
             self.driver.select_by_value('id:SERIE_COMPLEMENTO', serie)
-            alert = self.driver.wait_alert(5)
+            alert = self.driver.wait_alert(15)
             if alert:
                 self.log.info(alert.text)
+                alert_text = alert.text
                 alert.accept()
-                return alert.text
-            return False
+                return alert_text
+            return True
         except Exception as e:
             raise pe.KMMStatusCteError(
                 f"Falha ao obter o status do cte para gerar o comploemento. Cte {cte} Serie {serie}"
@@ -180,6 +181,8 @@ class KMMActions:
 
         try:
             self.driver.switch_to_frame(principal=False)
+            self.driver.safe_click('id:td_impostos_title', timeout=60)
+            time.sleep(3)
             self.driver.safe_click('id:td_impostos_title', timeout=60)
             time.sleep(3)
             tax_table = self.driver.wait_present('id:tb_lista_IMPOSTOS')
@@ -258,7 +261,7 @@ class KMMActions:
 
             if taxes:
                 icms = self._get_taxes()
-                value_with_no_tax = round((cte_value * (1 - (icms / 100))), 2)
+                value_with_no_tax = round((float(cte_value) * (1 - (icms / 100))), 2)
             else:
                 value_with_no_tax = cte_value
 
@@ -286,7 +289,7 @@ class KMMActions:
                 if 1 < markup <= 100:
                     markup /= 100
 
-                net_value = round(value_with_no_tax * markup, 2)
+                net_value = round(float(value_with_no_tax) * markup, 2)
                 str_net_value = f"{net_value:.2f}"
                 self.driver.execute_js(
                     f"""document.getElementById('VARIAVEL_FRETEPESO_CALC').value = '{str_net_value}';
@@ -311,12 +314,15 @@ class KMMActions:
                     decoded_message = unquote(message)
                     raise Exception(f"Não foi possível emitir o CT-e de complemento devido a: {decoded_message}")
                 raise pe.KMMEmittingCTeError("Pop-up de confirmação não apareceu")
-
+            else:
+                text_alert = alert.text
+                logger.info(f"Pop-up apareceu, texto: {text_alert}")
+                alert.accept()
             window = self.driver.switch_to_window(target_title="Engenharia de Sistemas")
 
             if not window:
                 raise Exception(f"Janela com o cte de complemento não encontrado")
-            self.driver.switch_to_frame(principal=False)
+            self.driver.wait_frame('name:iconteudo')
 
             cte_complement = self.driver.safe_get_text("xpath:/html/body/form/table/tbody/tr[1]/td[1]/fieldset/table/tbody/tr[2]/td[2]")
             self.driver.close_window()
@@ -558,6 +564,7 @@ class KMMActions:
                     self.log.info(f"Valor do contrato => {contract_value}")
 
                     time.sleep(5)
+                    self.driver.safe_click("id:USUARIO_LIBERACAO")
                     self.driver.select_by_value("id:USUARIO_LIBERACAO", liberation_user)
 
                     license_plate = None
@@ -578,6 +585,7 @@ class KMMActions:
                     if submotive:
                         self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
 
+                    self._force_CC()
                     time.sleep(3)
 
                     self.driver.switch_to_frame(principal=True)
@@ -685,15 +693,16 @@ class KMMActions:
                 f"Falha ao realizar o pagamento. Numero do contrato {contract_number}"
             ) from e
 
-    def _find_correct_xml(self):
+    def _find_correct_xml(self, emitted_date):
         self.driver.switch_to_frame(principal=False)
         rows = len(self.driver.find_elements(
             by='xpath',
             value='//*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr'
         ))
         counter = 0
+        emitted_date = emitted_date.strftime("%d/%m/%Y")
         for row in range(1, (rows + 1)):
-            status = cte_date = self.driver.safe_get_text(
+            status = self.driver.safe_get_text(
                 f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[3]',
                 timeout=60
             )
@@ -705,9 +714,8 @@ class KMMActions:
                 f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[5]',
                 timeout=60
             )
-            today = datetime.today().strftime("%d/%m/%Y")
 
-            if cte_date == today:
+            if cte_date == emitted_date:
                 time.sleep(3)
                 el = self.driver.find_elements(by='name', value='LISTA_DOCUMENTO_ID')[counter]
                 document_id = el.get_attribute('value')
@@ -765,20 +773,35 @@ class KMMActions:
         return filepath
 
 
-    def get_xml(self, complement_cte: str):
+    def get_xml(self, complement_cte: str, emitted_date: datetime):
         self.quick_access('DACTE')
         self.driver.switch_to_frame(principal=False)
 
         self.driver.safe_type('id:NUM_CTE', complement_cte, timeout=600)
         self.driver.switch_to_frame(principal=True)
         self.driver.safe_click('id:btn_confirmar')
+        self.driver.safe_click('id:btn_confirmar')
         self.driver.switch_to_frame(principal=False)
         self.driver.wait_present('id:LISTA_DOCUMENTO_ID')
 
-        document_id = self._find_correct_xml()
+        document_id = self._find_correct_xml(emitted_date)
         if not document_id:
             logger.error("XML não encontrado")
             return False
 
         file_path = self._download_xml(document_id)
         return file_path
+
+    @staticmethod
+    def _str_to_float(text):
+        # Remove tudo que não for número, ponto ou vírgula
+        cleaned = re.sub(r'[^0-9.,]', '', text)
+
+        if not cleaned:
+            logger.error("String não possui números")
+            return None
+
+        cleaned = cleaned.replace('.', '')
+        cleaned = cleaned.replace(',', '.')
+
+        return float(cleaned)

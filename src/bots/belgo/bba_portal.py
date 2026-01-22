@@ -189,13 +189,13 @@ class BelgoPortal:
                     i += 1
                     break
 
-                id = driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).text
+                id_ = driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).text
                 transport = driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).text
                 subreason = driver.find_element(By.XPATH, line_path.format(item, headers["Submotivo"])).text
                 cte_attempt = driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).text
                 branch = driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).text
 
-                if int(id) in self.itens_in_bd:
+                if int(id_) in self.itens_in_bd:
                     logger.info("Caso já existe no banco de dados")
                     continue
 
@@ -225,7 +225,7 @@ class BelgoPortal:
                         center = "FRETO LOG - MATRIZ"
 
                     item_data = {
-                        "id": id,
+                        "id": id_,
                         "center": center,
                         "transport": transport,
                         "subreason": subreason
@@ -233,7 +233,7 @@ class BelgoPortal:
                     incidents.append(item_data)
                     logger.info(f"Dados obtidos: {item_data}")
                 else:
-                    logger.warning(f"O motivo {reason} do id {id} esta fora do escopo da automação")
+                    logger.warning(f"O motivo {reason} do id {id_} esta fora do escopo da automação")
                     continue
 
         logger.info(f"{len(self.incidents)} incidentes são elegíveis para automação tratar")
@@ -310,18 +310,16 @@ class BelgoPortal:
                 "Carreta": os.getenv("CARRETA"),
                 "CarretaCorrigido": os.getenv("CARRETA_CORRIGIDA")
             }
-            if (valor_cte % float(reembolso["Truck"])) == 0:
+            if valor_cte % float(reembolso["Truck"]) == 0:
                 diaria = valor_cte / float(reembolso["Truck"])
-                valor_contrato = diaria * float(reembolso["TruckCorrigido"])
-                valor_contrato = round(valor_contrato, 2)
+                valor_contrato = round(diaria * float(reembolso["TruckCorrigido"]), 2)
                 valor_motorista = self.get_driver_reimbursement_value(valor=valor_contrato)
 
                 logger.info(f"Caso Truck, valor motorista: {valor_motorista}")
 
-            elif (valor_cte % float(reembolso["Carreta"])) == 0:
+            elif valor_cte % float(reembolso["Carreta"]) == 0:
                 diaria = valor_cte / float(reembolso["Carreta"])
-                valor_contrato = diaria * float(reembolso["CarretaCorrigido"])
-                valor_contrato = round(valor_contrato, 2)
+                valor_contrato = round(diaria * float(reembolso["CarretaCorrigido"]), 2)
                 valor_motorista = self.get_driver_reimbursement_value(valor=valor_contrato)
 
                 logger.info(f"Caso carreta, valor motorista: {valor_motorista}")
@@ -704,5 +702,3 @@ class BelgoPortal:
             return None
         finally:
             driver.close()
-
-BelgoPortal([]).insert_xml('149128', '152386', r'C:\Users\pedro\Documents\ERGONDATA\KMM\src\bots\belgo\downloads\exportacao_cte_XML_19012026_150913.zip')

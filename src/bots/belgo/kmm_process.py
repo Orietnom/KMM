@@ -25,10 +25,8 @@ def process(queue_item: BelgoItemProcess):
         freto_kmm.belgo_load_user_profile(
             user=os.getenv('KMM_BELGO_USERNAME'),
             management='freto',
-            lotation=queue_item.center
+            lotation=queue_item.freto_lot
         )
-
-        file_path = freto_kmm.get_xml('337521')
 
         if not queue_item.complement_cte_fretolog:
             fretolog_cte_complement = freto_kmm.emitting_cte(
@@ -52,10 +50,13 @@ def process(queue_item: BelgoItemProcess):
                 value=fretolog_cte_complement,
                 id=queue_item.bd_id
             )
+
         else:
             fretolog_cte_complement = queue_item.complement_cte_fretolog
 
-        if not queue_item.cte_levolog:
+        file_path = freto_kmm.get_xml(fretolog_cte_complement, queue_item.complement_cte_fretolog_date)
+
+        if not queue_item.levo_cte:
 
             if not queue_item.contract:
                 contract_number = freto_kmm.emitting_contract_repomfreted(
@@ -109,16 +110,15 @@ def process(queue_item: BelgoItemProcess):
         levo_kmm.arcelor_load_user_profile(
             user=os.getenv('KMM_BELGO_USERNAME'),
             management='levo',
-            center=queue_item.center
+            center=queue_item.levo_cte
         )
 
         if not queue_item.complement_cte_levolog:
             levolog_cte_complement = levo_kmm.emitting_cte(
-                cte=queue_item.cte_levolog,
-                serie=queue_item.serie_levolog,
-                cte_value=queue_item.cte_value_levolog,
+                cte=queue_item.levo_cte,
+                serie=queue_item.levo_serie,
+                cte_value=queue_item.cte_value,
                 management='levo',
-                driver_name=queue_item.driver_name,
                 incident_number=queue_item.n_incidents,
                 markup=0.98
             )
@@ -142,10 +142,11 @@ def process(queue_item: BelgoItemProcess):
             levo_contract_number = levo_kmm.emitting_contract_repomfreted(
                 contract_value=queue_item.contract_value,
                 complement_cte=levolog_cte_complement,
-                serie=queue_item.serie_levolog,
+                serie=queue_item.levo_serie,
                 transport=queue_item.transport,
                 liberation_user=os.getenv("KMM_BELGO_LIBERATION_USER"),
-                control_number=int(os.getenv("KMM_BELGO_CONTROL_NUMBER"))
+                control_number=int(os.getenv("KMM_BELGO_CONTROL_NUMBER")),
+                submotive=queue_item.submotive
             )
 
             if not levo_contract_number:
