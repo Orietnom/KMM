@@ -41,5 +41,8 @@ class KMMGetDriverNameError(KMMProcess):
 class KMMComplementCTEAlreadyEmitted(KMMProcess):
     pass
 
+class KMMGetXML(KMMProcess):
+    pass
+
 class HardTimeoutError(RuntimeError):
     pass

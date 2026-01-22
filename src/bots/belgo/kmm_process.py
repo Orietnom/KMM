@@ -55,6 +55,8 @@ def process(queue_item: BelgoItemProcess):
             fretolog_cte_complement = queue_item.complement_cte_fretolog
 
         file_path = freto_kmm.get_xml(fretolog_cte_complement, queue_item.complement_cte_fretolog_date)
+        if not file_path:
+            raise pe.KMMGetXML()
 
         if not queue_item.levo_cte:
 
