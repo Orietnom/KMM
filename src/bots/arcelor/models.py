@@ -8,10 +8,12 @@ class ArcelorItemProcess(BaseModel):
     serie_levolog: Optional[str] = None
     transport: str
     driver_name: str
-    cte_value_fretolog: str
-    cte_value_levolog: str
+    cte_value: str
     contract_value: str
     center: str
+    card_id: str
+    bd_id: int
+    complement_cte_fretolog: Optional[str] = None
+    complement_cte_levolog: Optional[str] = None
+    contract: Optional[str] = None
 
-class JMNItems(BaseModel):
-    items: List[ArcelorItemProcess]

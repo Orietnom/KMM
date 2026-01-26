@@ -71,7 +71,7 @@ def process_case() -> None:
                     id=case["ID"]
                 )
             else:
-                raise Exception(f"Falha ao processar o caso de TBE {case.get('TBE')}")
+                raise Exception(f"Falha ao processar o caso de transporte {case.get('TRANSPORTE')}")
         except pe.KMMProcess as pe_error:
             db.update(
                 table='complementar_belgo2',

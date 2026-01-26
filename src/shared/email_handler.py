@@ -1,26 +1,49 @@
 import smtplib
 from email.message import EmailMessage
+import mimetypes
 import imaplib
 import email
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
+USER = os.getenv("EMAIL_ERGON")
+APP_PASSWORD = os.getenv("EMAIL_PASS_KEY")
 
 # ===== ENVIAR EMAIL =====
-def enviar_email_multiplos_smtp(user, app_password, to, subject, body):
+def send_email(to, subject, body, attachment_path = None):
     msg = EmailMessage()
-    msg["From"] = user
-    msg["To"] = ", ".join(to)
+    msg["From"] = USER
+    if isinstance(to, list):
+        msg["To"] = ", ".join(to)
+    elif isinstance(to, str):
+        msg["To"] = to
     msg["Subject"] = subject
     msg.set_content(body)
 
+    if attachment_path:
+        filename = os.path.basename(attachment_path)
+
+        mime_type, _ = mimetypes.guess_type(attachment_path)
+        maintype, subtype = (mime_type or "application/octet-stream").split("/", 1)
+
+        with open(attachment_path, "rb") as f:
+            msg.add_attachment(
+                f.read(),
+                maintype=maintype,
+                subtype=subtype,
+                filename=filename
+            )
+
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(user, app_password)
+        smtp.login(USER, APP_PASSWORD)
         smtp.send_message(msg)
 
 
 # ===== LER NÃO LIDOS =====
-def listar_nao_lidos_imap(user, app_password, max_results=10):
+def read_emails(max_results=10):
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
-    imap.login(user, app_password)
+    imap.login(USER, APP_PASSWORD)
     imap.select("INBOX")
 
     status, messages = imap.search(None, "UNSEEN")
@@ -33,32 +56,13 @@ def listar_nao_lidos_imap(user, app_password, max_results=10):
         raw_email = msg_data[0][1]
         msg = email.message_from_bytes(raw_email)
 
-        resultados.append({
-            "from": msg["From"],
-            "subject": msg["Subject"],
-            "date": msg["Date"]
-        })
+        if "freto" in msg['From'].lower():
+            resultados.append({
+                "from": msg["From"],
+                "subject": msg["Subject"],
+                "date": msg["Date"]
+            })
+            imap.store(eid, '+FLAGS', '\\Seen')
 
     imap.logout()
     return resultados
-
-
-# ===== EXEMPLO =====
-if __name__ == "__main__":
-    USER = "suporte@ergondata.com"
-    APP_PASSWORD = "Ergon@123"  # senha de app gerada
-
-    # Ler não lidos
-    nao_lidos = listar_nao_lidos_imap(USER, APP_PASSWORD)
-    print("Não lidos:")
-    for e in nao_lidos:
-        print(e)
-
-    # Enviar
-    # enviar_email_multiplos_smtp(
-    #     USER,
-    #     APP_PASSWORD,
-    #     ["dest1@email.com", "dest2@email.com"],
-    #     "Teste Gmail",
-    #     "Se chegou, o robô trabalhou bonito 😎"
-    # )

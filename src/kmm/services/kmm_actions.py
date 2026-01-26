@@ -111,8 +111,7 @@ class KMMActions:
                 else:
                     value = 'LEVO LOG - MATRIZ SP'
             else:
-                self.log.info("Filial diferente de Levolog")
-                raise Exception("Filial diferente de Levolog")
+                value = center
 
             self._load_user_profile(user=user, value=value)
         except Exception as e:
@@ -229,7 +228,8 @@ class KMMActions:
             markup: float = None,
             taxes: bool = False,
             driver_name: Optional[str] = None,
-            incident_number: Optional[int] = 1
+            incident_number: Optional[int] = 1,
+            belgo: bool = False
     ) -> str:
 
         try:
@@ -239,12 +239,19 @@ class KMMActions:
             if not status:
                 raise pe.KMMStatusCteError(f"Problema ao verificar status do CTE. Pop-up não apareceu")
             elif isinstance(status, str):
-                if not incident_number:
-                    raise pe.KMMStatusCteError(f"Problema ao verificar status do CTE. Alerta {status}")
+                if belgo:
+                    if not incident_number:
+                        raise pe.KMMStatusCteError(f"Problema ao verificar status do CTE. Alerta {status}")
 
-                kmm_incident_number = re.findall("\d+", status)[0]
-                kmm_incident_number = int(kmm_incident_number[0]) if kmm_incident_number else 0
-                if kmm_incident_number >= incident_number:
+                    kmm_incident_number = re.findall("\d+", status)[0]
+                    kmm_incident_number = int(kmm_incident_number[0]) if kmm_incident_number else 0
+                    if kmm_incident_number >= incident_number:
+                        logger.error(f"Mensagem da pop-up => {status}")
+                        raise pe.KMMComplementCTEAlreadyEmitted(
+                            f"Numero de ctes emitidos maior ou igual a quantidade de incidentes no portal. Incidentes no "
+                            f"portal {incident_number} no KMM {kmm_incident_number}"
+                        )
+                else:
                     logger.error(f"Mensagem da pop-up => {status}")
                     raise pe.KMMComplementCTEAlreadyEmitted(
                         f"Numero de ctes emitidos maior ou igual a quantidade de incidentes no portal. Incidentes no "
@@ -263,7 +270,7 @@ class KMMActions:
                 icms = self._get_taxes()
                 value_with_no_tax = round((float(cte_value) * (1 - (icms / 100))), 2)
             else:
-                value_with_no_tax = cte_value
+                value_with_no_tax = float(cte_value)
 
             self._click_on_negotiation_menu()
 
@@ -318,6 +325,7 @@ class KMMActions:
                 text_alert = alert.text
                 logger.info(f"Pop-up apareceu, texto: {text_alert}")
                 alert.accept()
+                time.sleep(10)
             window = self.driver.switch_to_window(target_title="Engenharia de Sistemas")
 
             if not window:
@@ -369,9 +377,9 @@ class KMMActions:
                 )
 
             self.log.error("Tempo de 180 segundos excedido")
-            raise Exception("Falha ao obter o retorno da REPOM. Tempo de 180 segundos excedido ")
+            raise pe.KMMEmittingContractError("Falha ao obter o retorno da REPOM. Tempo de 180 segundos excedido")
         except Exception as e:
-            raise Exception("Falha não esperada") from e
+            raise pe.KMMEmittingContractError(f"Falha não mapeada {str(e)}")
 
     def _find_contract_number_window_handle(self) -> bool:
         
@@ -497,7 +505,7 @@ class KMMActions:
                     if "sucesso" in alert_text:
                         self.log.info("Contrato enviado a REPOM, aguardando retorno do número do contrato")
                         alert.accept()
-
+                        time.sleep(10)
                     else:
                         raise pe.KMMEmittingContractError(f"Falha ao gerar o contrato. Mensagem da pop-up: {alert_text}")
 
@@ -584,7 +592,8 @@ class KMMActions:
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     if submotive:
                         self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
-
+                    else:
+                        self.driver.safe_type('id:OBSERVACAO', ".")
                     self._force_CC()
                     time.sleep(3)
 
@@ -599,9 +608,10 @@ class KMMActions:
                         raise Exception("Pop-up não apareceu")
 
                     alert_text = alert.text.lower()
+                    alert.accept()
                     if "sucesso" in alert_text:
                         self.log.info("Contrato enviado a REPOM, aguardando retorno do número do contrato")
-
+                        time.sleep(10)
                     else:
                         raise f"Falha ao gerar o contrato. Mensagem da pop-up: {alert_text}"
 
@@ -610,7 +620,7 @@ class KMMActions:
                         self.driver.refresh()
                         continue
 
-                    self.driver.switch_to_frame(principal=False)
+                    self.driver.wait_frame('name:iconteudo')
 
                     try:
                         contract_number = self._get_contract_number()

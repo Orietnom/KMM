@@ -35,7 +35,8 @@ def process(queue_item: BelgoItemProcess):
                 cte_value=queue_item.cte_value,
                 management='freto',
                 incident_number=queue_item.n_incidents,
-                taxes=True
+                taxes=True,
+                belgo=True
             )
 
             if not fretolog_cte_complement:
@@ -122,7 +123,8 @@ def process(queue_item: BelgoItemProcess):
                 cte_value=queue_item.cte_value,
                 management='levo',
                 incident_number=queue_item.n_incidents,
-                markup=0.98
+                markup=0.98,
+                belgo=True
             )
 
             if not levolog_cte_complement:

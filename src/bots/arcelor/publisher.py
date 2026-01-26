@@ -34,6 +34,7 @@ class Main:
                     f"{len(self.incidents)} casos encontrados"
                 )
 
+
                 for incident in incidents:
                     logger.info(f"Verificando caso: {incident}")
                     if len(incident) < 8:
@@ -52,21 +53,22 @@ class Main:
                             f"O card de id: {incident['card id']} foi movido para fila \'cte freto\'")
 
                 df = pd.DataFrame(incidents)
-                df_renamed = df.rename({
+                df = df.drop(columns=['Série CTe'])
+                df_renamed = df.rename(columns={
                     "Unidade": "UNIDADE",
                     "Transporte": "TRANSPORTE",
                     "Motivo": "MOTIVO",
                     "Valor a pagar (Contrato)": "VALOR_CONTRATO",
                     "Valor aprovado emissão (CTe)": "VALOR_CTE",
                     "Filial": "FILIAL",
-                    "card_id": "CARD_ID",
+                    "card id": "CARD_ID",
                     "motorista": "NOME_MOTORISTA",
                     "cte_levolog": "CTE_LEVOLOG",
                     "serie_levolog": "SERIE_LEVOLOG",
                     "cte_fretolog": "CTE_FRETOLOG",
                     "serie_fretolog": "SERIE_FRETOLOG"
                 })
-                DB().insert(
+                DB().insert_ignore_df(
                     table="complementar_arcelor",
                     df=df_renamed,
                     unique_keys=["CTE_FRETOLOG"]

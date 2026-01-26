@@ -113,7 +113,9 @@ class API:
             card_id: str
     ):
 
-        id: str = ''
+        actual_phase = self._get_card_phase(card_id)
+        if phase == actual_phase:
+            return
 
         phase_id = self._get_phase_id()
         id = phase_id[phase]
@@ -140,3 +142,26 @@ class API:
                 data['card id'] = id['node']['id']
                 card_data.append(data)
         return card_data
+
+    def _get_card_phase(self, card_id: str):
+        query = f"""
+        {{
+          card(id: {card_id}) {{
+            id
+            title
+            current_phase {{
+              id
+              name
+            }}
+          }}
+        }}
+        """
+
+        response = requests.post(self.url, json={'query': query}, headers=self.headers)
+
+        if response.status_code == 200:
+            data = response.json()
+            phase = data['data']['card']['current_phase']
+            return phase['name']
+        else:
+            print(f"Erro: {response.status_code}")

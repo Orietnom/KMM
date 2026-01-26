@@ -4,12 +4,18 @@ from shared import sharepoint
 from shared.logger import logger
 
 from shared.db_handler.db_handler import DB
+from shared.email_handler import send_email
 import os
 
 load_dotenv()
 
 def run():
     try:
+        send_email(
+            os.getenv("JMN_RECIPIENTS"),
+            'Automação J Mendes Iniciada',
+            "A automação J Mendes foi iniciada"
+        )
         download_dir = os.path.join(os.getcwd(),"excel_files")
         ok = sharepoint.get_items(
             url=os.getenv("JMN_SHAREPOINT_URL"),
@@ -47,10 +53,25 @@ def run():
                 )
             else:
                 logger.warning("Planilha não contém dados")
+                send_email(
+                    os.getenv("JMN_RECIPIENTS"),
+                    "Automação J Mendes Finalizada",
+                    "Não há casos"
+                )
         else:
             logger.error("Falha ao realizar o download da planilha")
+            send_email(
+                os.getenv("JMN_RECIPIENTS"),
+                "Automação J Mendes Finalizada",
+                "Falha ao realizar o download da planilha, verificar o link do sharepoint"
+            )
 
     except Exception as e:
         logger.exception(f"Falha ao obter os casos: Erro {str(e)}")
+        send_email(
+            os.getenv("JMN_RECIPIENTS"),
+            "Automação J Mendes Finalizada",
+            "Falha não mapeada, acionar suporte ergondata"
+        )
 
 run()

@@ -1,41 +1,42 @@
 from shared.logger import logger
 from kmm.services.kmm_actions import KMMActions, LoginParams
 from shared.db_handler.db_handler import DB
-from models import BelgoItemProcess
+from models import ArcelorItemProcess
+from pipefy_handler import API
 from dotenv import load_dotenv
 import os
 import exceptions.personalized_exceptions as pe
 load_dotenv()
 
     
-def process(queue_item: BelgoItemProcess):
+def process(queue_item: ArcelorItemProcess):
     db = DB()
-    with KMMActions(service='Belgo Freto') as freto_kmm:
+    with KMMActions(service='Arcelor Freto') as freto_kmm:
 
         logger.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
         freto_kmm.login(
             params=LoginParams(
                 url=os.getenv('KMM_URL'),
-                username=os.getenv('KMM_BELGO_USERNAME'),
-                password=os.getenv('KMM_BELGO_PASSWORD')
+                username=os.getenv('KMM_ARCELOR_USERNAME'),
+                password=os.getenv('KMM_ARCELOR_PASSWORD')
             ),
             management='freto'
         )
 
-        freto_kmm.belgo_load_user_profile(
-            user=os.getenv('KMM_BELGO_USERNAME'),
+        freto_kmm.arcelor_load_user_profile(
+            user=os.getenv('KMM_ARCELOR_USERNAME'),
             management='freto',
-            lotation=queue_item.freto_lot
+            center=queue_item.center
         )
 
         if not queue_item.complement_cte_fretolog:
             fretolog_cte_complement = freto_kmm.emitting_cte(
-                cte=queue_item.freto_cte,
-                serie=queue_item.freto_serie,
+                cte=queue_item.cte_fretolog,
+                serie=queue_item.serie_fretolog,
                 cte_value=queue_item.cte_value,
+                driver_name=queue_item.driver_name,
                 management='freto',
-                incident_number=queue_item.n_incidents,
-                taxes=True
+                belgo=False
             )
 
             if not fretolog_cte_complement:
@@ -45,7 +46,7 @@ def process(queue_item: BelgoItemProcess):
             logger.success(f"Cte de complemento fretolog emitido com sucesso. "
                            f"Cte de complemento emitido -> {fretolog_cte_complement}")
             db.update(
-                table='complementar_belgo2',
+                table='complementar_arcelor',
                 column='CTE_FRETOLOG_COMPLEMENTAR',
                 value=fretolog_cte_complement,
                 id=queue_item.bd_id
@@ -54,20 +55,17 @@ def process(queue_item: BelgoItemProcess):
         else:
             fretolog_cte_complement = queue_item.complement_cte_fretolog
 
-        file_path = freto_kmm.get_xml(fretolog_cte_complement, queue_item.complement_cte_fretolog_date)
-        if not file_path:
-            raise pe.KMMGetXML()
-
-        if not queue_item.levo_cte:
+        if not queue_item.cte_levolog:
 
             if not queue_item.contract:
+                API().move_card('Contrato', queue_item.card_id)
                 contract_number = freto_kmm.emitting_contract_repomfreted(
                     contract_value=queue_item.contract_value,
                     complement_cte=fretolog_cte_complement,
                     serie=queue_item.serie_fretolog,
                     transport=queue_item.transport,
                     liberation_user=os.getenv("KMM_CONTRACT_LIBERATION_USER"),
-                    control_number=int(os.getenv("KMM_BELGO_CONTROL_NUMBER"))
+                    control_number=int(os.getenv("KMM_ARCELOR_CONTROL_NUMBER"))
                 )
 
                 if not contract_number:
@@ -76,17 +74,19 @@ def process(queue_item: BelgoItemProcess):
 
                 logger.success(f"Contrato emitido com sucesso. Contrato -> {contract_number}")
                 db.update(
-                    table='complementar_belgo2',
+                    table='complementar_arcelor',
                     column='CONTRATO',
                     value=contract_number,
                     id=queue_item.bd_id
                 )
+
             else:
                 contract_number = queue_item.contract
 
+            API().move_card('Quitação de Contrato', queue_item.card_id)
             ok = freto_kmm.payment(
                 contract_number=contract_number,
-                cod_pessoa_filial=os.getenv("KMM_BELGO_COD_PESSOA_FILIAL")
+                cod_pessoa_filial=os.getenv("KMM_ARCELOR_COD_PESSOA_FILIAL")
             )
 
             if not ok:
@@ -97,32 +97,34 @@ def process(queue_item: BelgoItemProcess):
         else:
             logger.info("Fim da etapa Fretolog")
 
-    with KMMActions(service='Belgo Levo') as levo_kmm:
+    with KMMActions(service='Arcelor Levo') as levo_kmm:
 
         logger.info(f"Iniciando o caso {queue_item} pela filial Levolog")
         levo_kmm.login(
             params=LoginParams(
                 url=os.getenv('KMM_URL'),
-                username=os.getenv('KMM_BELGO_USERNAME'),
-                password=os.getenv('KMM_BELGO_PASSWORD')
+                username=os.getenv('KMM_ARCELOR_USERNAME'),
+                password=os.getenv('KMM_ARCELOR_PASSWORD')
             ),
             management='levo'
         )
 
         levo_kmm.arcelor_load_user_profile(
-            user=os.getenv('KMM_BELGO_USERNAME'),
+            user=os.getenv('KMM_ARCELOR_USERNAME'),
             management='levo',
-            center=queue_item.levo_cte
+            center=queue_item.center
         )
 
         if not queue_item.complement_cte_levolog:
+            API().move_card('CTe Levo', queue_item.card_id)
             levolog_cte_complement = levo_kmm.emitting_cte(
-                cte=queue_item.levo_cte,
-                serie=queue_item.levo_serie,
+                cte=queue_item.cte_levolog,
+                serie=queue_item.serie_levolog,
                 cte_value=queue_item.cte_value,
+                driver_name=queue_item.driver_name,
                 management='levo',
-                incident_number=queue_item.n_incidents,
-                markup=0.98
+                markup=0.98,
+                belgo=False
             )
 
             if not levolog_cte_complement:
@@ -132,7 +134,7 @@ def process(queue_item: BelgoItemProcess):
             logger.success(f"Cte de complemento fretolog emitido com sucesso. "
                            f"Cte de complemento emitido -> {levolog_cte_complement}")
             db.update(
-                table='complementar_belgo2',
+                table='complementar_arcelor',
                 column='CTE_LEVOLOG_COMPLEMENTAR',
                 value=levolog_cte_complement,
                 id=queue_item.bd_id
@@ -141,14 +143,14 @@ def process(queue_item: BelgoItemProcess):
             levolog_cte_complement = queue_item.complement_cte_levolog
 
         if not queue_item.contract:
+            API().move_card('Contrato', queue_item.card_id)
             levo_contract_number = levo_kmm.emitting_contract_repomfreted(
                 contract_value=queue_item.contract_value,
                 complement_cte=levolog_cte_complement,
-                serie=queue_item.levo_serie,
+                serie=queue_item.serie_levolog,
                 transport=queue_item.transport,
-                liberation_user=os.getenv("KMM_BELGO_LIBERATION_USER"),
-                control_number=int(os.getenv("KMM_BELGO_CONTROL_NUMBER")),
-                submotive=queue_item.submotive
+                liberation_user=os.getenv("KMM_ARCELOR_LIBERATION_USER"),
+                control_number=int(os.getenv("KMM_ARCELOR_CONTROL_NUMBER"))
             )
 
             if not levo_contract_number:
@@ -157,7 +159,7 @@ def process(queue_item: BelgoItemProcess):
             logger.success(f"Contrato emitido com sucesso. Contrato -> {levo_contract_number}")
 
             db.update(
-                table='complementar_belgo2',
+                table='complementar_arcelor',
                 column='CONTRATO',
                 value=levo_contract_number,
                 id=queue_item.bd_id
@@ -165,9 +167,10 @@ def process(queue_item: BelgoItemProcess):
         else:
             levolog_contract_number = queue_item.contract
 
+        API().move_card('Quitação de Contrato', queue_item.card_id)
         ok = freto_kmm.payment(
             contract_number=levo_contract_number,
-            cod_pessoa_filial=os.getenv("KMM_BELGO_COD_PESSOA_FILIAL")
+            cod_pessoa_filial=os.getenv("KMM_ARCELOR_COD_PESSOA_FILIAL")
         )
 
         if not ok:
