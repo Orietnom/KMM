@@ -15,3 +15,4 @@ venv
 evidence/
 logs/
 *.log
+output/
