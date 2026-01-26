@@ -4,6 +4,11 @@ import mimetypes
 import imaplib
 import email
 import os
+import subprocess
+from pathlib import Path
+from datetime import datetime
+from venv import logger
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -46,7 +51,12 @@ def read_emails(max_results=10):
     imap.login(USER, APP_PASSWORD)
     imap.select("INBOX")
 
-    status, messages = imap.search(None, "UNSEEN")
+    today = datetime.now().strftime("%d-%b-%Y")
+
+    status, messages = imap.search(
+        None,
+        f'(UNSEEN SINCE {today})'
+    )
     email_ids = messages[0].split()
 
     resultados = []
@@ -58,11 +68,11 @@ def read_emails(max_results=10):
 
         if "freto" in msg['From'].lower():
             resultados.append({
-                "from": msg["From"],
-                "subject": msg["Subject"],
+                "from": msg["From"].lower(),
+                "subject": msg["Subject"].lower(),
                 "date": msg["Date"]
             })
-            imap.store(eid, '+FLAGS', '\\Seen')
+            # imap.store(eid, '+FLAGS', '\\Seen')
 
     imap.logout()
     return resultados
