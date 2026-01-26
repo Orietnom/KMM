@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-ROOT_DIR = Path.cwd().parent
+ROOT_DIR = Path.cwd()
 if __name__ == '__main__':
     resultados = email_handler.read_emails(max_results=10)
     for resultado in resultados:

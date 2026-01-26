@@ -41,7 +41,7 @@ def process_case() -> None:
                 value=retry,
                 id=case["ID"]
             )
-
+ 
             processed = process(
                 JMNItemProcess(
                     license_plate=case.get('PLACA'),

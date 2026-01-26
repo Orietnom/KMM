@@ -46,7 +46,7 @@ def send_email(to, subject, body, attachment_path = None):
 
 
 # ===== LER NÃO LIDOS =====
-def read_emails(max_results=10):
+def read_emails(max_results=100):
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     imap.login(USER, APP_PASSWORD)
     imap.select("INBOX")
