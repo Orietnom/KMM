@@ -70,6 +70,12 @@ def process_case() -> None:
                     value='OK',
                     id=case["ID"]
                 )
+                db.update(
+                    table='complementar_belgo2',
+                    column='FINALIZADO_EM',
+                    value=datetime.now(),
+                    id=case["ID"]
+                )
             else:
                 raise Exception(f"Falha ao processar o caso de transporte {case.get('TRANSPORTE')}")
         except pe.KMMProcess as pe_error:
@@ -99,3 +105,18 @@ def process_case() -> None:
 
 if __name__ == "__main__":
     process_case()
+    file_path = Path.cwd() / "output" / f"Retorno Belgo.xlsx"
+    created = create_return_excel(file_path, 'complementar_belgo2')
+    if created:
+        send_email(
+            os.getenv("BELGO_RECIPIENTS"),
+            "Automação Belgo Finalizada",
+            "Segue em anexo a planilha gerada",
+            file_path
+        )
+    else:
+        send_email(
+            os.getenv("BELGO_RECIPIENTS"),
+            "Automação Belgo Finalizada",
+            "Não há casos"
+        )

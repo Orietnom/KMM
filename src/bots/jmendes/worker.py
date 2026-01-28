@@ -66,6 +66,12 @@ def process_case() -> None:
                     value='OK',
                     id=case["ID"]
                 )
+                db.update(
+                    table='complementar_jmendes',
+                    column='FINALIZADO_EM',
+                    value=datetime.now(),
+                    id=case["ID"]
+                )
             else:
                 raise Exception(f"Falha ao processar o caso de TBE {case.get('TBE')}")
         except pe.KMMProcess as pe_error:

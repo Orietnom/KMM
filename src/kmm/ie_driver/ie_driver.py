@@ -6,7 +6,7 @@ import subprocess
 import threading
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Tuple, Union, Callable, Any
 
@@ -26,9 +26,9 @@ from selenium.common.exceptions import (
     ElementNotInteractableException,
 )
 
-# Selenium 3.141.0: DesiredCapabilities é o caminho mais estável para IE
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from dotenv import load_dotenv
+from shared.logger import logger
 
 load_dotenv()
 # -----------------------------
@@ -92,6 +92,7 @@ class KMMIEDriver:
         self.config = config or IEDriverConfig()
         self._driver: Optional[WebDriver] = None
         Path(self.config.evidence_dir).mkdir(parents=True, exist_ok=True)
+        self.cleanup_old_evidences(days=10)
 
     def __getattribute__(self, name: str):
         attr = object.__getattribute__(self, name)
@@ -133,7 +134,7 @@ class KMMIEDriver:
 
         # Espera "hard timeout"
         t.join(timeout_total)
-        print(f"Inicio {datetime.now().time()}")
+        logger.debug(f"Inicio {datetime.now().time()}")
 
         # Se ainda estiver rodando, consideramos travado
         if t.is_alive():
@@ -149,6 +150,7 @@ class KMMIEDriver:
         if result_box["exc"] is not None:
             raise result_box["exc"]
 
+        logger.debug(f"Fim {datetime.now().time()}")
         return result_box["value"]
 
     # -----------------------------
@@ -177,9 +179,6 @@ class KMMIEDriver:
         options = webdriver.IeOptions()
         options.ignore_zoom_level = self.config.ignore_zoom_level
         options.ignore_protected_mode_settings = self.config.ignore_protected_mode_settings
-        # options.require_window_focus = self.config.require_window_focus
-        # options.native_events = self.config.native_events
-        # options.ensure_clean_session = self.config.ensure_clean_session
 
         # Cria driver
         try:
@@ -229,10 +228,10 @@ class KMMIEDriver:
             self._kill_ie_processes()
 
     def restart(self) -> WebDriver:
-        print("Reiniciando navegador")
+        logger.debug("Reiniciando navegador")
         self.stop()
         driver = self.start()
-        print("Finalizado")
+        logger.debug("Finalizado")
         return driver
 
     def _start_watchdog(self, seconds: int, label: str):
@@ -281,30 +280,30 @@ class KMMIEDriver:
     # -----------------------------
 
     def open(self, url: str) -> None:
-        print(f"Navegando para {url}")
+        logger.debug(f"Navegando para {url}")
         self.driver.get(url)
-        print("Finalizado")
+        logger.debug("Finalizado")
 
     def refresh(self) -> None:
-        print("Atualizando a pagina")
+        logger.debug("Atualizando a pagina")
         self.driver.refresh()
-        print("Finalizado")
+        logger.debug("Finalizado")
 
     def current_url(self) -> str:
         try:
-            print("Obtendo URL da pagina atual")
+            logger.debug("Obtendo URL da pagina atual")
             return self.driver.current_url
         except Exception:
             return ""
         finally:
-            print("Finalizado")
+            logger.debug("Finalizado")
 
     def close_window(self):
-        print(self.driver.window_handles)
+        logger.debug(self.driver.window_handles)
         for page in self.driver.window_handles:
             if page != self.home_page_id:
                 self.driver.switch_to.window(page)
-                print(self.driver.title)
+                logger.debug(self.driver.title)
                 self.driver.close()
 
     # -----------------------------
@@ -342,50 +341,50 @@ class KMMIEDriver:
     # -----------------------------
 
     def wait_visible(self, locator: Locator, timeout: Optional[int] = None):
-        print("Aguardando elemento estar visivel")
+        logger.debug("Aguardando elemento estar visivel")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
         element = wait.until(EC.visibility_of_element_located((self._by(by), value)))
-        print("Fim do método wait")
+        logger.debug("Fim do método wait")
         return element
 
     def wait_present(self, locator: Locator, timeout: Optional[int] = None):
-        print("Aguardando elemento estar presente")
+        logger.debug("Aguardando elemento estar presente")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
         element = wait.until(EC.presence_of_element_located((self._by(by), value)))
-        print("Fim do método wait")
+        logger.debug("Fim do método wait")
         return element
 
     def wait_clickable(self, locator: Locator, timeout: Optional[int] = None):
-        print("Aguardando elemento estar clicavel")
+        logger.debug("Aguardando elemento estar clicavel")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
         element = wait.until(EC.element_to_be_clickable((self._by(by), value)))
-        print("Fim do método wait")
+        logger.debug("Fim do método wait")
         return element
 
     def wait_frame(self, locator: Locator, timeout: Optional[int] = None):
-        print("Aguardando frame estar disponível")
+        logger.debug("Aguardando frame estar disponível")
         by, value = self._parse_locator(locator)
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
         element = wait.until(EC.frame_to_be_available_and_switch_to_it((self._by(by), value)))
-        print("Fim do método wait")
+        logger.debug("Fim do método wait")
         return element
 
     def wait_alert(self, timeout: Optional[int] = None) -> Any:
-        print("Aguardando alerta aparecer")
+        logger.debug("Aguardando alerta aparecer")
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
         try:
             element = wait.until(EC.alert_is_present())
         except TimeoutException:
-            print("Alerta não apareceu")
+            logger.debug("Alerta não apareceu")
             return False
-        print("Fim do método wait")
+        logger.debug("Fim do método wait")
         return element
 
     def wait_window_by_tile(self, target_title: str, timeout: Optional[int] = None):
-        print(f"Aguardando janela {target_title} aparecer")
+        logger.debug(f"Aguardando janela {target_title} aparecer")
         wait = WebDriverWait(self.driver, timeout or self.config.default_wait)
 
         element = wait.until(lambda d: any((d.switch_to.window(h) or True) and target_title in (d.title or "").lower()
@@ -397,9 +396,9 @@ class KMMIEDriver:
 
     def safe_find(self, locator: Locator, timeout: Optional[int] = None):
         try:
-            print(f"Procurando um elemento: {locator} com timeout {timeout}")
+            logger.debug(f"Procurando um elemento: {locator} com timeout {timeout}")
             element = self.wait_present(locator, timeout=timeout)
-            print("Finalizado")
+            logger.debug("Finalizado")
             return element
         except TimeoutException as e:
             self.dump_state("safe_find_timeout")
@@ -413,7 +412,7 @@ class KMMIEDriver:
         backoff_s: float = 0.6,
         use_js_fallback: bool = True,
     ) -> None:
-        print(f"Clicado no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
+        logger.debug(f"Clicado no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
 
         self._with_retry(
             fn=lambda: self._click_once(locator, timeout, use_js_fallback),
@@ -421,7 +420,7 @@ class KMMIEDriver:
             backoff_s=backoff_s,
             on_fail_label="safe_click_fail",
         )
-        print("Finalizado")
+        logger.debug("Finalizado")
 
     def _click_once(self, locator: Locator, timeout: Optional[int], use_js_fallback: bool) -> None:
         el = self.wait_clickable(locator, timeout=timeout)
@@ -443,7 +442,7 @@ class KMMIEDriver:
         backoff_s: float = 0.6,
         time_between_types: float = None
     ) -> None:
-        print(f"Escrevendo texto no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
+        logger.debug(f"Escrevendo texto no elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
         def _type():
             el = self.wait_visible(locator, timeout=timeout)
             if clear_first:
@@ -458,7 +457,7 @@ class KMMIEDriver:
                     time.sleep(time_between_types)
             else:
                 el.send_keys(text)
-            print("Finalizado")
+            logger.debug("Finalizado")
 
         self._with_retry(
             fn=_type,
@@ -474,10 +473,10 @@ class KMMIEDriver:
         retries: int = 2,
         backoff_s: float = 0.4,
     ) -> str:
-        print(f"Obtendo texto do elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
+        logger.debug(f"Obtendo texto do elemento: {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
         def _get():
             el = self.wait_visible(locator, timeout=timeout)
-            print("Finalizado")
+            logger.debug("Finalizado")
             return (el.text or "").strip()
 
         return self._with_retry(
@@ -495,10 +494,10 @@ class KMMIEDriver:
             retries: int = 2,
             backoff_s: float = 0.4
             ):
-        print(f"Obtendo atributo {attribute} do locator {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
+        logger.debug(f"Obtendo atributo {attribute} do locator {locator} com timeout {timeout}, retries {retries} e backoff de {backoff_s} segunndos")
         def _get():
             el = self.wait_present(locator=locator, timeout=timeout)
-            print("Finalizado")
+            logger.debug("Finalizado")
             return (el.get_attribute(attribute))
 
         return self._with_retry(
@@ -510,9 +509,9 @@ class KMMIEDriver:
 
     def exists(self, locator: Locator, timeout: int = 2) -> bool:
         try:
-            print(f"Verificando se o locator {locator} existe")
+            logger.debug(f"Verificando se o locator {locator} existe")
             self.wait_present(locator, timeout=timeout)
-            print("Finalizado")
+            logger.debug("Finalizado")
             return True
         except TimeoutException:
             return False
@@ -529,7 +528,7 @@ class KMMIEDriver:
             timer = None
             fired = None
             try:
-                print(f"Tentativa {attempt + 1}")
+                logger.debug(f"Tentativa {attempt + 1}")
 
                 return fn()
             except (StaleElementReferenceException, WebDriverException, TimeoutException, NoSuchElementException) as e:
@@ -550,23 +549,23 @@ class KMMIEDriver:
     # -----------------------------
 
     def switch_to_default(self) -> None:
-        print("Trocando para o conteúdo principal da DOM")
+        logger.debug("Trocando para o conteúdo principal da DOM")
         self.driver.switch_to.default_content()
-        print("Sucesso")
+        logger.debug("Sucesso")
 
     def switch_to_frame(self, principal: bool = True, timeout: Optional[int] = None) -> None:
 
         self.driver.switch_to.default_content()
 
-        print("Entrando no frame principal")
+        logger.debug("Entrando no frame principal")
         self.wait_frame(locator='id:principal', timeout=timeout)
 
         time.sleep(0.2)
         if not principal:
-            print("Entrando no frame iconteudo")
+            logger.debug("Entrando no frame iconteudo")
             self.wait_frame(locator='name:iconteudo', timeout=timeout)
 
-        print("Sucesso")
+        logger.debug("Sucesso")
 
     def switch_to_window(self, target_title: str = None, timeout: Optional[int] = None, home_window: bool = False) -> bool:
 
@@ -575,28 +574,28 @@ class KMMIEDriver:
             return True
         target = target_title.lower()
 
-        print(f"Pulando para janela => {target_title}")
+        logger.debug(f"Pulando para janela => {target_title}")
 
         try:
             self.wait_window_by_tile(target_title=target, timeout=timeout)
         except TimeoutException:
-            print(f"Janela com título contendo '{target_title}' em {timeout}s não encontrada")
+            logger.debug(f"Janela com título contendo '{target_title}' em {timeout}s não encontrada")
             return False
 
         for h in self.driver.window_handles:
             self.driver.switch_to.window(h)
             if target in (self.driver.title or "").lower():
-                print(f"Janela encontrada e ativada => {self.driver.title}")
+                logger.debug(f"Janela encontrada e ativada => {self.driver.title}")
                 return True
 
         return False
 
     def accept_alert(self) -> str:
-        print("Aceitando um Alert")
+        logger.debug("Aceitando um Alert")
         alert = self.wait_alert()
         text = alert.text
         alert.accept()
-        print(f"Texto do alerta {text}")
+        logger.debug(f"Texto do alerta {text}")
         return text
 
     # -----------------------------
@@ -604,17 +603,17 @@ class KMMIEDriver:
     # -----------------------------
 
     def select_by_value(self, locator: Locator, value:str, timeout: Optional[int] = None) -> None:
-        print(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
+        logger.debug(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
         el = self.wait_present(locator=locator, timeout=timeout)
         Select(el).select_by_value(value=value)
 
     def select_by_index(self, locator: Locator, index:int, timeout: Optional[int] = None) -> None:
-        print(f"Selecionando por index {index} no locator {locator} com timeout de {timeout}")
+        logger.debug(f"Selecionando por index {index} no locator {locator} com timeout de {timeout}")
         el = self.wait_present(locator=locator, timeout=timeout)
         Select(el).select_by_index(index=index)
 
     def select_by_visible_text(self, locator: Locator, value:str, timeout: Optional[int] = None) -> None:
-        print(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
+        logger.debug(f"Selecionando {value} no locator {locator} com timeout de {timeout}")
         el = self.wait_present(locator=locator, timeout=timeout)
         Select(el).select_by_visible_text(text=value)
 
@@ -631,6 +630,25 @@ class KMMIEDriver:
     # -----------------------------
     # Evidências / Diagnóstico
     # -----------------------------
+
+    def cleanup_old_evidences(self, days: int = 10):
+        evidence_dir = Path(self.config.evidence_dir)
+        if not evidence_dir.exists():
+            return
+
+        limite = datetime.now() - timedelta(days=days)
+
+        for file in evidence_dir.iterdir():
+            if not file.is_file():
+                continue
+
+            mtime = datetime.fromtimestamp(file.stat().st_mtime)
+
+            if mtime < limite:
+                try:
+                    file.unlink()
+                except Exception:
+                    pass
 
     def dump_state(self, label: str = "state") -> dict:
         """

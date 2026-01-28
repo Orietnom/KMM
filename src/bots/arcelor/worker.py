@@ -4,9 +4,11 @@ from src.bots.arcelor.kmm_process import process
 from src.bots.arcelor.models import ArcelorItemProcess
 from shared.logger import logger
 from shared.db_handler.db_handler import DB, create_return_excel
+from shared.email_handler import send_email
 import exceptions.personalized_exceptions as pe
 from pathlib import Path
 from datetime import datetime
+
 load_dotenv()
 
 RABBITMQ_URL = os.getenv("RABBIT_URL")

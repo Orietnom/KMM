@@ -85,10 +85,7 @@ def process(queue_item: BelgoItemProcess):
             else:
                 contract_number = queue_item.contract
 
-            ok = freto_kmm.payment(
-                contract_number=contract_number,
-                cod_pessoa_filial=os.getenv("KMM_BELGO_COD_PESSOA_FILIAL")
-            )
+            ok = freto_kmm.payment(contract_number=contract_number)
 
             if not ok:
                 logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
@@ -167,10 +164,7 @@ def process(queue_item: BelgoItemProcess):
         else:
             levolog_contract_number = queue_item.contract
 
-        ok = freto_kmm.payment(
-            contract_number=levo_contract_number,
-            cod_pessoa_filial=os.getenv("KMM_BELGO_COD_PESSOA_FILIAL")
-        )
+        ok = freto_kmm.payment(contract_number=levo_contract_number)
 
         if not ok:
             logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
