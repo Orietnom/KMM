@@ -106,8 +106,9 @@ def create_return_excel():
 
 if __name__ == "__main__":
     process_case()
-    file_path = create_return_excel()
-    if file_path:
+    file_path = Path.cwd() / "output" / f"Retorno JMendes.xlsx"
+    created = create_return_excel(file_path, 'complementar_jmendes')
+    if created:
         send_email(
             os.getenv("JMN_RECIPIENTS"),
             "Automação J Mendes Finalizada",

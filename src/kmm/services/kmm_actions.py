@@ -652,7 +652,7 @@ class KMMActions:
                 f"serie {serie}, transporte {transport}, "
             ) from e
 
-    def payment(self, contract_number: str, cod_pessoa_filial: str, cod_centro_custo: str) -> bool:
+    def payment(self, contract_number: str, management: str = 'freto', cod_pessoa_filial: str = None, cod_centro_custo: str = None) -> bool:
 
         try:
             self.quick_access('LTREPOMFRETE')
@@ -674,10 +674,15 @@ class KMMActions:
             # else:
             #     self.driver.select_by_value('id:COD_PESSOA_FILIAL', cod_pessoa_filial
 
-            self.driver.select_by_visible_text('id:COD_PESSOA_FILIAL', '1 - FRETO LOG - MATRIZ')
+            if management == 'freto':
+                self.driver.select_by_visible_text('id:COD_PESSOA_FILIAL', '1 - FRETO LOG - MATRIZ')
+                self.driver.select_by_visible_text('id:COD_CENTRO_CUSTO', '1 - MATRIZ')
+            else:
+                self.driver.select_by_visible_text('id:COD_PESSOA_FILIAL', '1 - LEVO LOG - MATRIZ SP')
+                self.driver.select_by_visible_text('id:COD_CENTRO_CUSTO', '370 - MATRIZ')
             self.log.info("Filial inserida")
 
-            self.driver.select_by_visible_text('id:COD_CENTRO_CUSTO', '1 - MATRIZ')
+
             self.log.info("Centro de custo inserido")
 
             self.driver.safe_type('id:PESO_ENTREGA', '1.00')

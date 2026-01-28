@@ -84,11 +84,7 @@ def process(queue_item: ArcelorItemProcess):
                 contract_number = queue_item.contract
 
             API().move_card('Quitação de Contrato', queue_item.card_id)
-            ok = freto_kmm.payment(
-                contract_number=contract_number,
-                cod_pessoa_filial=queue_item.center,
-                cod_centro_custo=os.getenv("KMM_ARCELOR_COD_CENTRO_CUSTO")
-            )
+            ok = freto_kmm.payment(contract_number=contract_number)
 
             if not ok:
                 logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
@@ -166,13 +162,10 @@ def process(queue_item: ArcelorItemProcess):
                 id=queue_item.bd_id
             )
         else:
-            levolog_contract_number = queue_item.contract
+            levo_contract_number = queue_item.contract
 
         API().move_card('Quitação de Contrato', queue_item.card_id)
-        ok = freto_kmm.payment(
-            contract_number=levo_contract_number,
-            cod_pessoa_filial=os.getenv("KMM_ARCELOR_COD_PESSOA_FILIAL")
-        )
+        ok = levo_kmm.payment(contract_number=levo_contract_number, management='levo')
 
         if not ok:
             logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")

@@ -1,12 +1,12 @@
-import json
-import pika
 import os
 from dotenv import load_dotenv
 from src.bots.arcelor.kmm_process import process
 from src.bots.arcelor.models import ArcelorItemProcess
 from shared.logger import logger
-from shared.db_handler.db_handler import DB
+from shared.db_handler.db_handler import DB, create_return_excel
 import exceptions.personalized_exceptions as pe
+from pathlib import Path
+from datetime import datetime
 load_dotenv()
 
 RABBITMQ_URL = os.getenv("RABBIT_URL")
@@ -19,7 +19,7 @@ def process_case() -> None:
         cases = db.get_data(
             table="complementar_arcelor"
         )
-    except Exception as e:
+    except Exception:
         logger.exception("Falha ao obter os casos do banco de dados")
         return False
 
@@ -64,6 +64,12 @@ def process_case() -> None:
                     value='OK',
                     id=case["ID"]
                 )
+                db.update(
+                    table='complementar_arcelor',
+                    column='FINALIZADO_EM',
+                    value=datetime.now(),
+                    id=case["ID"]
+                )
             else:
                 raise Exception(f"Falha ao processar o caso de id {case.get('TRANSPORTE')}")
         except pe.KMMProcess as pe_error:
@@ -94,3 +100,19 @@ def process_case() -> None:
 
 if __name__ == "__main__":
     process_case()
+    file_path = Path.cwd() / 'output' / f"Retorno Arcelor.xlsx"
+    created = create_return_excel(file_path, 'complementar_arcelor')
+
+    if created:
+        send_email(
+            os.getenv("ARCELOR_RECIPIENTS"),
+            "Automação Arcelor Finalizada",
+            "Segue em anexo a planilha gerada",
+            file_path
+        )
+    else:
+        send_email(
+            os.getenv("ARCELOR_RECIPIENTS"),
+            "Automação Arcelor Finalizada",
+            "Não há casos"
+        )

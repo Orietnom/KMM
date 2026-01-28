@@ -57,7 +57,7 @@ class DB:
         query = text(f"""
             SELECT *
             FROM Ergondata_Robo.dbo.{table}
-            WHERE CRIADO_EM >= :dt_min and CRIADO_EM < :dt_max
+            WHERE ATUALIZADO_EM >= :dt_min and ATUALIZADO_EM < :dt_max
         """)
 
         df = pd.read_sql(query, self.engine, params={"dt_min": dt_min, "dt_max": dt_max})
@@ -127,3 +127,15 @@ class DB:
 
     def close(self):
         self.engine.dispose()
+
+def create_return_excel(file_path, table):
+    try:
+        db = DB()
+        data = db.get_data_to_excel(table=table)
+        data['CRIADO_EM'] = data['CRIADO_EM'].dt.strftime('%d/%m/%Y %H:%M:%S')
+        data['ATUALIZADO_EM'] = data['ATUALIZADO_EM'].dt.strftime('%d/%m/%Y %H:%M:%S')
+        data.to_excel(file_path, index=False)
+        return True
+    except Exception:
+        logger.exception("Falha ao obter dados para gerar excel")
+        return False
