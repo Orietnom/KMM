@@ -35,7 +35,7 @@ def process_case() -> None:
             db.update(
                 table='complementar_arcelor',
                 column='RETENTATIVA',
-                value=0,
+                value=retry,
                 id=case["ID"]
             )
 

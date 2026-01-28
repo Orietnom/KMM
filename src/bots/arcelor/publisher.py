@@ -68,6 +68,7 @@ class Main:
                     "cte_fretolog": "CTE_FRETOLOG",
                     "serie_fretolog": "SERIE_FRETOLOG"
                 })
+                df_renamed['STATUS_'] = 'Pendente'
                 DB().insert_ignore_df(
                     table="complementar_arcelor",
                     df=df_renamed,

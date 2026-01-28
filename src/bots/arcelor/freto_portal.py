@@ -1,3 +1,5 @@
+from zipfile import Path
+
 import requests
 import time
 import re
@@ -5,6 +7,7 @@ import os
 from shared.logger import logger
 from pipefy_handler import API
 from pdf_handler import read_pdf
+from pathlib import Path
 from dotenv import load_dotenv
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -16,7 +19,7 @@ load_dotenv()
 driver_path = ChromeDriverManager().install()
 driver = webdriver.Chrome(executable_path=driver_path)
 wait = WebDriverWait(driver, 30)
-
+output_dir = Path.cwd() / 'output'
 
 def login():
     try:
@@ -47,8 +50,7 @@ def get_incidents_data(incidents):
             if not incident['Transporte']:
                 continue
             else:
-                pass
-                # API().move_card(phase='Portal Freto', card_id=incident['card id'])
+                API().move_card(phase='Portal Freto', card_id=incident['card id'])
 
             incident['Transporte'] = int(incident['Transporte'])
 
@@ -202,7 +204,7 @@ def get_cte_value():
                 logger.info("PF")
 
                 for data in pdfs:
-                    open(data['name'], "wb").write(data['response'].content)
+                    open(output_dir / data['name'], "wb").write(data['response'].content)
                     if 'viagem' in data['name'].lower():
                         numero_cte_levolog, serie_levolog = read_pdf(data['name'])
                     else:
@@ -210,7 +212,7 @@ def get_cte_value():
                     os.remove(data['name'])
             else:
                 logger.info("PJ")
-                open(pdfs[0]['name'], "wb").write(pdfs[0]['response'].content)
+                open(output_dir / pdfs[0]['name'], "wb").write(pdfs[0]['response'].content)
                 numero_cte_fretolog, serie_fretolog = read_pdf(pdfs[0]['name'])
                 numero_cte_levolog = ''
                 serie_levolog = ''

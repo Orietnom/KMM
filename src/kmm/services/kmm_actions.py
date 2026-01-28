@@ -26,6 +26,7 @@ class KMMActions:
     def __init__(self, service: str, driver: KMMIEDriver | None = None, config = None):
         self.driver = driver or KMMIEDriver(config)
         self._started = False
+        self.service = service
         self.log = logger.bind(service=service)
 
     # --- lifecycle ---
@@ -345,13 +346,22 @@ class KMMActions:
             ) from e
 
     def _force_CC(self):
-        self.driver.switch_to_frame(principal=False)
-        self.driver.execute_js("""
-        sel = document.getElementById("ORGANIZACIONAL_ID")
-        inp = document.getElementById("COD_ORGANIZACIONAL")
-        opt = sel.options[sel.selectedIndex]
-        inp.value = opt.getAttribute("codigo");
-        """)
+        for attempt in range(3):
+            try:
+                self.driver.switch_to_frame(principal=False)
+                self.driver.execute_js("""
+                sel = document.getElementById("ORGANIZACIONAL_ID")
+                inp = document.getElementById("COD_ORGANIZACIONAL")
+                opt = sel.options[sel.selectedIndex]
+                inp.value = opt.getAttribute("codigo");
+                """)
+                logger.success("Sucesso ao setar o CC")
+                break
+            except Exception as e:
+                if attempt == 2:
+                    raise pe.KMMEmittingContractError
+                print("DEBUG time =", time, type(time))
+                time.sleep(5)
 
     def _get_contract_number(self) -> str:
         try:
@@ -407,8 +417,9 @@ class KMMActions:
         for i in range(3):
             self.driver.execute_js(
                 f"document.getElementById('VALOR_UNITARIO').value = '{str(contract_value)}'")
+            self.driver.execute_js('f_change_valor_unitario(true);')
             self.driver.execute_js("return f_formata_numero_decimal(this,event);")
-            time.sleep(3)
+            time.sleep(6)
             value = self.driver.safe_get_attribute("id:VALOR_UNITARIO", "value")
             if float(value):
                 break
@@ -447,6 +458,7 @@ class KMMActions:
                     self.driver.safe_type('id:ROTA_ID', route)
                     self.driver.execute_js('f_busca_rota();')
                     self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
+                    self._force_CC()
 
                     self.driver.select_by_value('id:UTILIZA_VALE_PEDAGIO', '0')
                     self.driver.safe_type('id:CARTAO_NUMERO', card)
@@ -476,14 +488,6 @@ class KMMActions:
                     self.driver.execute_js('f_calcula_peso_ton();')
                     self.driver.safe_click('id:COD_UNIDADE_COMBO')
                     self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
-                    self._fill_contract_value(contract_value)
-                    # self.driver.safe_type('id:PESO', weight)
-                    # self.driver.execute_js('f_calcula_peso_ton();')
-                    # self.driver.safe_type('id:VOLUME', weight)
-                    # self.driver.execute_js('f_calcula_peso_ton();')
-                    # self.driver.execute_js('f_formata_numero_decimal(this,event);')
-                    # self.driver.safe_click('id:COD_UNIDADE_COMBO')
-                    # self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
 
                     self.driver.safe_click('id:USUARIO_LIBERACAO')
                     self.driver.select_by_value('id:USUARIO_LIBERACAO', liberation_user)
@@ -493,7 +497,7 @@ class KMMActions:
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     self.driver.safe_type('id:OBSERVACAO', '.')
                     time.sleep(3)
-                    self._force_CC()
+                    self._fill_contract_value(contract_value)
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
 
@@ -565,15 +569,13 @@ class KMMActions:
                     self.driver.safe_type("id:DIARIA_NUM_CTRC", complement_cte)
                     self.driver.execute_js('f_busca_ctrc_valor();')
                     self.driver.select_by_value('id:CTRC_DIARIA_SERIE', serie)
+                    self._force_CC()
                     self.driver.safe_type("id:ROTA_ID", '15')
                     self.driver.execute_js('f_busca_rota()')
                     self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
-                    self._fill_contract_value(contract_value)
-                    self.log.info(f"Valor do contrato => {contract_value}")
-
                     time.sleep(5)
-                    self.driver.safe_click("id:USUARIO_LIBERACAO")
-                    self.driver.select_by_value("id:USUARIO_LIBERACAO", liberation_user)
+                    self.driver.select_by_visible_text('id:UTILIZA_VALE_PEDAGIO', 'Não')
+                    self.driver.execute_js('f_on_change_utiliza_vale_pedagio();')
 
                     license_plate = None
                     for _ in range(2):
@@ -587,15 +589,18 @@ class KMMActions:
                             break
 
                     self.log.info(f"Placa => {license_plate}")
-
-                    kmm_pass = password_generate(license_plate=license_plate[-2::], control_number=control_number, p6=False)
-                    self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     if submotive:
                         self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
                     else:
                         self.driver.safe_type('id:OBSERVACAO', ".")
-                    self._force_CC()
-                    time.sleep(3)
+
+                    self._fill_contract_value(contract_value)
+                    self.log.info(f"Valor do contrato => {contract_value}")
+                    self.driver.safe_click("id:USUARIO_LIBERACAO")
+                    self.driver.select_by_value("id:USUARIO_LIBERACAO", liberation_user)
+                    kmm_pass = password_generate(license_plate=license_plate[-2::], control_number=control_number,
+                                                 p6=False)
+                    self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
 
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
@@ -637,7 +642,6 @@ class KMMActions:
                         raise
                     self.log.error(f"Falha ao gerar o contrato, tentando novamente. Erro => {str(e)}")
                     self.driver.switch_to_window(home_window=True)
-                    self.driver.refresh()
                     self.quick_access(term="REPOMFRETED")
 
         except pe.KMMProcess:
@@ -663,12 +667,17 @@ class KMMActions:
             self.driver.safe_click('xpath:/html/body/form/table/tbody/tr/td/div/table/tbody/tr/td[8]/button')
             self.log.info("Clicado no ícone de quitação")
 
-            self.driver.safe_click('id:COD_PESSOA_FILIAL')
-            self.driver.select_by_value('id:COD_PESSOA_FILIAL', cod_pessoa_filial)
+            # self.driver.safe_click('id:COD_PESSOA_FILIAL')
+            # if 'freto' in cod_pessoa_filial.lower() or 'levo' in cod_pessoa_filial.lower():
+            #     if 'arcelor' in self.service.lower() or 'belgo' in self.service.lower():
+            #         self.driver.select_by_visible_text('id:COD_PESSOA_FILIAL', '1 - FRETO LOG - MATRIZ')
+            # else:
+            #     self.driver.select_by_value('id:COD_PESSOA_FILIAL', cod_pessoa_filial
+
+            self.driver.select_by_visible_text('id:COD_PESSOA_FILIAL', '1 - FRETO LOG - MATRIZ')
             self.log.info("Filial inserida")
 
-            self.driver.safe_click("id:COD_CENTRO_CUSTO")
-            self.driver.select_by_value("id:COD_CENTRO_CUSTO", cod_centro_custo)
+            self.driver.select_by_visible_text('id:COD_CENTRO_CUSTO', '1 - MATRIZ')
             self.log.info("Centro de custo inserido")
 
             self.driver.safe_type('id:PESO_ENTREGA', '1.00')

@@ -86,7 +86,8 @@ def process(queue_item: ArcelorItemProcess):
             API().move_card('Quitação de Contrato', queue_item.card_id)
             ok = freto_kmm.payment(
                 contract_number=contract_number,
-                cod_pessoa_filial=os.getenv("KMM_ARCELOR_COD_PESSOA_FILIAL")
+                cod_pessoa_filial=queue_item.center,
+                cod_centro_custo=os.getenv("KMM_ARCELOR_COD_CENTRO_CUSTO")
             )
 
             if not ok:
