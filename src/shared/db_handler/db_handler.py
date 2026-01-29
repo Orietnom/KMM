@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
-from shared.logger import logger
+from src.shared.logger import logger
 load_dotenv()
 
 class DB:
@@ -132,6 +132,8 @@ def create_return_excel(file_path, table):
     try:
         db = DB()
         data = db.get_data_to_excel(table=table)
+        if data.empty:
+            return False
         data['CRIADO_EM'] = data['CRIADO_EM'].dt.strftime('%d/%m/%Y %H:%M:%S')
         data['ATUALIZADO_EM'] = data['ATUALIZADO_EM'].dt.strftime('%d/%m/%Y %H:%M:%S')
         data.to_excel(file_path, index=False)

@@ -1,11 +1,11 @@
 from sqlalchemy import column
 
-from kmm.services.kmm_actions import KMMActions, LoginParams
-from models import JMNItemProcess
+from src.kmm.services.kmm_actions import KMMActions, LoginParams
+from src.bots.jmendes.models import JMNItemProcess
 from dotenv import load_dotenv
-from shared.db_handler.db_handler import DB
+from src.shared.db_handler.db_handler import DB
 import os
-import exceptions.personalized_exceptions as pe
+import src.exceptions.personalized_exceptions as pe
 load_dotenv()
 
 def process(queue_item: JMNItemProcess):
@@ -45,15 +45,8 @@ def process(queue_item: JMNItemProcess):
 
         else:
             contract_number = queue_item.contract
-        #
-        # if 'levo' in queue_item.management.lower():
-        #     cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_LEVO")
-        #     cod_centro_custo = os.getenv("JMN_COD_CENTRO_CUSTO_LEVO")
-        # else:
-        #     cod_pessoa_filial = os.getenv("JMN_COD_PESSOA_FILIAL_FRETO")
-        #     cod_centro_custo = os.getenv("JMN_COD_CENTRO_CUSTO_FRETO")
 
-        payment = kmm.payment(contract_number=contract_number)
+        payment = kmm.payment(contract_number=contract_number, management=queue_item.management)
         if not payment:
             raise pe.KMMPaymentError()
 

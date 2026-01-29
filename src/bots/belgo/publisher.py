@@ -1,5 +1,5 @@
-from shared.db_handler.db_handler import DB
-from bba_portal import BelgoPortal
+from src.shared.db_handler.db_handler import DB
+from src.bots.belgo.bba_portal import BelgoPortal
 import pandas as pd
 
 class Main:

@@ -14,6 +14,10 @@ LOG_PATH  = LOG_DIR / f'Log_{today}.log'
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+print("BASE_DIR =", BASE_DIR)
+print("LOG_DIR  =", LOG_DIR)
+
+
 logger.remove()
 
 fmt = "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function} | {message} | {extra}"

@@ -1,10 +1,10 @@
-from shared.logger import logger
-from kmm.services.kmm_actions import KMMActions, LoginParams
-from shared.db_handler.db_handler import DB
-from models import BelgoItemProcess
+from src.shared.logger import logger
+from src.kmm.services.kmm_actions import KMMActions, LoginParams
+from src.shared.db_handler.db_handler import DB
+from src.bots.belgo.models import BelgoItemProcess
 from dotenv import load_dotenv
 import os
-import exceptions.personalized_exceptions as pe
+import src.exceptions.personalized_exceptions as pe
 load_dotenv()
 
     
@@ -162,9 +162,9 @@ def process(queue_item: BelgoItemProcess):
                 id=queue_item.bd_id
             )
         else:
-            levolog_contract_number = queue_item.contract
+            levo_contract_number = queue_item.contract
 
-        ok = freto_kmm.payment(contract_number=levo_contract_number)
+        ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
 
         if not ok:
             logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")

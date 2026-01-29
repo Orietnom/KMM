@@ -1,10 +1,11 @@
 # Biliotecas
+from src.shared.logger import logger
 import os
 import pandas as pd
-import freto_portal
-from shared.db_handler.db_handler import DB
-from pipefy_handler import API
-from shared.logger import logger
+from src.bots.arcelor import freto_portal
+from src.shared.db_handler.db_handler import DB
+from src.bots.arcelor.pipefy_handler import API
+from src.shared.logger import logger
 
 from dotenv import load_dotenv
 
@@ -33,7 +34,6 @@ class Main:
                 logger.info(
                     f"{len(self.incidents)} casos encontrados"
                 )
-
 
                 for incident in incidents:
                     logger.info(f"Verificando caso: {incident}")
@@ -85,4 +85,5 @@ class Main:
 
 
 if __name__ == "__main__":
+    logger.info("Inicio")
     Main().run()

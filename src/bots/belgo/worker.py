@@ -1,11 +1,14 @@
 import json
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 from src.bots.belgo.kmm_process import process
 from src.bots.belgo.models import BelgoItemProcess
 from src.shared.logger import logger
-from src.shared.db_handler.db_handler import DB
-import exceptions.personalized_exceptions as pe
+from src.shared.db_handler.db_handler import DB, create_return_excel
+from src.shared.email_handler import send_email
+import src.exceptions.personalized_exceptions as pe
+from pathlib import Path
 load_dotenv()
 
 RABBITMQ_URL = os.getenv("RABBIT_URL")
@@ -22,6 +25,10 @@ def process_case() -> None:
     except Exception as e:
         logger.exception("Falha ao obter os casos do banco de dados")
         return False
+
+    if not cases:
+        logger.info("Não há casos")
+        return
 
     for case in cases:
         try:
@@ -104,8 +111,9 @@ def process_case() -> None:
             )
 
 if __name__ == "__main__":
+    logger.info("Inicio da excução")
     process_case()
-    file_path = Path.cwd() / "output" / f"Retorno Belgo.xlsx"
+    file_path = Path(__file__).resolve().parent / "output" / f"Retorno Belgo.xlsx"
     created = create_return_excel(file_path, 'complementar_belgo2')
     if created:
         send_email(
@@ -120,3 +128,4 @@ if __name__ == "__main__":
             "Automação Belgo Finalizada",
             "Não há casos"
         )
+    logger.info("Fim da execução")

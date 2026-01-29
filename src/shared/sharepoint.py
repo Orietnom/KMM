@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from pathlib import Path
-from shared.logger import logger
+from src.shared.logger import logger
 import time
 
 def get_items(url: str, download_dir: str, file_name: str):

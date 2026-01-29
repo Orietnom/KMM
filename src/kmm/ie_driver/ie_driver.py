@@ -12,7 +12,7 @@ from typing import Optional, Tuple, Union, Callable, Any
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from exceptions.personalized_exceptions import HardTimeoutError
+from src.exceptions.personalized_exceptions import HardTimeoutError
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
@@ -28,7 +28,7 @@ from selenium.common.exceptions import (
 
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from dotenv import load_dotenv
-from shared.logger import logger
+from src.shared.logger import logger
 
 load_dotenv()
 # -----------------------------

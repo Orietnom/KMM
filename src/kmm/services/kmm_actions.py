@@ -1,19 +1,20 @@
 from __future__ import annotations
-from kmm.ie_driver.ie_driver import KMMIEDriver
+from src.kmm.ie_driver.ie_driver import KMMIEDriver
 from dataclasses import dataclass
 from typing import Optional, Any
-from kmm.helper.find_management import find_management
-from kmm.helper.str_handler import str_to_float
-from kmm.helper.kmm_password_generator import password_generate
+from src.kmm.helper.find_management import find_management
+from src.kmm.helper.str_handler import str_to_float
+from src.kmm.helper.kmm_password_generator import password_generate
 import time
 from urllib.parse import unquote
-import exceptions.personalized_exceptions as pe
+import src.exceptions.personalized_exceptions as pe
 import re
-from shared.logger import logger
+from src.shared.logger import logger
 from dotenv import load_dotenv
 from datetime import datetime
 import os
 import requests
+from pathlib import Path
 load_dotenv()
 
 @dataclass(frozen=True)
@@ -417,7 +418,7 @@ class KMMActions:
         for i in range(3):
             self.driver.execute_js(
                 f"document.getElementById('VALOR_UNITARIO').value = '{str(contract_value)}'")
-            self.driver.execute_js('f_change_valor_unitario(true);')
+            # self.driver.execute_js('f_change_valor_unitario(true);')
             self.driver.execute_js("return f_formata_numero_decimal(this,event);")
             time.sleep(6)
             value = self.driver.safe_get_attribute("id:VALOR_UNITARIO", "value")
@@ -488,6 +489,7 @@ class KMMActions:
                     self.driver.execute_js('f_calcula_peso_ton();')
                     self.driver.safe_click('id:COD_UNIDADE_COMBO')
                     self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
+                    self._fill_contract_value(contract_value)
 
                     self.driver.safe_click('id:USUARIO_LIBERACAO')
                     self.driver.select_by_value('id:USUARIO_LIBERACAO', liberation_user)
@@ -497,7 +499,6 @@ class KMMActions:
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     self.driver.safe_type('id:OBSERVACAO', '.')
                     time.sleep(3)
-                    self._fill_contract_value(contract_value)
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
 
@@ -728,7 +729,7 @@ class KMMActions:
         for row in range(1, (rows + 1)):
             status = self.driver.safe_get_text(
                 f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[3]',
-                timeout=60
+                timeout=120
             )
             if not 'autorizado' in status.lower():
                 logger.info(f"XML não autorizado => {status}")
@@ -751,7 +752,7 @@ class KMMActions:
         return None
 
     def _download_xml(self, document_id):
-        out_dir = r"./downloads"
+        out_dir = Path(__file__).resolve().parent / "downloads"
         session = requests.Session()
 
         # Repassa cookies do Selenium → Requests
@@ -798,6 +799,9 @@ class KMMActions:
 
 
     def get_xml(self, complement_cte: str, emitted_date: datetime):
+        if not emitted_date:
+            emitted_date = datetime.now()
+
         self.quick_access('DACTE')
         self.driver.switch_to_frame(principal=False)
 

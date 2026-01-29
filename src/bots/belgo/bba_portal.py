@@ -6,9 +6,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait, Select
-from shared.logger import logger
-from shared.sharepoint import wait_file
+from src.shared.logger import logger
+from src.shared.sharepoint import wait_file
 from dotenv import load_dotenv
+from pathlib import Path
 
 import pdfplumber
 import math
@@ -19,8 +20,8 @@ import os
 import mechanize
 
 load_dotenv()
-INPUT_DIR = f"{os.getcwd()}\\input"
-OUTPUT_DIR = os.path.join(os.getcwd(), "downloads")
+
+OUTPUT_DIR = Path(__file__).resolve().parent / 'downloads'
 
 chrome_options = Options()
 chrome_options.add_argument("----start-maximized")
@@ -420,7 +421,7 @@ class BelgoPortal:
                 return None
 
             response = self.br.open(pdf_link)
-            with open(OUTPUT_DIR + "/download.pdf", "wb") as f:
+            with open(OUTPUT_DIR / "download.pdf", "wb") as f:
                 f.write(response.read())
 
             file_downloaded = wait_file(OUTPUT_DIR, 'download.pdf')

@@ -7,7 +7,7 @@ import os
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from venv import logger
+from src.shared.logger import logger
 
 from dotenv import load_dotenv
 load_dotenv()

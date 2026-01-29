@@ -2,13 +2,14 @@ import json
 import pandas as pd
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 from datetime import datetime
 from src.bots.jmendes.kmm_process import process
 from src.bots.jmendes.models import JMNItemProcess
 from src.shared.logger import logger
-from src.shared.db_handler.db_handler import DB
+from src.shared.db_handler.db_handler import DB, create_return_excel
 from src.shared.email_handler import send_email
-import exceptions.personalized_exceptions as pe
+import src.exceptions.personalized_exceptions as pe
 load_dotenv()
 
 RABBITMQ_URL = os.getenv("RABBIT_URL")
@@ -25,6 +26,10 @@ def process_case() -> None:
     except Exception as e:
         logger.exception("Falha ao obter os casos do banco de dados")
         return False
+
+    if not cases:
+        logger.info("Não há casos")
+        return
 
     for case in cases:
         try:
@@ -99,20 +104,10 @@ def process_case() -> None:
                 id=case["ID"]
             )
 
-def create_return_excel():
-    try:
-        today = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-        file_path = fr'.\output\JMENDES_RETORNO_{today}.xlsx'
-        db = DB()
-        data = db.get_data_to_excel(table='complementar_jmendes')
-        data.to_excel(file_path, index=False)
-        return file_path
-    except Exception:
-        logger.exception("Falha ao obter dados para gerar excel")
-
 if __name__ == "__main__":
+    logger.info("Inicio da execução")
     process_case()
-    file_path = Path.cwd() / "output" / f"Retorno JMendes.xlsx"
+    file_path = Path(__file__).resolve().parent / "output" / f"Retorno JMendes.xlsx"
     created = create_return_excel(file_path, 'complementar_jmendes')
     if created:
         send_email(
@@ -127,3 +122,4 @@ if __name__ == "__main__":
             "Automação J Mendes Finalizada",
             "Não há casos"
         )
+    logger.info("Fim da execução")

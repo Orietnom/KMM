@@ -1,10 +1,9 @@
 import pandas as pd
 from dotenv import load_dotenv
-from shared import sharepoint
-from shared.logger import logger
-
-from shared.db_handler.db_handler import DB
-from shared.email_handler import send_email
+from src.shared import sharepoint
+from src.shared.logger import logger
+from src.shared.db_handler.db_handler import DB
+from src.shared.email_handler import send_email
 import os
 
 load_dotenv()

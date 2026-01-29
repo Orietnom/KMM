@@ -1,12 +1,13 @@
-from zipfile import Path
-
 import requests
 import time
 import re
 import os
-from shared.logger import logger
-from pipefy_handler import API
-from pdf_handler import read_pdf
+
+from pywin.framework.app import contributors
+
+from src.shared.logger import logger
+from src.bots.arcelor.pipefy_handler import API
+from src.bots.arcelor.pdf_handler import read_pdf
 from pathlib import Path
 from dotenv import load_dotenv
 from selenium import webdriver
@@ -19,7 +20,7 @@ load_dotenv()
 driver_path = ChromeDriverManager().install()
 driver = webdriver.Chrome(executable_path=driver_path)
 wait = WebDriverWait(driver, 30)
-output_dir = Path.cwd() / 'output'
+output_dir = Path(__file__).resolve().parent / 'output'
 
 def login():
     try:
@@ -44,7 +45,6 @@ def get_incidents_data(incidents):
         transports = []
         logger.info("Inicio da obtencao dos dados dos incidentes")
 
-        index = 0
         for incident in incidents:
 
             if not incident['Transporte']:
@@ -71,7 +71,6 @@ def get_incidents_data(incidents):
                 
                 incident["motorista"] = None
                 incident["Cte"] = None
-                index += 1
                 transports.append(incident)
                 continue
 
@@ -79,11 +78,14 @@ def get_incidents_data(incidents):
 
             if type(incident["motorista"]) == dict or not incident['motorista']:
                 logger.exception("Falha ao encontrar o nome do motorista")
-                index += 1
                 continue
 
             incident["cte_levolog"], incident["serie_levolog"], incident["cte_fretolog"], incident[
                 "serie_fretolog"] = get_cte_value()
+
+            if not incident['cte_fretolog']:
+                logger.warning("Cte da freto não econtrado no documento")
+                continue
 
             if incident['cte_levolog'] != "arquivo viagem nao encontrado":
                 logger.success(f"CTE levolog encontrado -> {incident['cte_levolog']}")
@@ -92,8 +94,6 @@ def get_incidents_data(incidents):
                 logger.success(f"CTE fretolog encontrado -> {incident['cte_fretolog']}")
 
             transports.append(incident)
-
-            index += 1
 
     except Exception as e:
         logger.exception(f"Falha ao obter dados do incidente. Erro: {e}")
@@ -209,11 +209,13 @@ def get_cte_value():
                         numero_cte_levolog, serie_levolog = read_pdf(data['name'])
                     else:
                         numero_cte_fretolog, serie_fretolog = read_pdf(data['name'])
-                    os.remove(data['name'])
+                    os.remove(output_dir / data['name'])
+
             else:
                 logger.info("PJ")
                 open(output_dir / pdfs[0]['name'], "wb").write(pdfs[0]['response'].content)
                 numero_cte_fretolog, serie_fretolog = read_pdf(pdfs[0]['name'])
+                os.remove(output_dir / pdfs[0]['name'])
                 numero_cte_levolog = ''
                 serie_levolog = ''
             

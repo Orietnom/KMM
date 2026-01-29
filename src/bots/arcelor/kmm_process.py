@@ -1,11 +1,11 @@
-from shared.logger import logger
-from kmm.services.kmm_actions import KMMActions, LoginParams
-from shared.db_handler.db_handler import DB
-from models import ArcelorItemProcess
-from pipefy_handler import API
+from src.shared.logger import logger
+from src.kmm.services.kmm_actions import KMMActions, LoginParams
+from src.shared.db_handler.db_handler import DB
+from src.bots.arcelor.models import ArcelorItemProcess
+from src.bots.arcelor.pipefy_handler import API
 from dotenv import load_dotenv
 import os
-import exceptions.personalized_exceptions as pe
+import src.exceptions.personalized_exceptions as pe
 load_dotenv()
 
     
@@ -89,6 +89,7 @@ def process(queue_item: ArcelorItemProcess):
             if not ok:
                 logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
                 raise pe.KMMPaymentError()
+            API().move_card('Liberar', queue_item.card_id)
             logger.success(f"Sucesso ao quitar o caso {queue_item}")
             return True
         else:
@@ -171,5 +172,6 @@ def process(queue_item: ArcelorItemProcess):
             logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
             raise pe.KMMPaymentError()
 
+        API().move_card('Liberar', queue_item.card_id)
         logger.success(f"Sucesso ao quitar o caso {queue_item}")
         return True

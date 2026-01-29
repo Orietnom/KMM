@@ -2,10 +2,10 @@ import os
 from dotenv import load_dotenv
 from src.bots.arcelor.kmm_process import process
 from src.bots.arcelor.models import ArcelorItemProcess
-from shared.logger import logger
-from shared.db_handler.db_handler import DB, create_return_excel
-from shared.email_handler import send_email
-import exceptions.personalized_exceptions as pe
+from src.shared.logger import logger
+from src.shared.db_handler.db_handler import DB, create_return_excel
+from src.shared.email_handler import send_email
+import src.exceptions.personalized_exceptions as pe
 from pathlib import Path
 from datetime import datetime
 
@@ -24,6 +24,10 @@ def process_case() -> None:
     except Exception:
         logger.exception("Falha ao obter os casos do banco de dados")
         return False
+
+    if not cases:
+        logger.info("Não há casos")
+        return
 
     for case in cases:
         try:
@@ -101,8 +105,9 @@ def process_case() -> None:
             )
 
 if __name__ == "__main__":
+    logger.info("Inicio da execução")
     process_case()
-    file_path = Path.cwd() / 'output' / f"Retorno Arcelor.xlsx"
+    file_path = Path(__file__).resolve().parent / 'output' / f"Retorno Arcelor.xlsx"
     created = create_return_excel(file_path, 'complementar_arcelor')
 
     if created:
@@ -118,3 +123,4 @@ if __name__ == "__main__":
             "Automação Arcelor Finalizada",
             "Não há casos"
         )
+    logger.info("Fim da execução")
