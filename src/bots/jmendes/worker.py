@@ -43,7 +43,7 @@ def process_case() -> None:
             db.update(
                 table='complementar_jmendes',
                 column='RETENTATIVA',
-                value=retry,
+                value=0,
                 id=case["ID"]
             )
  

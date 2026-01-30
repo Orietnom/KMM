@@ -66,7 +66,7 @@ def read_emails(max_results=100):
         raw_email = msg_data[0][1]
         msg = email.message_from_bytes(raw_email)
 
-        if "freto" in msg['From'].lower():
+        if "freto" in msg['From'].lower() or "ergondata" in msg['From'].lower():
             resultados.append({
                 "from": msg["From"].lower(),
                 "subject": msg["Subject"].lower(),

@@ -489,6 +489,7 @@ class KMMActions:
                     self.driver.execute_js('f_calcula_peso_ton();')
                     self.driver.safe_click('id:COD_UNIDADE_COMBO')
                     self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
+                    time.sleep(9)
                     self._fill_contract_value(contract_value)
 
                     self.driver.safe_click('id:USUARIO_LIBERACAO')
@@ -595,6 +596,7 @@ class KMMActions:
                     else:
                         self.driver.safe_type('id:OBSERVACAO', ".")
 
+                    time.sleep(9)
                     self._fill_contract_value(contract_value)
                     self.log.info(f"Valor do contrato => {contract_value}")
                     self.driver.safe_click("id:USUARIO_LIBERACAO")
