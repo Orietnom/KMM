@@ -29,17 +29,29 @@ if __name__ == '__main__':
                     bot = 'jmendes'
 
                 logger.info(f"Iniciando automação - {bot}")
-
-                subprocess.run(
-                    ["uv", "run", f"src/bots/{bot}/publisher.py"],
-                    cwd=ROOT_DIR,
-                    check=True
-                )
-                subprocess.run(
-                    ["uv", "run", f"src/bots/{bot}/worker.py"],
-                    cwd=ROOT_DIR,
-                    check=True
-                )
-                logger.info(f"Fim da automação {bot}")
+                try:
+                    # subprocess.run(
+                    #     ["uv", "run", ROOT_DIR / 'src'/ 'bots' / bot / "publisher.py"],
+                    #     cwd=ROOT_DIR,
+                    #     check=True
+                    # )
+                    # subprocess.run(
+                    #     ["uv", "run", ROOT_DIR / 'src'/ 'bots' / bot / "worker.py"],
+                    #     cwd=ROOT_DIR,
+                    #     check=True
+                    # )
+                    subprocess.run(
+                        ["uv", "run", "-m", f"src.bots.{bot}.publisher"],
+                        cwd=ROOT_DIR,
+                        check=True
+                    )
+                    subprocess.run(
+                        ["uv", "run", "-m", f"src.bots.{bot}.worker"],
+                        cwd=ROOT_DIR,
+                        check=True
+                    )
+                    logger.info(f"Fim da automação {bot}")
+                except Exception as e:
+                    logger.exception(f"Falha ao executar o bot {bot}. {e}")
 
     logger.info("Trigger finalizado")
