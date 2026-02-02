@@ -677,7 +677,7 @@ class KMMActions:
             # else:
             #     self.driver.select_by_value('id:COD_PESSOA_FILIAL', cod_pessoa_filial
 
-            if management == 'freto':
+            if "freto" in management.lower():
                 self.driver.select_by_visible_text('id:COD_PESSOA_FILIAL', '1 - FRETO LOG - MATRIZ')
                 self.driver.select_by_visible_text('id:COD_CENTRO_CUSTO', '1 - MATRIZ')
             else:
