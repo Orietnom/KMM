@@ -104,7 +104,7 @@ def process_case() -> None:
                 id=case["ID"]
             )
 
-if __name__ == "__main__":
+def run():
     logger.info("Inicio da execução")
     process_case()
     file_path = Path(__file__).resolve().parent / 'output' / f"Retorno Arcelor.xlsx"

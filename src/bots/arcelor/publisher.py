@@ -83,7 +83,8 @@ class Main:
             os.system("taskkill /f /im IEDriverServer.exe")
             os.system("taskkill /f /im msedge.exe")
 
-
-if __name__ == "__main__":
-    logger.info("Inicio")
-    Main().run()
+    @staticmethod
+    def start_process():
+        logger.info("Inicio")
+        Main().run()
+        logger.info("Fim")
