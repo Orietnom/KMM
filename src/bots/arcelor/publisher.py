@@ -19,11 +19,12 @@ class Main:
 
     def __init__(self):
         self.incidents = API().get_card_data()
+        self.logger = logger.bind(service='arcelor')
 
     def run(self):
         try:
             if not self.incidents:
-                logger.warning("Sem novos casos no Pipefy a serem tratados")
+                self.logger.warning("Sem novos casos no Pipefy a serem tratados")
                 return False
 
             incidents = freto_portal.run(
@@ -31,25 +32,25 @@ class Main:
             )
 
             if incidents:
-                logger.info(
+                self.logger.info(
                     f"{len(self.incidents)} casos encontrados"
                 )
 
                 for incident in incidents:
-                    logger.info(f"Verificando caso: {incident}")
+                    self.logger.info(f"Verificando caso: {incident}")
                     if len(incident) < 8:
-                        logger.error("Faltam informações relevantes para prosseguir")
+                        self.logger.error("Faltam informações relevantes para prosseguir")
                         continue
 
                     if not incident.get("motorista") or not incident.get("cte_levolog"):
-                        logger.error("Falta informação do motorista ou do cte")
+                        self.logger.error("Falta informação do motorista ou do cte")
                         continue
                     else:
 
-                        logger.info(f"incidente de transporte {incident['Transporte']} colocado na fila")
+                        self.logger.info(f"incidente de transporte {incident['Transporte']} colocado na fila")
 
                         API().move_card(phase='CTe Freto', card_id=incident['card id'])
-                        logger.info(
+                        self.logger.info(
                             f"O card de id: {incident['card id']} foi movido para fila \'cte freto\'")
 
                 df = pd.DataFrame(incidents)
@@ -76,15 +77,15 @@ class Main:
                 )
 
             else:
-                logger.info('Não há casos para serem tratados')
+                self.logger.info('Não há casos para serem tratados')
 
         finally:
             os.system("taskkill /IM chrome.exe /IM msedge.exe /F")
             os.system("taskkill /f /im IEDriverServer.exe")
             os.system("taskkill /f /im msedge.exe")
 
-    @staticmethod
-    def start_process():
-        logger.info("Inicio")
-        Main().run()
-        logger.info("Fim")
+
+if __name__ == '__main__':
+    logger.info("Inicio arcelor publisher")
+    Main().run()
+    logger.info("Fim arcelor publisher")

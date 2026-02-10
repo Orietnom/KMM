@@ -36,8 +36,11 @@ class DB:
 
         return create_engine(conn_str, future=True, pool_pre_ping=True)
 
-    def get_data(self, table: str, ) -> list[dict]:
-        dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=7)
+    def get_data(self, table: str, date_range: bool = False) -> list[dict]:
+        if date_range:
+            dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=7)
+        else:
+            dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
         query = text(f"""
             SELECT *

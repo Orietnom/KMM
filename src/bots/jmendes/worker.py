@@ -17,6 +17,7 @@ QUEUE_NAME = "jmendes"
 
 
 def process_case() -> None:
+    log = logger.bind(service='jmendes')
 
     try:
         db = DB()
@@ -24,11 +25,11 @@ def process_case() -> None:
             table="complementar_jmendes"
         )
     except Exception as e:
-        logger.exception("Falha ao obter os casos do banco de dados")
+        log.exception("Falha ao obter os casos do banco de dados")
         return False
 
     if not cases:
-        logger.info("Não há casos")
+        log.info("Não há casos")
         return
 
     for case in cases:
@@ -86,7 +87,7 @@ def process_case() -> None:
                 value='Falha no KMM',
                 id=case["ID"]
             )
-            logger.exception(pe_error)
+            log.exception(pe_error)
         except RuntimeError as re:
             db.update(
                 table='complementar_jmendes',
@@ -94,9 +95,9 @@ def process_case() -> None:
                 value='Falha de lentidão KMM',
                 id=case["ID"]
             )
-            logger.exception(re)
+            log.exception(re)
         except Exception as e:
-            logger.exception(f"Falha não mapeada. Erro {str(e)}")
+            log.exception(f"Falha não mapeada. Erro {str(e)}")
             db.update(
                 table='complementar_jmendes',
                 column='STATUS_',
@@ -105,7 +106,7 @@ def process_case() -> None:
             )
 
 if __name__ == "__main__":
-    logger.info("Inicio da execução")
+    logger.info("Inicio da execução JMENDES worker")
     process_case()
     file_path = Path(__file__).resolve().parent / "output" / f"Retorno JMendes.xlsx"
     created = create_return_excel(file_path, 'complementar_jmendes')
@@ -122,4 +123,4 @@ if __name__ == "__main__":
             "Automação J Mendes Finalizada",
             "Não há casos"
         )
-    logger.info("Fim da execução")
+    logger.info("Fim da execução JMENDES worker")

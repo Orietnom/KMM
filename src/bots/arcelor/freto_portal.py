@@ -21,10 +21,11 @@ driver_path = ChromeDriverManager().install()
 driver = webdriver.Chrome(executable_path=driver_path)
 wait = WebDriverWait(driver, 30)
 output_dir = Path(__file__).resolve().parent / 'output'
+log = logger.bind(service='arcelor')
 
 def login():
     try:
-        logger.info("Login no portal freto")
+        log.info("Login no portal freto")
         driver.get(os.getenv("FRETO_PORTAL_URL"))
 
         # realizando o login dentro do site
@@ -35,7 +36,7 @@ def login():
         time.sleep(5)
         return True
     except Exception as e:
-        logger.exception(f'Falha ao logar. Erro -> {str(e)}')
+        log.exception(f'Falha ao logar. Erro -> {str(e)}')
         return False
 
 
@@ -43,14 +44,12 @@ def get_incidents_data(incidents):
 
     try:
         transports = []
-        logger.info("Inicio da obtencao dos dados dos incidentes")
+        log.info("Inicio da obtencao dos dados dos incidentes")
 
         for incident in incidents:
 
             if not incident['Transporte']:
                 continue
-            else:
-                API().move_card(phase='Portal Freto', card_id=incident['card id'])
 
             incident['Transporte'] = int(incident['Transporte'])
 
@@ -61,13 +60,13 @@ def get_incidents_data(incidents):
                                                                                                                  "").strip()
 
             if (incident["Motivo"] == "Pedágio") or (incident["Motivo"] == "Pedagio"):
-                logger.info(f"Motivo {incident['Motivo']} detectado, realizando ajuste no valor do contrato")
+                log.info(f"Motivo {incident['Motivo']} detectado, realizando ajuste no valor do contrato")
 
                 valor_contrato = reimbursement(valor=incident["Valor a pagar (Contrato)"])
                 incident["Valor a pagar (Contrato)"] = str(valor_contrato)
 
             if float(incident["Valor a pagar (Contrato)"]) >= 7000.00:
-                logger.info(f"Valor do contrato excedeu R$7.000,00. Valor -> {incident['Valor a pagar (Contrato)']}")
+                log.info(f"Valor do contrato excedeu R$7.000,00. Valor -> {incident['Valor a pagar (Contrato)']}")
                 
                 incident["motorista"] = None
                 incident["Cte"] = None
@@ -77,33 +76,33 @@ def get_incidents_data(incidents):
             incident["motorista"] = get_driver_name(transport_number=incident['Transporte'])
 
             if type(incident["motorista"]) == dict or not incident['motorista']:
-                logger.exception("Falha ao encontrar o nome do motorista")
+                log.exception("Falha ao encontrar o nome do motorista")
                 continue
 
             incident["cte_levolog"], incident["serie_levolog"], incident["cte_fretolog"], incident[
                 "serie_fretolog"] = get_cte_value()
 
             if not incident['cte_fretolog']:
-                logger.warning("Cte da freto não econtrado no documento")
+                log.warning("Cte da freto não econtrado no documento")
                 continue
 
             if incident['cte_levolog'] != "arquivo viagem nao encontrado":
-                logger.success(f"CTE levolog encontrado -> {incident['cte_levolog']}")
+                log.success(f"CTE levolog encontrado -> {incident['cte_levolog']}")
 
             if incident['cte_fretolog'] != "arquivo viagem nao encontrado":
-                logger.success(f"CTE fretolog encontrado -> {incident['cte_fretolog']}")
+                log.success(f"CTE fretolog encontrado -> {incident['cte_fretolog']}")
 
             transports.append(incident)
 
     except Exception as e:
-        logger.exception(f"Falha ao obter dados do incidente. Erro: {e}")
+        log.exception(f"Falha ao obter dados do incidente. Erro: {e}")
     finally:
         return transports
 
 def get_driver_name(transport_number):
     try:
 
-        logger.info(
+        log.info(
             "Buscando nome do motorista",
         )
 
@@ -119,7 +118,7 @@ def get_driver_name(transport_number):
             wait.until(EC.presence_of_element_located((By.CLASS_NAME, "fc-title")))
         except:
             for i in range(6):
-                logger.info("Nao encontrou o valor no mes atual, buscando no anterior")
+                log.info("Nao encontrou o valor no mes atual, buscando no anterior")
 
                 driver.find_element(By.XPATH, "//*[@id=\"calendar\"]/div[1]/div[1]/div/button[1]").click()
                 time.sleep(5)
@@ -130,7 +129,7 @@ def get_driver_name(transport_number):
                     if i < 5:
                         continue
                     else:
-                        logger.warning("Valor não encontrado")
+                        log.warning("Valor não encontrado")
 
                         infos = {
                             'numero_cte': 'numero cte nao encontrado', 'motorista': ''}
@@ -143,30 +142,30 @@ def get_driver_name(transport_number):
         driver_name_locator = wait.until(EC.visibility_of_element_located((By.ID, "ticketDriverName1")))
 
         driver_name = driver_name_locator.text
-        logger.success(f'Nome do motorista encontrado=> {driver_name}')
+        log.success(f'Nome do motorista encontrado=> {driver_name}')
         
         return driver_name
 
     except Exception as e:
-        logger.exception(f"Falha ao obter dados do motorista. Erro: {e}")
+        log.exception(f"Falha ao obter dados do motorista. Erro: {e}")
         return None
        
 def get_cte_value():
     try:
 
-        logger.info("Obtencao do CTE")
+        log.info("Obtencao do CTE")
 
         pdfs = []
 
         wait.until(EC.visibility_of_element_located((By.ID, "abrirArqs1")))
         time.sleep(7)
         driver.find_element(by=By.ID, value="abrirArqs1").click()
-        logger.info("Clique em ver arquivos")
+        log.info("Clique em ver arquivos")
 
         wait.until(EC.visibility_of_element_located((By.ID, "myId1")))
         
         arquivo = driver.find_element(by=By.ID, value="myId1").text
-        logger.info(f"arquivos {arquivo}")
+        log.info(f"arquivos {arquivo}")
         arquivo = arquivo.split('\n')
 
         for index, documento in enumerate(arquivo):
@@ -175,7 +174,7 @@ def get_cte_value():
 
             if documento_pj or documento_pf:
                 doc_idx = (index + 1) / 2
-                logger.info(str(index + 1), documento)
+                log.info(str(index + 1), documento)
                 url_pdf = driver.find_element(By.XPATH, f"//*[@id=\"myId1\"]/div[{doc_idx}]/a[2]").get_attribute("href")
 
                 time.sleep(2)
@@ -191,7 +190,7 @@ def get_cte_value():
                 pdfs.append(file_data)
 
         if not pdfs[0]['name']:
-            logger.error('Arquivo não encontrado')
+            log.error('Arquivo não encontrado')
             
             numero_cte_fretolog = ''
             numero_cte_levolog = 'arquivo viagem nao encontrado'
@@ -201,35 +200,35 @@ def get_cte_value():
         else:
             if len(pdfs) == 2:
 
-                logger.info("PF")
+                log.info("PF")
 
                 for data in pdfs:
                     open(output_dir / data['name'], "wb").write(data['response'].content)
                     if 'viagem' in data['name'].lower():
-                        numero_cte_levolog, serie_levolog = read_pdf(data['name'])
+                        numero_cte_levolog, serie_levolog = read_pdf(output_dir / data['name'])
                     else:
-                        numero_cte_fretolog, serie_fretolog = read_pdf(data['name'])
+                        numero_cte_fretolog, serie_fretolog = read_pdf(output_dir /data['name'])
                     os.remove(output_dir / data['name'])
 
             else:
-                logger.info("PJ")
+                log.info("PJ")
                 open(output_dir / pdfs[0]['name'], "wb").write(pdfs[0]['response'].content)
-                numero_cte_fretolog, serie_fretolog = read_pdf(pdfs[0]['name'])
+                numero_cte_fretolog, serie_fretolog = read_pdf(output_dir / pdfs[0]['name'])
                 os.remove(output_dir / pdfs[0]['name'])
                 numero_cte_levolog = ''
                 serie_levolog = ''
             
-            logger.success(
+            log.success(
                 f"Número do CTE encontrados => levolog {numero_cte_levolog} e fretolog {numero_cte_fretolog}"
             )
-            logger.success(
+            log.success(
                 f"Número das Series encontrados => levolog {serie_levolog} e fretolog {serie_fretolog}"
             )
             
         return numero_cte_levolog, serie_levolog, numero_cte_fretolog, serie_fretolog
 
     except Exception as e:
-        logger.exception(f"Falha ao obter as informações do cte {str(e)}")
+        log.exception(f"Falha ao obter as informações do cte {str(e)}")
         return None, None, None, None
 
 
@@ -255,5 +254,5 @@ def run(incidents):
         driver.close()
         return transports
     except Exception as e:
-        logger.exception(f"Erro => {str(e)}")
+        log.exception(f"Erro => {str(e)}")
         return []

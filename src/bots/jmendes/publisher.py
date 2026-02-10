@@ -9,6 +9,7 @@ import os
 load_dotenv()
 
 def run():
+    log = logger.bind(service='jmendes')
     try:
         send_email(
             os.getenv("JMN_RECIPIENTS"),
@@ -51,14 +52,14 @@ def run():
                     unique_keys=["TBE"]
                 )
             else:
-                logger.warning("Planilha não contém dados")
+                log.warning("Planilha não contém dados")
                 send_email(
                     os.getenv("JMN_RECIPIENTS"),
                     "Automação J Mendes Finalizada",
                     "Não há casos"
                 )
         else:
-            logger.error("Falha ao realizar o download da planilha")
+            log.error("Falha ao realizar o download da planilha")
             send_email(
                 os.getenv("JMN_RECIPIENTS"),
                 "Automação J Mendes Finalizada",
@@ -66,11 +67,12 @@ def run():
             )
 
     except Exception as e:
-        logger.exception(f"Falha ao obter os casos: Erro {str(e)}")
+        log.exception(f"Falha ao obter os casos: Erro {str(e)}")
         send_email(
             os.getenv("JMN_RECIPIENTS"),
             "Automação J Mendes Finalizada",
             "Falha não mapeada, acionar suporte ergondata"
         )
 
-run()
+if __name__ == "__main__":
+    run()

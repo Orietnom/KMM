@@ -16,17 +16,19 @@ QUEUE_NAME = "arcelor"
 
 
 def process_case() -> None:
+    
+    log = logger.bind(service='arcelor')
     try:
         db = DB()
         cases = db.get_data(
             table="complementar_arcelor"
         )
     except Exception:
-        logger.exception("Falha ao obter os casos do banco de dados")
+        log.exception("Falha ao obter os casos do banco de dados")
         return False
 
     if not cases:
-        logger.info("Não há casos")
+        log.info("Não há casos")
         return
 
     for case in cases:
@@ -79,7 +81,7 @@ def process_case() -> None:
             else:
                 raise Exception(f"Falha ao processar o caso de id {case.get('TRANSPORTE')}")
         except pe.KMMProcess as pe_error:
-            logger.exception(pe_error)
+            log.exception(pe_error)
             db.update(
                 table='complementar_arcelor',
                 column='STATUS_',
@@ -87,7 +89,7 @@ def process_case() -> None:
                 id=case["ID"]
             )
         except RuntimeError as re:
-            logger.exception(re)
+            log.exception(re)
             db.update(
                 table='complementar_arcelor',
                 column='STATUS_',
@@ -96,7 +98,7 @@ def process_case() -> None:
             )
 
         except Exception as e:
-            logger.exception(f"Falha não mapeada. Erro {str(e)}")
+            log.exception(f"Falha não mapeada. Erro {str(e)}")
             db.update(
                 table='complementar_arcelor',
                 column='STATUS_',
@@ -105,7 +107,7 @@ def process_case() -> None:
             )
 
 def run():
-    logger.info("Inicio da execução")
+    logger.info("Inicio da execução Arcelor worker")
     process_case()
     file_path = Path(__file__).resolve().parent / 'output' / f"Retorno Arcelor.xlsx"
     created = create_return_excel(file_path, 'complementar_arcelor')
@@ -123,4 +125,7 @@ def run():
             "Automação Arcelor Finalizada",
             "Não há casos"
         )
-    logger.info("Fim da execução")
+    logger.info("Fim da execução Arcelor worker")
+
+if __name__ == "__main__":
+    run()

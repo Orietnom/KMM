@@ -248,16 +248,16 @@ class KMMActions:
                     kmm_incident_number = re.findall("\d+", status)[0]
                     kmm_incident_number = int(kmm_incident_number[0]) if kmm_incident_number else 0
                     if kmm_incident_number >= incident_number:
-                        logger.error(f"Mensagem da pop-up => {status}")
+                        self.log.error(f"Mensagem da pop-up => {status}")
                         raise pe.KMMComplementCTEAlreadyEmitted(
                             f"Numero de ctes emitidos maior ou igual a quantidade de incidentes no portal. Incidentes no "
                             f"portal {incident_number} no KMM {kmm_incident_number}"
                         )
                 else:
-                    logger.error(f"Mensagem da pop-up => {status}")
+                    self.log.error(f"Mensagem da pop-up => {status}")
                     raise pe.KMMComplementCTEAlreadyEmitted(
                         f"Numero de ctes emitidos maior ou igual a quantidade de incidentes no portal. Incidentes no "
-                        f"portal {incident_number} no KMM {kmm_incident_number}"
+                        f"portal {incident_number} no KMM"
                     )
 
             if driver_name:
@@ -325,7 +325,7 @@ class KMMActions:
                 raise pe.KMMEmittingCTeError("Pop-up de confirmação não apareceu")
             else:
                 text_alert = alert.text
-                logger.info(f"Pop-up apareceu, texto: {text_alert}")
+                self.log.info(f"Pop-up apareceu, texto: {text_alert}")
                 alert.accept()
                 time.sleep(10)
             window = self.driver.switch_to_window(target_title="Engenharia de Sistemas")
@@ -356,7 +356,7 @@ class KMMActions:
                 opt = sel.options[sel.selectedIndex]
                 inp.value = opt.getAttribute("codigo");
                 """)
-                logger.success("Sucesso ao setar o CC")
+                self.log.success("Sucesso ao setar o CC")
                 break
             except Exception as e:
                 if attempt == 2:
@@ -418,9 +418,8 @@ class KMMActions:
         for i in range(3):
             self.driver.execute_js(
                 f"document.getElementById('VALOR_UNITARIO').value = '{str(contract_value)}'")
-            # self.driver.execute_js('f_change_valor_unitario(true);')
-            self.driver.execute_js("return f_formata_numero_decimal(this,event);")
-            time.sleep(6)
+            self.driver.execute_js('f_change_valor_unitario(true);')
+            time.sleep(2)
             value = self.driver.safe_get_attribute("id:VALOR_UNITARIO", "value")
             if float(value):
                 break
@@ -459,7 +458,8 @@ class KMMActions:
                     self.driver.safe_type('id:ROTA_ID', route)
                     self.driver.execute_js('f_busca_rota();')
                     self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
-                    self._force_CC()
+                    # time.sleep(9)
+                    # self._force_CC()
 
                     self.driver.select_by_value('id:UTILIZA_VALE_PEDAGIO', '0')
                     self.driver.safe_type('id:CARTAO_NUMERO', card)
@@ -491,7 +491,8 @@ class KMMActions:
                     self.driver.select_by_value('id:COD_UNIDADE_COMBO', 'Kg')
                     time.sleep(9)
                     self._fill_contract_value(contract_value)
-
+                    self.driver.select_by_visible_text('id:UTILIZA_VALE_PEDAGIO', 'Não')
+                    self.driver.execute_js('f_on_change_utiliza_vale_pedagio();')
                     self.driver.safe_click('id:USUARIO_LIBERACAO')
                     self.driver.select_by_value('id:USUARIO_LIBERACAO', liberation_user)
 
@@ -499,6 +500,7 @@ class KMMActions:
                     kmm_pass = password_generate(license_plate=lp, control_number=control_number)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
                     self.driver.safe_type('id:OBSERVACAO', '.')
+                    self._fill_contract_value(contract_value)
                     time.sleep(3)
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
@@ -571,13 +573,11 @@ class KMMActions:
                     self.driver.safe_type("id:DIARIA_NUM_CTRC", complement_cte)
                     self.driver.execute_js('f_busca_ctrc_valor();')
                     self.driver.select_by_value('id:CTRC_DIARIA_SERIE', serie)
-                    self._force_CC()
+                    # self._force_CC()
                     self.driver.safe_type("id:ROTA_ID", '15')
                     self.driver.execute_js('f_busca_rota()')
                     self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
                     time.sleep(5)
-                    self.driver.select_by_visible_text('id:UTILIZA_VALE_PEDAGIO', 'Não')
-                    self.driver.execute_js('f_on_change_utiliza_vale_pedagio();')
 
                     license_plate = None
                     for _ in range(2):
@@ -599,6 +599,8 @@ class KMMActions:
                     time.sleep(9)
                     self._fill_contract_value(contract_value)
                     self.log.info(f"Valor do contrato => {contract_value}")
+                    self.driver.select_by_visible_text('id:UTILIZA_VALE_PEDAGIO', 'Não')
+                    self.driver.execute_js('f_on_change_utiliza_vale_pedagio();')
                     self.driver.safe_click("id:USUARIO_LIBERACAO")
                     self.driver.select_by_value("id:USUARIO_LIBERACAO", liberation_user)
                     kmm_pass = password_generate(license_plate=license_plate[-2::], control_number=control_number,
@@ -639,7 +641,7 @@ class KMMActions:
                     self.driver.switch_to_window(home_window=True)
                     return contract_number
 
-                except BaseException as e:
+                except Exception as e:
 
                     if attempt == max_retries:
                         raise
@@ -734,7 +736,7 @@ class KMMActions:
                 timeout=120
             )
             if not 'autorizado' in status.lower():
-                logger.info(f"XML não autorizado => {status}")
+                self.log.info(f"XML não autorizado => {status}")
                 continue
 
             cte_date = self.driver.safe_get_text(
@@ -796,7 +798,7 @@ class KMMActions:
             for chunk in r.iter_content(chunk_size=1024 * 256):
                 if chunk:
                     f.write(chunk)
-        logger.success("Sucesso ao baixar o xml")
+        self.log.success("Sucesso ao baixar o xml")
         return filepath
 
 
@@ -816,19 +818,19 @@ class KMMActions:
 
         document_id = self._find_correct_xml(emitted_date)
         if not document_id:
-            logger.error("XML não encontrado")
+            self.log.error("XML não encontrado")
             return False
 
         file_path = self._download_xml(document_id)
         return file_path
 
     @staticmethod
-    def _str_to_float(text):
+    def _str_to_float(self, text):
         # Remove tudo que não for número, ponto ou vírgula
         cleaned = re.sub(r'[^0-9.,]', '', text)
 
         if not cleaned:
-            logger.error("String não possui números")
+            self.log.error("String não possui números")
             return None
 
         cleaned = cleaned.replace('.', '')

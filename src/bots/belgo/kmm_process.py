@@ -10,9 +10,10 @@ load_dotenv()
     
 def process(queue_item: BelgoItemProcess):
     db = DB()
+    log = logger.bind(service='belgo')
     with KMMActions(service='Belgo Freto') as freto_kmm:
 
-        logger.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
+        log.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
         freto_kmm.login(
             params=LoginParams(
                 url=os.getenv('KMM_URL'),
@@ -40,10 +41,10 @@ def process(queue_item: BelgoItemProcess):
             )
 
             if not fretolog_cte_complement:
-                logger.error(f"Falha ao emitir o cte de complemento Fretolog para o caso {queue_item}")
+                log.error(f"Falha ao emitir o cte de complemento Fretolog para o caso {queue_item}")
                 raise pe.KMMEmittingCTeError()
 
-            logger.success(f"Cte de complemento fretolog emitido com sucesso. "
+            log.success(f"Cte de complemento fretolog emitido com sucesso. "
                            f"Cte de complemento emitido -> {fretolog_cte_complement}")
             db.update(
                 table='complementar_belgo2',
@@ -72,10 +73,10 @@ def process(queue_item: BelgoItemProcess):
                 )
 
                 if not contract_number:
-                    logger.error(f"Falha ao emitir o contrato para o caso {queue_item}")
+                    log.error(f"Falha ao emitir o contrato para o caso {queue_item}")
                     raise pe.KMMEmittingContractError()
 
-                logger.success(f"Contrato emitido com sucesso. Contrato -> {contract_number}")
+                log.success(f"Contrato emitido com sucesso. Contrato -> {contract_number}")
                 db.update(
                     table='complementar_belgo2',
                     column='CONTRATO',
@@ -88,16 +89,16 @@ def process(queue_item: BelgoItemProcess):
             ok = freto_kmm.payment(contract_number=contract_number)
 
             if not ok:
-                logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
+                log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
                 raise pe.KMMPaymentError()
-            logger.success(f"Sucesso ao quitar o caso {queue_item}")
+            log.success(f"Sucesso ao quitar o caso {queue_item}")
             return True
         else:
-            logger.info("Fim da etapa Fretolog")
+            log.info("Fim da etapa Fretolog")
 
     with KMMActions(service='Belgo Levo') as levo_kmm:
 
-        logger.info(f"Iniciando o caso {queue_item} pela filial Levolog")
+        log.info(f"Iniciando o caso {queue_item} pela filial Levolog")
         levo_kmm.login(
             params=LoginParams(
                 url=os.getenv('KMM_URL'),
@@ -125,10 +126,10 @@ def process(queue_item: BelgoItemProcess):
             )
 
             if not levolog_cte_complement:
-                logger.error(f"Falha ao emitir o cte de complemento Levolog para o caso {queue_item}")
+                log.error(f"Falha ao emitir o cte de complemento Levolog para o caso {queue_item}")
                 raise pe.KMMEmittingCTeError()
 
-            logger.success(f"Cte de complemento fretolog emitido com sucesso. "
+            log.success(f"Cte de complemento fretolog emitido com sucesso. "
                            f"Cte de complemento emitido -> {levolog_cte_complement}")
             db.update(
                 table='complementar_belgo2',
@@ -151,9 +152,9 @@ def process(queue_item: BelgoItemProcess):
             )
 
             if not levo_contract_number:
-                logger.error(f"Falha ao emitir o contrato para o caso {queue_item}")
+                log.error(f"Falha ao emitir o contrato para o caso {queue_item}")
                 raise pe.KMMEmittingContractError()
-            logger.success(f"Contrato emitido com sucesso. Contrato -> {levo_contract_number}")
+            log.success(f"Contrato emitido com sucesso. Contrato -> {levo_contract_number}")
 
             db.update(
                 table='complementar_belgo2',
@@ -167,8 +168,8 @@ def process(queue_item: BelgoItemProcess):
         ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
 
         if not ok:
-            logger.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
+            log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
             raise pe.KMMPaymentError()
 
-        logger.success(f"Sucesso ao quitar o caso {queue_item}")
+        log.success(f"Sucesso ao quitar o caso {queue_item}")
         return True
