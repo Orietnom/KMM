@@ -15,16 +15,19 @@ if __name__ == '__main__':
     while True:
         try:
 
-            if ((datetime.now().hour == 3 and last_exec != 3) or
-                    (datetime.now().hour == 14 and last_exec != 14) or
-                    (datetime.now().hour == 16 and last_exec != 16)):
+            if ((datetime.now().hour == 7 and last_exec != 7) or
+                    (datetime.now().hour == 8 and last_exec != 8) or
+                    (datetime.now().hour == 10 and last_exec != 10) or
+                    (datetime.now().hour == 18 and last_exec != 18) or
+                    (datetime.now().hour == 20 and last_exec != 20) or
+                    (datetime.now().hour == 21 and last_exec != 21)):
 
                 last_exec = datetime.now().hour
-                logger.info(f"Iniciando automação - Arcelor")
+                logger.info(f"Iniciando automação - Belgo")
                 email_handler.send_email(
                     to='lucas.leite@ergondata.com.br',
                     subject="Automações Freto",
-                    body=f"Foi iniciado a automação Arcelor"
+                    body=f"Foi iniciado a automação Belgo"
                 )
                 subprocess.run(
                     ["uv", "run", "-m", f"src.bots.arcelor.publisher"],
@@ -39,13 +42,13 @@ if __name__ == '__main__':
                 email_handler.send_email(
                     to='lucas.leite@ergondata.com.br',
                     subject="Automações Freto",
-                    body=f"Foi finalizado a automação arcelor"
+                    body=f"Foi finalizado a automação Belgo"
                 )
 
-            resultados = email_handler.read_emails(max_results=10, not_set_read=['belgo'])
+            resultados = email_handler.read_emails(max_results=10, not_set_read=['arcelor', 'jmendes'])
             if not resultados:
                 logger.debug("Sem novos emails")
-                time.sleep(30)
+                time.sleep(60)
             else:
                 for resultado in resultados:
                     if resultado['subject'] not in ['jmendes', 'jjmendes', 'arcelor', 'belgo']:
@@ -57,18 +60,21 @@ if __name__ == '__main__':
                         )
                         continue
 
-                    if "belgo" in resultado['subject']:
+                    if "arcelor" in resultado['subject']:
                         email_handler.send_email(
                             to='suporte@ergondata.com.br',
-                            subject="belgo",
+                            subject="arcelor",
                             body=f"."
                         )
-                        
-                    bot = resultado['subject']
-                    if 'jjmendes' in bot:
-                        bot = 'jmendes'
-                    elif 'arcelor' in bot:
-                        bot = 'arcelor'
+                    if "jjmendes" in resultado['subject'] or 'jmendes' in resultado['subject']:
+                        email_handler.send_email(
+                            to='suporte@ergondata.com.br',
+                            subject="jmendes",
+                            body=f"."
+                        )
+
+                    if 'belgo' in resultado['subject']:
+                        bot = 'belgo'
 
                     logger.info(f"Iniciando automação - {bot}")
                     email_handler.send_email(
@@ -98,7 +104,7 @@ if __name__ == '__main__':
                         )
         except Exception as e:
             logger.exception(f"Erro no trigger (vai continuar rodando): {e}")
-            time.sleep(30)  # evita loop insano em caso de erro repetido
+            time.sleep(60)  # evita loop insano em caso de erro repetido
 
         finally:
-            time.sleep(1)  # dá um respiro pro CPU
+            time.sleep(1)

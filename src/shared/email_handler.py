@@ -46,7 +46,7 @@ def send_email(to, subject, body, attachment_path = None):
 
 
 # ===== LER NÃO LIDOS =====
-def read_emails(max_results=100):
+def read_emails(not_set_read: list = [], max_results=100):
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     imap.login(USER, APP_PASSWORD)
     imap.select("INBOX")
@@ -66,13 +66,23 @@ def read_emails(max_results=100):
         raw_email = msg_data[0][1]
         msg = email.message_from_bytes(raw_email)
 
-        if "freto" in msg['From'].lower() or "ergondata" in msg['From'].lower():
-            resultados.append({
-                "from": msg["From"].lower(),
-                "subject": msg["Subject"].lower(),
-                "date": msg["Date"]
-            })
-            # imap.store(eid, '+FLAGS', '\\Seen')
+        if "freto" in msg["Subject"].lower() or "ergondata" in msg['From'].lower():
+            if 'arcelor' in msg["Subject"].lower():
+                bot = "arcelor"
+            elif 'jmendes' in msg["Subject"].lower() or 'jjmendes' in msg["Subject"].lower():
+                bot = "jmendes"
+            elif 'belgo' in msg["Subject"].lower():
+                bot = "belgo"
+            else:
+                imap.store(eid, '+FLAGS', '\\Seen')
+                continue
+            if bot not in not_set_read:
+                resultados.append({
+                    "from": msg["From"].lower(),
+                    "subject": msg["Subject"].lower(),
+                    "date": msg["Date"]
+                })
+                imap.store(eid, '+FLAGS', '\\Seen')
 
     imap.logout()
     return resultados
