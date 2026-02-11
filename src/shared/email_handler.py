@@ -98,7 +98,7 @@ def read_emails(not_set_read: list = [], max_results=100):
                     "subject": msg["Subject"].lower(),
                     "date": msg["Date"]
                 })
-                imap.store(eid, '+FLAGS', '\\UNSEEN')
+                imap.store(eid, '+FLAGS', '\\Seen')
 
     imap.logout()
     return resultados
