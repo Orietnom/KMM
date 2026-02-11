@@ -9,7 +9,6 @@ import src.exceptions.personalized_exceptions as pe
 from pathlib import Path
 BASE_DIR  = Path(__file__).resolve().parent.parent.parent.parent
 load_dotenv(BASE_DIR / ".env")
-load_dotenv()
 
 def process(queue_item: JMNItemProcess):
     db = DB()
