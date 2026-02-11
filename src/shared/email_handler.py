@@ -57,13 +57,29 @@ def read_emails(not_set_read: list = [], max_results=100):
         None,
         f'(UNSEEN SINCE {today})'
     )
+
+    if status != "OK" or not messages or not messages[0]:
+        imap.logout()
+        return []
+
     email_ids = messages[0].split()
+    if not email_ids:
+        imap.logout()
+        logger.error(f"Falha ao ler o email. id do email {email_ids}")
+        return []
 
     resultados = []
 
     for eid in email_ids[:max_results]:
-        _, msg_data = imap.fetch(eid, "(RFC822)")
+        status_fetch, msg_data = imap.fetch(eid,"(BODY.PEEK[HEADER])")
+        if status_fetch != "OK" or not msg_data or not msg_data[0]:
+            logger.error(f"Falha ao ler o email. status fetch {status_fetch} msg_data {msg_data}")
+            continue
+
         raw_email = msg_data[0][1]
+        if not raw_email:
+            logger.error(f"Falha ao ler o email. raw_email {raw_email}")
+            continue
         msg = email.message_from_bytes(raw_email)
 
         if "freto" in msg["Subject"].lower() or "ergondata" in msg['From'].lower():
@@ -82,7 +98,7 @@ def read_emails(not_set_read: list = [], max_results=100):
                     "subject": msg["Subject"].lower(),
                     "date": msg["Date"]
                 })
-                imap.store(eid, '+FLAGS', '\\Seen')
+                imap.store(eid, '+FLAGS', '\\UNSEEN')
 
     imap.logout()
     return resultados
