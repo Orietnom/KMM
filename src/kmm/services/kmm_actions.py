@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from main_47 import ROOT_DIR
 from src.kmm.ie_driver.ie_driver import KMMIEDriver
 from dataclasses import dataclass
 from typing import Optional, Any
@@ -24,11 +26,12 @@ class LoginParams:
     password: str
 
 class KMMActions:
-    def __init__(self, service: str, driver: KMMIEDriver | None = None, config = None):
+    def __init__(self, service: str, driver: KMMIEDriver | None = None, config = None, evidence_dir = None):
         self.driver = driver or KMMIEDriver(config)
         self._started = False
         self.service = service
         self.log = logger.bind(service=service)
+        self.evidence_dir = evidence_dir
 
     # --- lifecycle ---
     def start(self) -> None:
@@ -339,8 +342,10 @@ class KMMActions:
             self.driver.switch_to_window(home_window=True)
             return cte_complement
         except pe.KMMProcess:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise
         except Exception as e:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise pe.KMMEmittingCTeError(
                 f"Falha ao emitir CTe de complemento para o Cte {cte} Serie {serie} Valor {cte_value} Filial {management}"
                 f"Motorista {driver_name}."
@@ -536,8 +541,10 @@ class KMMActions:
                     self.quick_access(term="REPOMFRETED")
 
         except pe.KMMProcess:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise
         except Exception as e:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise pe.KMMEmittingContractError(
                 f"Falha ao gerar o contrato. placa {license_plate}, motorista {driver_name}, natureza {nature}, operação {operation}, rota {route} "
                 f"cartao {card}, remetente {sender}, destinatario {recipient}, peso {weight}, valor do contrato {contract_value} "
@@ -650,8 +657,10 @@ class KMMActions:
                     self.quick_access(term="REPOMFRETED")
 
         except pe.KMMProcess:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise
         except Exception as e:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise pe.KMMEmittingContractError(
                 f"Falha ao gerar o contrato. Valor do contrato {contract_value}, cte de complemento {complement_cte} "
                 f"serie {serie}, transporte {transport}, "
@@ -716,8 +725,10 @@ class KMMActions:
                 raise pe.KMMPaymentError(f"Falha na quitação. Mensagem da pop-up {alert_text}")
 
         except pe.KMMProcess:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise
         except Exception as e:
+            self.driver.dump_state(evidence_dir=self.evidence_dir)
             raise pe.KMMPaymentError(
                 f"Falha ao realizar o pagamento. Numero do contrato {contract_number}"
             ) from e

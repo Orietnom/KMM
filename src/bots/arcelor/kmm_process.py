@@ -8,13 +8,14 @@ import os
 import src.exceptions.personalized_exceptions as pe
 from pathlib import Path
 BASE_DIR  = Path(__file__).resolve().parent.parent.parent.parent
+BOT_DIR = BASE_DIR  = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
     
 def process(queue_item: ArcelorItemProcess):
     db = DB()
     log = logger.bind(service='arcelor')
-    with KMMActions(service='Arcelor Freto') as freto_kmm:
+    with KMMActions(service='Arcelor Freto', evidence_dir= BOT_DIR / 'output' / 'evidence') as freto_kmm:
 
         log.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
         freto_kmm.login(

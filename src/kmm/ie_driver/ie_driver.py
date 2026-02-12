@@ -92,6 +92,7 @@ class KMMIEDriver:
         self.config = config or IEDriverConfig()
         self._driver: Optional[WebDriver] = None
         Path(self.config.evidence_dir).mkdir(parents=True, exist_ok=True)
+        logger.info(self.config.evidence_dir)
         self.cleanup_old_evidences(days=10)
 
     def __getattribute__(self, name: str):
@@ -650,7 +651,7 @@ class KMMIEDriver:
                 except Exception:
                     pass
 
-    def dump_state(self, label: str = "state") -> dict:
+    def dump_state(self, label: str = "state", evidence_dir: str = None) -> dict:
         """
         Gera evidências no evidence_dir:
           - screenshot png
@@ -659,7 +660,7 @@ class KMMIEDriver:
         Retorna dict com paths.
         """
         uid = uuid.uuid4().hex[:10]
-        base = Path(self.config.evidence_dir) / f"{int(time.time())}_{label}_{uid}"
+        base = Path(evidence_dir or self.config.evidence_dir) / f"{int(time.time())}_{label}_{uid}"
         png_path = str(base) + ".png"
         html_path = str(base) + ".html"
         meta_path = str(base) + ".txt"
