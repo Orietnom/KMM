@@ -30,12 +30,12 @@ if __name__ == '__main__':
                     body=f"Foi iniciado a automação Belgo"
                 )
                 subprocess.run(
-                    ["uv", "run", "-m", f"src.bots.arcelor.publisher"],
+                    ["uv", "run", "-m", f"src.bots.belgo.publisher"],
                     cwd=ROOT_DIR,
                     check=True
                 )
                 subprocess.run(
-                    ["uv", "run", "-m", f"src.bots.arcelor.worker"],
+                    ["uv", "run", "-m", f"src.bots.belgo.worker"],
                     cwd=ROOT_DIR,
                     check=True
                 )
