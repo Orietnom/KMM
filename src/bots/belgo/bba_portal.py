@@ -533,7 +533,7 @@ class BelgoPortal:
                     "pf": pf,
                     "date": data,
                     "freto_lot": freto_lot[0],
-                    "levo_lot": levo_lot[0]
+                    "levo_lot": levo_lot[0] if levo_lot else None
                 }
                 return nf_data
 
