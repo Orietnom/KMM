@@ -82,7 +82,7 @@ def read_emails(not_set_read: list = [], max_results=100):
             continue
         msg = email.message_from_bytes(raw_email)
 
-        if "freto" in msg["Subject"].lower() or "ergondata" in msg['From'].lower():
+        if "freto" in msg["From"].lower() or "ergondata" in msg['From'].lower():
             if 'arcelor' in msg["Subject"].lower():
                 bot = "arcelor"
             elif 'jmendes' in msg["Subject"].lower() or 'jjmendes' in msg["Subject"].lower():
