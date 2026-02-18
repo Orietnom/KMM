@@ -549,6 +549,7 @@ class BelgoPortal:
     def get_number_of_incidents(self, incident):
 
         self.log.info(f"Etapa de obtencao da quantidade de incidentes para o id {incident['id']}")
+        driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
 
         incident_names = [
             'diáriaexterna',
