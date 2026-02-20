@@ -58,11 +58,7 @@ if __name__ == '__main__':
                         continue
 
                     if "belgo" in resultado['subject']:
-                        email_handler.send_email(
-                            to='suporte@ergondata.com.br',
-                            subject="belgo",
-                            body=f"."
-                        )
+                        continue
                         
                     bot = resultado['subject']
                     if 'jjmendes' in bot:
