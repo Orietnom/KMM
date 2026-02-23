@@ -182,10 +182,20 @@ class BelgoPortal:
         first_id_previous_page = None
         headers = self._get_table_headers("incidente_workflows_datatable")
         if len(headers) < 12:
-            now = datetime.now().strftime('%d%m%Y_%H%M%S')
-            driver.save_screenshot(str(OUTPUT_DIR / f'bba_portal_py line 177 - {now}.png'))
-            self.maximize_window()
-            headers = self._get_table_headers("incidente_workflows_datatable")
+            headers = {
+                'Id': 1,
+                'Transporte': 2,
+                'Transportadora': 3,
+                'Centro': 4,
+                'Natureza': 5,
+                'Submotivo': 6,
+                'Etapa': 7,
+                'Criado Em': 8,
+                'Na Etapa desde': 9,
+                'Tentativas CTE': 10,
+                'Status': 11
+            }
+
         for i in range(1, math.ceil((total_itens / 25) + 1)):
 
             self.log.info(f"Página {i}")
