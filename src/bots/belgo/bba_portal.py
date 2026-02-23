@@ -193,7 +193,7 @@ class BelgoPortal:
                 'Criado Em': 8,
                 'Na Etapa desde': 9,
                 'Tentativas CTE': 10,
-                'Status': 11
+                'Status': 11,
             }
 
         for i in range(1, math.ceil((total_itens / 25) + 1)):
