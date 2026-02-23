@@ -10,21 +10,25 @@ from src.shared.logger import logger
 from src.shared.sharepoint import wait_file
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import datetime
 
 import pdfplumber
 import math
 import re
 import time
-import json
+import pygetwindow as gw
 import os
 import mechanize
 
 load_dotenv()
 
-OUTPUT_DIR = Path(__file__).resolve().parent / 'downloads'
+OUTPUT_DIR = Path(__file__).resolve().parent / 'output' / 'evidence'
+DOWNLOAD_DIR = Path(__file__).resolve().parent / 'downloads'
 
 chrome_options = Options()
-chrome_options.add_argument("----start-maximized")
+chrome_options.add_argument("--window-size=1366,768")
+chrome_options.add_argument("--force-device-scale-factor=1")
+chrome_options.add_argument("--start-maximized")
 chrome_options.add_experimental_option(
     "prefs",
     {
@@ -57,6 +61,13 @@ class BelgoPortal:
         self.incidents = []
         self.log = logger.bind(service='belgo')
 
+    @staticmethod
+    def maximize_window():
+        windows = gw.getWindowsWithTitle("Chrome")
+        if windows:
+            win = windows[0]
+            win.maximize()
+
     def config(self):
 
         self.br.open(os.getenv("BBA_PORTAL_LOGIN_URL"))
@@ -73,13 +84,19 @@ class BelgoPortal:
     def open(self):
         self.log.info("Acessando o portal BBA")
         driver.get(os.getenv("BBA_PORTAL_INCIDENTS_URL"))
-
+        driver.maximize_window()
+        self.maximize_window()
         btn = wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/button")))
         time.sleep(3)
         btn.click()
 
     def access(self) -> bool:
         self.log.info("Realizando login")
+        import ctypes
+
+        self.log.info(f"W: {ctypes.windll.user32.GetSystemMetrics(0)}")
+        self.log.info(f"H: {ctypes.windll.user32.GetSystemMetrics(1)}")
+
         try:
             driver.find_element(By.ID, "user_email").send_keys(os.getenv("BBA_PORTAL_USERNAME"))
             driver.find_element(By.ID, "user_password").send_keys(os.getenv("BBA_PORTAL_PASSWORD"))
@@ -164,6 +181,11 @@ class BelgoPortal:
 
         first_id_previous_page = None
         headers = self._get_table_headers("incidente_workflows_datatable")
+        if len(headers) < 12:
+            now = datetime.now().strftime('%d%m%Y_%H%M%S')
+            driver.save_screenshot(str(OUTPUT_DIR / f'bba_portal_py line 177 - {now}.png'))
+            self.maximize_window()
+            headers = self._get_table_headers("incidente_workflows_datatable")
         for i in range(1, math.ceil((total_itens / 25) + 1)):
 
             self.log.info(f"Página {i}")
@@ -417,10 +439,10 @@ class BelgoPortal:
                 return None
 
             response = self.br.open(pdf_link)
-            with open(OUTPUT_DIR / "download.pdf", "wb") as f:
+            with open(DOWNLOAD_DIR / "download.pdf", "wb") as f:
                 f.write(response.read())
 
-            file_downloaded = wait_file(OUTPUT_DIR, 'download.pdf')
+            file_downloaded = wait_file(DOWNLOAD_DIR, 'download.pdf')
             if not file_downloaded:
                 return None
 
@@ -434,7 +456,7 @@ class BelgoPortal:
 
     def get_nf_data(self, nf_portal):
 
-        file_path = os.path.join(OUTPUT_DIR, "download.pdf")
+        file_path = os.path.join(DOWNLOAD_DIR, "download.pdf")
         cte_fretolog_code = None
         cte_levolog_code = None
         serie_levolog = None
@@ -543,7 +565,7 @@ class BelgoPortal:
 
         finally:
             if os.path.isfile(file_path):
-                os.remove(os.path.join(OUTPUT_DIR, "download.pdf"))
+                os.remove(os.path.join(DOWNLOAD_DIR, "download.pdf"))
             return nf_data
 
     def get_number_of_incidents(self, incident):

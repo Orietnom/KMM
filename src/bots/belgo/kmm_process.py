@@ -14,9 +14,11 @@ load_dotenv(BASE_DIR / ".env")
 def process(queue_item: BelgoItemProcess):
     db = DB()
     log = logger.bind(service='belgo')
+
     with KMMActions(service='Belgo Freto') as freto_kmm:
 
         log.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
+        log.info(f"url = {os.getenv('KMM_URL')} -- username = {os.getenv('KMM_BELGO_USERNAME')} -- pass = {os.getenv('KMM_BELGO_PASSWORD')}")
         freto_kmm.login(
             params=LoginParams(
                 url=os.getenv('KMM_URL'),

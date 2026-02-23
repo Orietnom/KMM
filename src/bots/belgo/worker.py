@@ -11,8 +11,7 @@ import src.exceptions.personalized_exceptions as pe
 from pathlib import Path
 load_dotenv()
 
-RABBITMQ_URL = os.getenv("RABBIT_URL")
-QUEUE_NAME = "jmendes"
+QUEUE_NAME = "belgo"
 
 
 def process_case() -> None:

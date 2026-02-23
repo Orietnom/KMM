@@ -10,8 +10,6 @@ from pathlib import Path
 from datetime import datetime
 
 load_dotenv()
-
-RABBITMQ_URL = os.getenv("RABBIT_URL")
 QUEUE_NAME = "arcelor"
 
 

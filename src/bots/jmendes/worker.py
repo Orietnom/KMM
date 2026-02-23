@@ -12,7 +12,6 @@ from src.shared.email_handler import send_email
 import src.exceptions.personalized_exceptions as pe
 load_dotenv()
 
-RABBITMQ_URL = os.getenv("RABBIT_URL")
 QUEUE_NAME = "jmendes"
 
 
