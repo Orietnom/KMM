@@ -45,7 +45,7 @@ wait = WebDriverWait(driver, 30)
 
 class BelgoPortal:
 
-    def __init__(self, itens_in_bd: list):
+    def __init__(self, itens_in_bd: list = None):
 
         self.itens_in_bd = itens_in_bd
         self.br = mechanize.Browser()

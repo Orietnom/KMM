@@ -2,6 +2,7 @@ from src.shared.logger import logger
 from src.kmm.services.kmm_actions import KMMActions, LoginParams
 from src.shared.db_handler.db_handler import DB
 from src.bots.belgo.models import BelgoItemProcess
+from src.bots.belgo.bba_portal import BelgoPortal
 from dotenv import load_dotenv
 import os
 import src.exceptions.personalized_exceptions as pe
@@ -176,5 +177,6 @@ def process(queue_item: BelgoItemProcess):
             log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
             raise pe.KMMPaymentError()
 
+        BelgoPortal().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
         log.success(f"Sucesso ao quitar o caso {queue_item}")
         return True
