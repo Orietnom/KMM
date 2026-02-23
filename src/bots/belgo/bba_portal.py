@@ -20,6 +20,10 @@ import pygetwindow as gw
 import os
 import mechanize
 
+
+from pathlib import Path
+from zipfile import ZipFile
+import re
 load_dotenv()
 
 OUTPUT_DIR = Path(__file__).resolve().parent / 'output' / 'evidence'
@@ -698,15 +702,83 @@ class BelgoPortal:
         for btn in driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
             if btn.text.lower() == 'adicionar anexo':
                 btn.click()
+        inp = wait.until(EC.presence_of_element_located((
+            By.CSS_SELECTOR, "input[type='file'][id$='_anexo']"
+        )))
         inp = driver.find_element(
             By.CSS_SELECTOR,
             "input[type='file'][id$='_anexo']"
         )
-        inp.send_keys(file_path)
+        inp.send_keys(str(file_path))
+        for btn in driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
+            if btn.text.lower() == 'enviar':
+                btn.click()
         print("OK")
+
+    def extrair_cte_xml_do_zip(
+            self,
+            zip_path: str | Path,
+            output_dir: str | Path,
+            novo_nome: str,
+            apagar_zip: bool = True,
+    ) -> Path:
+        """
+        Extrai do ZIP o XML do CT-e (ex.: CTe123-cte.xml), renomeia para {novo_nome}.xml
+        e retorna o caminho final do arquivo.
+        - Procura recursivamente dentro do ZIP (mesmo se estiver em subpastas).
+        - Não lista a pasta inteira; só trabalha com o conteúdo do ZIP.
+        - Cria output_dir se não existir.
+        """
+        cte_xml_re = re.compile(r"(?i)^cte\d+.*-cte\.xml$")  # ex: CTe12345-cte.xml (case-insensitive)
+        zip_path = Path(zip_path)
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        destino_final = output_dir / f"{novo_nome}.xml"
+
+        with ZipFile(zip_path, "r") as z:
+            # Filtra apenas arquivos (não diretórios) e procura o XML esperado
+            candidatos = [
+                name for name in z.namelist()
+                if not name.endswith("/") and cte_xml_re.match(Path(name).name)
+            ]
+
+            if not candidatos:
+                # fallback: pega qualquer .xml se não bater no padrão (às vezes mudam o nome)
+                candidatos = [
+                    name for name in z.namelist()
+                    if not name.endswith("/") and Path(name).suffix.lower() == ".xml"
+                ]
+
+            if not candidatos:
+                raise FileNotFoundError("Nenhum arquivo .xml encontrado dentro do ZIP.")
+
+            # Se tiver mais de um XML, prioriza o que bate no padrão; senão pega o primeiro
+            escolhido = candidatos[0]
+
+            # Extrai o arquivo escolhido para a pasta de saída
+            extraido_path = output_dir / Path(escolhido).name
+            with z.open(escolhido) as src, open(extraido_path, "wb") as dst:
+                dst.write(src.read())
+
+        # Renomeia/move para o nome final
+        if destino_final.exists():
+            destino_final.unlink()
+        extraido_path.replace(destino_final)
+
+        if apagar_zip:
+            zip_path.unlink(missing_ok=True)
+
+        return destino_final
 
     def insert_xml(self, id_, complement_cte, file_path):
         try:
+            dir_path = Path(file_path).parent
+            xml_path = self.extrair_cte_xml_do_zip(
+                file_path,
+                dir_path,
+                f"CTE {complement_cte}"
+            )
             self.config()
             self.open()
             access = self.access()
@@ -714,7 +786,7 @@ class BelgoPortal:
                 self.log.error("Falha ao acessar o portal BBA")
                 raise Exception
             self._go_to_incident_page(id_)
-            self._edit_info(complement_cte, file_path)
+            self._edit_info(complement_cte, xml_path)
         except Exception as e:
             self.log.exception(f"Erro na edição dos dados.")
             return None

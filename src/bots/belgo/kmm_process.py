@@ -58,6 +58,12 @@ def process(queue_item: BelgoItemProcess):
                 value=fretolog_cte_complement,
                 id=queue_item.bd_id
             )
+            db.update(
+                table='complementar_belgo2',
+                column='DATA_EMISSAO_CTE_FRETO',
+                value=complement_cte_fretolog_date,
+                id=queue_item.bd_id
+            )
 
         else:
             fretolog_cte_complement = queue_item.complement_cte_fretolog
@@ -171,12 +177,19 @@ def process(queue_item: BelgoItemProcess):
         else:
             levo_contract_number = queue_item.contract
 
-        ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
-
-        if not ok:
-            log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
-            raise pe.KMMPaymentError()
+        # ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
+        #
+        # if not ok:
+        #     log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
+        #     raise pe.KMMPaymentError()
 
         BelgoPortal().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+        log.success(f"Caso editado com sucesso -> {fretolog_cte_complement}")
+        db.update(
+            table='complementar_belgo2',
+            column='EDICAO_CASO',
+            value=True,
+            id=queue_item.bd_id
+        )
         log.success(f"Sucesso ao quitar o caso {queue_item}")
         return True

@@ -47,7 +47,7 @@ class DB:
             FROM Ergondata_Robo.dbo.{table}
             WHERE CRIADO_EM >= :dt_min
               AND RETENTATIVA < 3
-              AND STATUS_ <> 'OK'
+              AND STATUS_ = 'OK'
         """)
 
         df = pd.read_sql(query, self.engine, params={"dt_min": dt_min})
