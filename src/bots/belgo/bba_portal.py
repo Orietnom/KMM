@@ -225,11 +225,11 @@ class BelgoPortal:
                     i += 1
                     break
 
-                id_ = driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).text
-                transport = driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).text
-                subreason = driver.find_element(By.XPATH, line_path.format(item, headers["Submotivo"])).text
-                cte_attempt = driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).text
-                branch = driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).text
+                id_ = driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).get_attribute('innerHTML')
+                transport = driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).get_attribute('innerHTML')
+                subreason = driver.find_element(By.XPATH, line_path.format(item, headers["Submotivo"])).get_attribute('innerHTML')
+                cte_attempt = driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).get_attribute('innerHTML')
+                branch = driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).get_attribute('innerHTML')
 
                 if int(id_) in self.itens_in_bd:
                     self.log.info("Caso já existe no banco de dados")

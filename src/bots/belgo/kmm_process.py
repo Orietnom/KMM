@@ -4,6 +4,7 @@ from src.shared.db_handler.db_handler import DB
 from src.bots.belgo.models import BelgoItemProcess
 from src.bots.belgo.bba_portal import BelgoXML
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 import src.exceptions.personalized_exceptions as pe
 from pathlib import Path
@@ -61,7 +62,7 @@ def process(queue_item: BelgoItemProcess):
             db.update(
                 table='complementar_belgo2',
                 column='DATA_EMISSAO_CTE_FRETO',
-                value=complement_cte_fretolog_date,
+                value=datetime.now(),
                 id=queue_item.bd_id
             )
 
