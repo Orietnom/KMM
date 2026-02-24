@@ -817,9 +817,9 @@ class KMMActions:
         if not emitted_date:
             emitted_date = datetime.now()
 
-        xml_file = Path(__file__).resolve().parent / "downloads" / f"CTE {complement_cte}.xml"
-        if xml_file.is_file():
-            return xml_file
+        # xml_file = Path(__file__).resolve().parent / "downloads" / f"CTE {complement_cte}.xml"
+        # if xml_file.is_file():
+        #     return xml_file
         self.quick_access('DACTE')
         self.driver.switch_to_frame(principal=False)
 

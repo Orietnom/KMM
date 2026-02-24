@@ -2,7 +2,7 @@ from src.shared.logger import logger
 from src.kmm.services.kmm_actions import KMMActions, LoginParams
 from src.shared.db_handler.db_handler import DB
 from src.bots.belgo.models import BelgoItemProcess
-from src.bots.belgo.bba_portal import BelgoPortal
+from src.bots.belgo.bba_portal import BelgoXML
 from dotenv import load_dotenv
 import os
 import src.exceptions.personalized_exceptions as pe
@@ -177,13 +177,14 @@ def process(queue_item: BelgoItemProcess):
         else:
             levo_contract_number = queue_item.contract
 
-        # ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
-        #
-        # if not ok:
-        #     log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
-        #     raise pe.KMMPaymentError()
+        ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
 
-        BelgoPortal().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+        if not ok:
+            log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
+            raise pe.KMMPaymentError()
+
+        if not queue_item.edicao_caso:
+            BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
         log.success(f"Caso editado com sucesso -> {fretolog_cte_complement}")
         db.update(
             table='complementar_belgo2',

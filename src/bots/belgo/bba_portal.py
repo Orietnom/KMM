@@ -186,10 +186,20 @@ class BelgoPortal:
         first_id_previous_page = None
         headers = self._get_table_headers("incidente_workflows_datatable")
         if len(headers) < 12:
-            now = datetime.now().strftime('%d%m%Y_%H%M%S')
-            driver.save_screenshot(str(OUTPUT_DIR / f'bba_portal_py line 177 - {now}.png'))
-            self.maximize_window()
-            headers = self._get_table_headers("incidente_workflows_datatable")
+            headers = {
+                'Id': 1,
+                'Transporte': 2,
+                'Transportadora': 3,
+                'Centro': 4,
+                'Natureza': 5,
+                'Submotivo': 6,
+                'Etapa': 7,
+                'Criado Em': 8,
+                'Na Etapa desde': 9,
+                'Tentativas CTE': 10,
+                'Status': 11,
+            }
+
         for i in range(1, math.ceil((total_itens / 25) + 1)):
 
             self.log.info(f"Página {i}")
@@ -693,24 +703,105 @@ class BelgoPortal:
             driver.close()
             return final_data
 
+
+class BelgoXML:
+    def __init__(self):
+
+        self.br = mechanize.Browser()
+        self.driver = self.driver_config()
+        self.wait = WebDriverWait(self.driver, 30)
+        self.log = logger.bind(service='belgo')
+
+    def driver_config(self):
+        chrome_options = Options()
+        chrome_options.add_argument("--window-size=1366,768")
+        chrome_options.add_argument("--force-device-scale-factor=1")
+        chrome_options.add_argument("--start-maximized")
+        chrome_options.add_experimental_option(
+            "prefs",
+            {
+                "download.default_directory": os.path.join(os.getcwd(), 'downloads'),  # pasta de download
+                "download.prompt_for_download": False,  # não perguntar
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": True  # evita bloqueio do Chrome
+            }
+        )
+        driver_path = ChromeDriverManager().install()
+        driver = webdriver.Chrome(executable_path=driver_path, options=chrome_options)
+        return driver
+
+    @staticmethod
+    def maximize_window():
+        windows = gw.getWindowsWithTitle("Chrome")
+        if windows:
+            win = windows[0]
+            win.maximize()
+
+    def config(self):
+
+        self.br.open(os.getenv("BBA_PORTAL_LOGIN_URL"))
+        self.br.select_form(nr=0)
+        self.br["user[email]"] = os.getenv("BBA_PORTAL_USERNAME")
+        self.br["user[password]"] = os.getenv("BBA_PORTAL_PASSWORD")
+        self.br.find_control(id="user_aceitou_termos").items[0].selected = True
+
+        self.br.set_handle_referer(False)
+        self.br.set_handle_robots(False)
+
+        self.br.submit()
+
+    def open(self):
+        self.log.info("Acessando o portal BBA")
+        self.driver.get(os.getenv("BBA_PORTAL_INCIDENTS_URL"))
+        self.driver.maximize_window()
+        self.maximize_window()
+        btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/button")))
+        time.sleep(3)
+        btn.click()
+
+    def access(self) -> bool:
+        self.log.info("Realizando login")
+
+        try:
+            self.driver.find_element(By.ID, "user_email").send_keys(os.getenv("BBA_PORTAL_USERNAME"))
+            self.driver.find_element(By.ID, "user_password").send_keys(os.getenv("BBA_PORTAL_PASSWORD"))
+            terms_and_conditions = self.wait.until(
+                EC.element_to_be_clickable((By.XPATH, "//label[@for='user_aceitou_termos']"))
+            ).click()
+
+            for i in range(1, 5):
+                try:
+                    name = self.driver.find_element(By.XPATH, f"//*[@id='new_user']/div[{i}]").text
+                    if 'entrar' in name.lower():
+                        self.log.info('Botão encontrado')
+                        self.driver.find_element(By.XPATH, f"//*[@id='new_user']/div[{i}]/button").click()
+                        self.log.info("Login realizado com sucesso")
+                        return True
+                    else:
+                        continue
+                except:
+                    pass
+            self.log.error("Falha ao realizar o login")
+            return False
+
+        except Exception as error:
+            self.log.exception("Falha inesperada ao realizar o login.")
+            return False
+
     def _go_to_incident_page(self, incident_id):
         url_edit_incident = os.getenv("BBA_PORTAL_EDIT_INCIDENTS_URL").format(incident_id)
-        driver.get(url_edit_incident)
+        self.driver.get(url_edit_incident)
 
     def _edit_info(self, complement_cte, file_path):
-        driver.find_element(By.ID, 'incidente_workflow_campos_numero_cte').send_keys(complement_cte)
-        for btn in driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
+        self.driver.find_element(By.ID, 'incidente_workflow_campos_numero_cte').send_keys(complement_cte)
+        for btn in self.driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
             if btn.text.lower() == 'adicionar anexo':
                 btn.click()
-        inp = wait.until(EC.presence_of_element_located((
+        inp = self.wait.until(EC.presence_of_element_located((
             By.CSS_SELECTOR, "input[type='file'][id$='_anexo']"
         )))
-        inp = driver.find_element(
-            By.CSS_SELECTOR,
-            "input[type='file'][id$='_anexo']"
-        )
         inp.send_keys(str(file_path))
-        for btn in driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
+        for btn in self.driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
             if btn.text.lower() == 'enviar':
                 btn.click()
         print("OK")
@@ -773,12 +864,15 @@ class BelgoPortal:
 
     def insert_xml(self, id_, complement_cte, file_path):
         try:
-            dir_path = Path(file_path).parent
-            xml_path = self.extrair_cte_xml_do_zip(
-                file_path,
-                dir_path,
-                f"CTE {complement_cte}"
-            )
+            if 'xml' in str(file_path):
+                xml_path = file_path
+            else:
+                dir_path = Path(file_path).parent
+                xml_path = self.extrair_cte_xml_do_zip(
+                    file_path,
+                    dir_path,
+                    f"CTE {complement_cte}"
+                )
             self.config()
             self.open()
             access = self.access()
@@ -791,4 +885,5 @@ class BelgoPortal:
             self.log.exception(f"Erro na edição dos dados.")
             return None
         finally:
-            driver.close()
+            self.driver.close()
+
