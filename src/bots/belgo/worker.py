@@ -87,10 +87,11 @@ def process_case() -> None:
             else:
                 raise Exception(f"Falha ao processar o caso de transporte {case.get('TRANSPORTE')}")
         except pe.KMMProcess as pe_error:
+
             db.update(
                 table='complementar_belgo2',
                 column='STATUS_',
-                value='Falha no KMM',
+                value=f'Falha no KMM. {type(pe_error).__name__}',
                 id=case["ID"]
             )
             log.exception(pe_error)

@@ -105,6 +105,9 @@ def process(queue_item: BelgoItemProcess):
                 log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
                 raise pe.KMMPaymentError()
             log.success(f"Sucesso ao quitar o caso {queue_item}")
+
+            if not queue_item.edicao_caso:
+                BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
             return True
         else:
             log.info("Fim da etapa Fretolog")

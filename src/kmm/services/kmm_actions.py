@@ -122,7 +122,7 @@ class KMMActions:
         except Exception as e:
             raise pe.KMMArcelorLoadUserProfileError(
                 f"Falha ao realizar lotação para o usuário {user} filial {management}"
-            ) from e
+            )
 
     def jmendes_load_user_profile(self, user: str, center:str):
         if 'matriz' in center.lower():
