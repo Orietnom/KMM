@@ -79,7 +79,7 @@ def process(queue_item: BelgoItemProcess):
                 contract_number = freto_kmm.emitting_contract_repomfreted(
                     contract_value=queue_item.contract_value,
                     complement_cte=fretolog_cte_complement,
-                    serie=queue_item.serie_fretolog,
+                    serie=queue_item.freto_serie,
                     transport=queue_item.transport,
                     liberation_user=os.getenv("KMM_CONTRACT_LIBERATION_USER"),
                     control_number=int(os.getenv("KMM_BELGO_CONTROL_NUMBER"))

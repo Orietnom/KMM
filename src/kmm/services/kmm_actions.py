@@ -598,10 +598,6 @@ class KMMActions:
                             break
 
                     self.log.info(f"Placa => {license_plate}")
-                    if submotive:
-                        self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
-                    else:
-                        self.driver.safe_type('id:OBSERVACAO', ".")
 
                     time.sleep(9)
                     self._fill_contract_value(contract_value)
@@ -613,7 +609,10 @@ class KMMActions:
                     kmm_pass = password_generate(license_plate=license_plate[-2::], control_number=control_number,
                                                  p6=False)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
-
+                    if submotive:
+                        self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
+                    else:
+                        self.driver.safe_type('id:OBSERVACAO', ".")
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
 

@@ -42,7 +42,7 @@ def process_case() -> None:
             db.update(
                 table='complementar_belgo2',
                 column='RETENTATIVA',
-                value=0,
+                value=retry,
                 id=case["ID"]
             )
 
@@ -67,7 +67,7 @@ def process_case() -> None:
                     complement_cte_fretolog=case.get('CTE_FRETOLOG_COMPLEMENTAR'),
                     complement_cte_levolog=case.get('CTE_LEVOLOG_COMPLEMENTAR'),
                     contract=case.get('CONTRATO'),
-                    complement_cte_fretolog_date=case.get('FINALIZADO_EM'),
+                    complement_cte_fretolog_date=case.get('DATA_EMISSAO_CTE_FRETO'),
                     edicao_caso=case.get('EDICAO_CASO')
                 )
             )
