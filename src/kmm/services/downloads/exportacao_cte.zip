@@ -1,7 +1,0 @@
-
-		<!-- Sessao expirada -->
-		<script language="javascript1.2" src="/_scripts/scripts_db.js"></script>
-		<script language="javascript1.2">
-			NewWindow('/aplicacoes/login_popup.cfm','_blank', 600,400, 'no');
-		</script>
-		
