@@ -17,7 +17,7 @@ def process(queue_item: BelgoItemProcess):
     db = DB()
     log = logger.bind(service='belgo')
 
-    with KMMActions(service='Belgo Freto') as freto_kmm:
+    with KMMActions(service='Belgo Freto', evidence_dir=BOT_DIR / 'output' / 'evidence') as freto_kmm:
 
         log.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
         log.info(f"url = {os.getenv('KMM_URL')} -- username = {os.getenv('KMM_BELGO_USERNAME')} -- pass = {os.getenv('KMM_BELGO_PASSWORD')}")
@@ -112,7 +112,7 @@ def process(queue_item: BelgoItemProcess):
         else:
             log.info("Fim da etapa Fretolog")
 
-    with KMMActions(service='Belgo Levo') as levo_kmm:
+    with KMMActions(service='Belgo Levo', evidence_dir=BOT_DIR / 'output' / 'evidence') as levo_kmm:
 
         log.info(f"Iniciando o caso {queue_item} pela filial Levolog")
         levo_kmm.login(
