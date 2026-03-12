@@ -2,7 +2,7 @@ from pathlib import Path
 from src.shared import email_handler
 from src.shared.logger import logger
 import subprocess
-import os
+import sys
 from dotenv import load_dotenv
 from datetime import datetime
 import time
@@ -26,12 +26,12 @@ if __name__ == '__main__':
                     subject="Automações Freto",
                     body=f"Foi iniciado a automação Arcelor"
                 )
-                subprocess.run(
+                p1 = subprocess.run(
                     ["uv", "run", "-m", f"src.bots.arcelor.publisher"],
                     cwd=ROOT_DIR,
                     check=True
                 )
-                subprocess.run(
+                p2 = subprocess.run(
                     ["uv", "run", "-m", f"src.bots.arcelor.worker"],
                     cwd=ROOT_DIR,
                     check=True
@@ -73,12 +73,19 @@ if __name__ == '__main__':
                         body=f"Foi iniciado a automação {bot}"
                     )
                     try:
-                        subprocess.run(
+                        p1 = subprocess.run(
                             ["uv", "run", "-m", f"src.bots.{bot}.publisher"],
                             cwd=ROOT_DIR,
-                            check=True
+                            check=True,
+                            capture_output=True,
+                            text = True
                         )
-                        subprocess.run(
+                        if p1.returncode != 0:
+                            logger.error(f"Falha ao executar bot {bot}")
+                            logger.error(f"Return code: {p1.returncode}")
+                            logger.error(f"STDOUT:\n{p1.stdout}")
+                            logger.error(f"STDERR:\n{p1.stderr}")
+                        p2 = subprocess.run(
                             ["uv", "run", "-m", f"src.bots.{bot}.worker"],
                             cwd=ROOT_DIR,
                             check=True

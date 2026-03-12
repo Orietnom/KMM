@@ -1,17 +1,20 @@
 import requests
 from typing import Literal
-
+from src.shared.logger import logger
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 class API:
-    url: str = 'https://api.pipefy.com/graphql'
 
-    headers: dict = {
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJQaXBlZnkiLCJpYXQiOjE3MjkwOTc3MzYsImp0aSI6IjYyOTA5MTFkLThlN2UtNDllOS05MmM4LTVmNzhhNTAwOWJhNSIsInN1YiI6MzA1MDA4MDQ0LCJ1c2VyIjp7ImlkIjozMDUwMDgwNDQsImVtYWlsIjoibWF0aGV1cy5jZXJ2aUBlcmdvbmRhdGEuY29tLmJyIn19.g526cWsZ31a4eA_XSfQGpcnxjhZ_FDltvyAA_VL0PhRPZpcM0dGhxm5cPDqUNS7bPkYmBlUzi25Xeea6xHgSuQ',
-        'Content-Type': 'application/json'
-    }
+    def __init__(self):
+        self.url: str = 'https://api.pipefy.com/graphql'
+        self.headers: dict = {
+            'Authorization': f'Bearer {os.getenv("PIPEFY_TOKEN")}',
+            'Content-Type': 'application/json'
+        }
+        self.log = logger.bind(service='arcelor')
 
-    def __int__(self):
-        pass
 
     def _get_phase_id(self):
 
@@ -20,6 +23,7 @@ class API:
         :return:
         """
 
+        self.log.debug("Obtendo id da phase")
         query = '{pipe(id: 303452077) {organizationId id name phases {id name}}}'
 
         response = requests.post(self.url, json={'query': query}, headers=self.headers)
@@ -27,9 +31,10 @@ class API:
         if response.status_code == 200:
             dados_pipe = response.json()
             phase_id = {i['name']: i['id'] for i in dados_pipe['data']['pipe']['phases']}
+            self.log.debug(f"Id => {phase_id}")
             return phase_id
         else:
-            print(f"Erro: {response.status_code}")
+            self.log.erro(f"Erro: {response.status_code}")
 
     def _get_card_ids(self):
 
@@ -37,21 +42,25 @@ class API:
             Obtém os ids dos card de acordo com o id da phase
         :return:
         """
-
+        self.log.debug("Obtendo id dos cards")
         query = "{phase(id: 322131287) {id name cards {edges {node {id title}}}}}"
 
         response = requests.post(self.url, json={"query": query}, headers=self.headers)
 
         if response.status_code == 200:
             card_ids = response.json()
-            card_ids = card_ids['data']['phase']['cards']['edges']
-
-            return card_ids
+            if card_ids.get('data').get('phase'):
+                card_ids = card_ids['data']['phase']['cards']['edges']
+                self.log.debug(f"Quantidade de cards {len(card_ids)}")
+                return card_ids
+            else:
+                return None
         else:
-            print(f'Erro: {response.status_code}')
+            self.log.erro(f'Erro: {response.status_code}')
 
     def _get_data(self, id: str):
 
+        self.log.debug("Obtendo dados dos cards")
         query = f'{{card(id: {id}) {{fields {{name value}} title done id updated_at}}}}'
         response = requests.post(self.url, json={'query': query}, headers=self.headers)
 
@@ -60,10 +69,10 @@ class API:
             data_card = data_card['data']['card']['fields']
 
             new_data_card = API._format_data(data=data_card)
-
+            self.log.debug(f"Dado do card => {new_data_card}")
             return new_data_card
         else:
-            print(f"Erro: {response.status_code}")
+            self.log.erro(f"Erro: {response.status_code}")
             return None
 
     @staticmethod
@@ -114,6 +123,7 @@ class API:
     ):
 
         actual_phase = self._get_card_phase(card_id)
+        self.log.debug(f"Movendo card de phase. Atual {actual_phase} para {phase}")
         if phase == actual_phase:
             return
 
@@ -126,14 +136,17 @@ class API:
 
         if response.status_code == 200:
             dados = response.json()
+            self.log.debug("Card movido")
         else:
-            print(f"Erro: {response.status_code}")
+            self.log.erro(f"Erro: {response.status_code}")
             return None
 
     def get_card_data(self) -> list:
 
         card_data = []
         card_ids = self._get_card_ids()
+        if not card_ids:
+            return []
         for id in card_ids:
             data = self._get_data(id['node']['id'])
             if len(data) != 7:
@@ -164,4 +177,4 @@ class API:
             phase = data['data']['card']['current_phase']
             return phase['name']
         else:
-            print(f"Erro: {response.status_code}")
+            self.log.erro(f"Erro: {response.status_code}")
