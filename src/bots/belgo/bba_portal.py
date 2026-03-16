@@ -1,69 +1,74 @@
-from typing import Any
+from __future__ import annotations
 
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait, Select
-from src.shared.logger import logger
-from src.shared.sharepoint import wait_file
-from dotenv import load_dotenv
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from typing import Any
+from zipfile import ZipFile
 
-import pdfplumber
 import math
+import os
 import re
 import time
-import pygetwindow as gw
-import os
+
 import mechanize
+import pdfplumber
+import pygetwindow as gw
+from dotenv import load_dotenv
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
-
-from pathlib import Path
-from zipfile import ZipFile
-import re
+from src.shared.logger import logger
+from src.shared.sharepoint import wait_file
 load_dotenv()
 
-OUTPUT_DIR = Path(__file__).resolve().parent / 'output' / 'evidence'
-DOWNLOAD_DIR = Path(__file__).resolve().parent / 'downloads'
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "output" / "evidence"
+DOWNLOAD_DIR = BASE_DIR / "downloads"
 
-chrome_options = Options()
-chrome_options.add_argument("--window-size=1366,768")
-chrome_options.add_argument("--force-device-scale-factor=1")
-chrome_options.add_argument("--start-maximized")
-chrome_options.add_experimental_option(
-    "prefs",
-    {
-        "download.default_directory": os.path.join(os.getcwd(), 'downloads'),   # pasta de download
-        "download.prompt_for_download": False,        # não perguntar
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True                  # evita bloqueio do Chrome
-    }
-)
-driver_path = ChromeDriverManager().install()
-driver = webdriver.Chrome(executable_path=driver_path, options=chrome_options)
-wait = WebDriverWait(driver, 30)
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+def create_chrome_driver(download_dir: Path) -> webdriver.Chrome:
+    download_dir.mkdir(parents=True, exist_ok=True)
+
+    chrome_options = Options()
+    chrome_options.add_argument("--window-size=1366,768")
+    chrome_options.add_argument("--force-device-scale-factor=1")
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_experimental_option(
+        "prefs",
+        {
+            "download.default_directory": os.path.join(os.getcwd(), 'downloads'),  # pasta de download
+            "download.prompt_for_download": False,  # não perguntar
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True  # evita bloqueio do Chrome
+        }
+    )
+    driver_path = ChromeDriverManager().install()
+    return webdriver.Chrome(executable_path=driver_path, options=chrome_options)
 
 
 class BelgoPortal:
 
-    def __init__(self, itens_in_bd: list = None):
-
+    def __init__(self, itens_in_bd: list = None) -> None:
         self.itens_in_bd = itens_in_bd
         self.br = mechanize.Browser()
-
-        self.to = [
-            "quitacao@freto.com",
-            "expedicaofreto@freto.com",
-            "lucas.leite@ergondata.com.br"
-        ]
-        self.subject = "D_FRETO_CTE_COMPLEMENTAR_BELGO"
-        self.body_1 = "Prezado, informo que encontrei um valor que está em 10\% a mais do valor original.\nO seguinte valor é passível de erro: {0}"
-        self.body_2 = "Sem incidentes"
+        self.driver = create_chrome_driver(DOWNLOAD_DIR)
+        self.wait = WebDriverWait(self.driver, 30)
+        self.log = logger.bind(service="belgo")
         self.incidents = []
-        self.log = logger.bind(service='belgo')
+
+    def quit_driver(self) -> None:
+        try:
+            if self.driver:
+                self.driver.quit()
+        except Exception:
+            self.log.exception("Falha ao encerrar o driver.")
 
     @staticmethod
     def maximize_window():
@@ -87,10 +92,10 @@ class BelgoPortal:
 
     def open(self):
         self.log.info("Acessando o portal BBA")
-        driver.get(os.getenv("BBA_PORTAL_INCIDENTS_URL"))
-        driver.maximize_window()
+        self.driver.get(os.getenv("BBA_PORTAL_INCIDENTS_URL"))
+        self.driver.maximize_window()
         self.maximize_window()
-        btn = wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/button")))
+        btn = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/button")))
         time.sleep(3)
         btn.click()
 
@@ -102,18 +107,18 @@ class BelgoPortal:
         self.log.info(f"H: {ctypes.windll.user32.GetSystemMetrics(1)}")
 
         try:
-            driver.find_element(By.ID, "user_email").send_keys(os.getenv("BBA_PORTAL_USERNAME"))
-            driver.find_element(By.ID, "user_password").send_keys(os.getenv("BBA_PORTAL_PASSWORD"))
-            terms_and_conditions = wait.until(
+            self.driver.find_element(By.ID, "user_email").send_keys(os.getenv("BBA_PORTAL_USERNAME"))
+            self.driver.find_element(By.ID, "user_password").send_keys(os.getenv("BBA_PORTAL_PASSWORD"))
+            terms_and_conditions = self.wait.until(
                 EC.element_to_be_clickable((By.XPATH, "//label[@for='user_aceitou_termos']"))
             ).click()
 
             for i in range(1, 5):
                 try:
-                    name = driver.find_element(By.XPATH, f"//*[@id='new_user']/div[{i}]").text
+                    name = self.driver.find_element(By.XPATH, f"//*[@id='new_user']/div[{i}]").text
                     if 'entrar' in name.lower():
                         self.log.info('Botão encontrado')
-                        driver.find_element(By.XPATH, f"//*[@id='new_user']/div[{i}]/button").click()
+                        self.driver.find_element(By.XPATH, f"//*[@id='new_user']/div[{i}]/button").click()
                         self.log.info("Login realizado com sucesso")
                         return True
                     else:
@@ -131,18 +136,18 @@ class BelgoPortal:
         self.log.info(f"Realizando busca pelo termo: {term}")
 
         try:
-            alert = wait.until(EC.presence_of_element_located((By.XPATH, "//*[@id='modal_informe]/div/div/div[3]/button")))
+            alert = self.wait.until(EC.presence_of_element_located((By.XPATH, "//*[@id='modal_informe]/div/div/div[3]/button")))
             alert.click()
             self.log.info("Alerta fechado.")
         except:
             self.log.info("Alerta não apareceu")
 
-        text_box = wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='incidente_workflows_datatable_filter']/label/input")))
+        text_box = self.wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id='incidente_workflows_datatable_filter']/label/input")))
         text_box.send_keys(term)
         time.sleep(10)
 
     def _get_table_headers(self, table_id: str):
-        table = driver.find_element(By.ID, table_id)
+        table = self.driver.find_element(By.ID, table_id)
         headers = table.find_elements(By.TAG_NAME, "th")
         count = 1
         headers_dict = {}
@@ -152,7 +157,7 @@ class BelgoPortal:
         return headers_dict
 
     def _get_number_of_incidentes_button(self):
-        ul = driver.find_element(By.XPATH, '/html/body/div[3]/div/div/div[2]/div/div/div/div[6]/ul')
+        ul = self.driver.find_element(By.XPATH, '/html/body/div[3]/div/div/div[2]/div/div/div/div[6]/ul')
 
         for btn in ul.find_elements(By.TAG_NAME, 'li'):
             if 'incidentes' in btn.text.lower().lstrip():
@@ -160,7 +165,7 @@ class BelgoPortal:
         return None
 
     def _get_table_size(self):
-        itens = driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
+        itens = self.driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
         itens_de = int(re.findall('(?:Mostrando de\s*)(\d*)', itens)[0])
         itens_ate = int(re.findall('(?:Mostrando de\s*\d*\s*até\s*)(\d*)', itens)[0])
         self.log.info(f'Mostrando de {itens_de} até {itens_ate}')
@@ -171,13 +176,13 @@ class BelgoPortal:
 
         self.log.info("Iniciando a obtenção da lista de incidentes")
         incidents = []
-        validation = driver.find_element(By.TAG_NAME, 'tbody').text
+        validation = self.driver.find_element(By.TAG_NAME, 'tbody').text
         if validation == "Nenhum registro encontrado":
             self.log.warning("Nenhum registro encontrado")
             return None
 
         line_path = "//*[@id='incidente_workflows_datatable']/tbody/tr[{0}]/td[{1}]"
-        itens = driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
+        itens = self.driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
         total_itens = int(re.search("\d+ registro", itens).group().replace("registro", "").strip())
 
         n_itens = self._get_table_size()
@@ -205,13 +210,13 @@ class BelgoPortal:
             self.log.info(f"Página {i}")
             if i > 1:
                 try:
-                    first_id_previous_page = driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
-                    driver.find_element(By.ID, 'incidente_workflows_datatable_next').click()
+                    first_id_previous_page = self.driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
+                    self.driver.find_element(By.ID, 'incidente_workflows_datatable_next').click()
                 except:
-                    driver.find_element(By.ID, 'incident_workflows_datatable_next').click()
+                    self.driver.find_element(By.ID, 'incident_workflows_datatable_next').click()
 
                 for _ in range(20):
-                    first_id_actual_page = driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
+                    first_id_actual_page = self.driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
                     if first_id_previous_page == first_id_actual_page:
                         time.sleep(6)
                         self.log.info("Fim da paginação")
@@ -225,11 +230,11 @@ class BelgoPortal:
                     i += 1
                     break
 
-                id_ = driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).get_attribute('innerHTML')
-                transport = driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).get_attribute('innerHTML')
-                subreason = driver.find_element(By.XPATH, line_path.format(item, headers["Submotivo"])).get_attribute('innerHTML')
-                cte_attempt = driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).get_attribute('innerHTML')
-                branch = driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).get_attribute('innerHTML')
+                id_ = self.driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).get_attribute('innerHTML')
+                transport = self.driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).get_attribute('innerHTML')
+                subreason = self.driver.find_element(By.XPATH, line_path.format(item, headers["Submotivo"])).get_attribute('innerHTML')
+                cte_attempt = self.driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).get_attribute('innerHTML')
+                branch = self.driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).get_attribute('innerHTML')
 
                 if int(id_) in self.itens_in_bd:
                     self.log.info("Caso já existe no banco de dados")
@@ -240,7 +245,7 @@ class BelgoPortal:
                     self.log.warning(f"ID {cte_attempt} possui tentativa de CTe")
                     continue
 
-                reason = driver.find_element(By.XPATH, line_path.format(item, headers['Submotivo'])).text
+                reason = self.driver.find_element(By.XPATH, line_path.format(item, headers['Submotivo'])).text
                 if reason in [
                     "DESCARGA",
                     "TICKET DE PEDÁGIO NÃO EMITIDO",
@@ -284,10 +289,10 @@ class BelgoPortal:
             self.log.info(f"Iniciando a obtenção de dados adicionais para o ID: {incident['id']}")
 
             url_edit_incident = os.getenv("BBA_PORTAL_EDIT_INCIDENTS_URL").format(incident["id"])
-            driver.get(url_edit_incident)
-            historic_el = wait.until(EC.presence_of_element_located((By.ID, historic_element)))
+            self.driver.get(url_edit_incident)
+            historic_el = self.wait.until(EC.presence_of_element_located((By.ID, historic_element)))
             historic = historic_el.text
-            nf = driver.find_element(By.ID, nf_element).get_attribute('value')
+            nf = self.driver.find_element(By.ID, nf_element).get_attribute('value')
 
             cte_value = self.get_cte_value(historic=historic)
 
@@ -430,18 +435,18 @@ class BelgoPortal:
 
         self.log.info("Etapa de obtencao dos cte code")
         try:
-            driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
-            wait.until(EC.presence_of_element_located((By.ID, "nav_dados_transporte")))
+            self.driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
+            self.wait.until(EC.presence_of_element_located((By.ID, "nav_dados_transporte")))
 
             for i in range(15):
                 document_exists = False
                 try:
-                    url_pdf = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").text
+                    url_pdf = self.driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").text
                     name = re.search("(^Viagem)[A-z]?[0-9]+?", url_pdf)
 
                     if name:
                         self.log.info("Documento viagem existe")
-                        pdf_link = driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").get_attribute("href")
+                        pdf_link = self.driver.find_element(By.XPATH, f"//*[@id='doc_{i}']/a").get_attribute("href")
                         document_exists = True
                         break
                 except Exception as e:
@@ -585,7 +590,7 @@ class BelgoPortal:
     def get_number_of_incidents(self, incident):
 
         self.log.info(f"Etapa de obtencao da quantidade de incidentes para o id {incident['id']}")
-        driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
+        self.driver.get(os.getenv("BBA_PORTAL_TRANSPORT_URL") + incident["transport"])
 
         incident_names = [
             'diáriaexterna',
@@ -606,14 +611,14 @@ class BelgoPortal:
             self.log.error("Botão \"Incidentes\" não encontrado")
             return None
 
-        number_of_incidents = len(driver.find_elements(By.XPATH, "//*[@id='incidentes']/div"))
+        number_of_incidents = len(self.driver.find_elements(By.XPATH, "//*[@id='incidentes']/div"))
         if not number_of_incidents:
             self.log.error("Não há nenhum incidente para este caso")
             return None
 
         for item in range(1, number_of_incidents + 1):
 
-            text = driver.find_element(By.XPATH, f"//*[@id='incidentes']/div[{item}]/a").text
+            text = self.driver.find_element(By.XPATH, f"//*[@id='incidentes']/div[{item}]/a").text
 
             splited_text = text.split("\n")
             splited_name = re.findall(r'[A-zÀ-ÿ-]+', splited_text[0])
@@ -700,7 +705,7 @@ class BelgoPortal:
             self.log.exception(f"Erro na obtenção dos dados.")
             return None
         finally:
-            driver.close()
+            self.driver.close()
             return final_data
 
 

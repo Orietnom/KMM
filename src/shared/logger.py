@@ -35,7 +35,7 @@ logger.add(
     str(LOG_DIR / "kmm_{time:YYYY-MM-DD}.log"),
     level=LOG_LEVEL,
     rotation="00:00",
-    retention="2 days",
+    retention="30 days",
     compression="zip",
     enqueue=True,
     format=fmt,
