@@ -17,13 +17,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait, Select
 load_dotenv()
 
-driver_path = ChromeDriverManager().install()
-driver = webdriver.Chrome(executable_path=driver_path)
-wait = WebDriverWait(driver, 30)
 output_dir = Path(__file__).resolve().parent / 'output'
 log = logger.bind(service='arcelor')
 
-def login():
+def create_webdriver():
+    driver_path = ChromeDriverManager().install()
+    driver = webdriver.Chrome(executable_path=driver_path)
+    return driver
+
+def login(driver):
     try:
         log.info("Login no portal freto")
         driver.get(os.getenv("FRETO_PORTAL_URL"))
@@ -38,7 +40,6 @@ def login():
     except Exception as e:
         log.exception(f'Falha ao logar. Erro -> {str(e)}')
         return False
-
 
 def get_incidents_data(incidents):
 
@@ -99,7 +100,7 @@ def get_incidents_data(incidents):
     finally:
         return transports
 
-def get_driver_name(transport_number):
+def get_driver_name(driver, transport_number):
     try:
 
         log.info(
@@ -107,7 +108,7 @@ def get_driver_name(transport_number):
         )
 
         driver.get(os.getenv("FRETO_PORTAL_CALENDAR"))
-        wait.until(EC.visibility_of_element_located((By.XPATH, "//*[@id=\"calendar\"]/div[1]/div[1]/button")))
+        WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, "//*[@id=\"calendar\"]/div[1]/div[1]/button")))
 
         time.sleep(5)
 
@@ -115,7 +116,7 @@ def get_driver_name(transport_number):
         time.sleep(10)
 
         try:
-            wait.until(EC.presence_of_element_located((By.CLASS_NAME, "fc-title")))
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, "fc-title")))
         except:
             for i in range(6):
                 log.info("Nao encontrou o valor no mes atual, buscando no anterior")
@@ -123,7 +124,7 @@ def get_driver_name(transport_number):
                 driver.find_element(By.XPATH, "//*[@id=\"calendar\"]/div[1]/div[1]/div/button[1]").click()
                 time.sleep(5)
                 try:
-                    wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "fc-title")))
+                    WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CLASS_NAME, "fc-title")))
                     break
                 except:
                     if i < 5:
@@ -139,7 +140,7 @@ def get_driver_name(transport_number):
         time.sleep(5)
 
         driver.find_element(by=By.ID, value="ticketLoadRequestItem1").click()
-        driver_name_locator = wait.until(EC.visibility_of_element_located((By.ID, "ticketDriverName1")))
+        driver_name_locator = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.ID, "ticketDriverName1")))
 
         driver_name = driver_name_locator.text
         log.success(f'Nome do motorista encontrado=> {driver_name}')
@@ -150,19 +151,19 @@ def get_driver_name(transport_number):
         log.exception(f"Falha ao obter dados do motorista. Erro: {e}")
         return None
        
-def get_cte_value():
+def get_cte_value(driver):
     try:
 
         log.info("Obtencao do CTE")
 
         pdfs = []
 
-        wait.until(EC.visibility_of_element_located((By.ID, "abrirArqs1")))
+        WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.ID, "abrirArqs1")))
         time.sleep(7)
         driver.find_element(by=By.ID, value="abrirArqs1").click()
         log.info("Clique em ver arquivos")
 
-        wait.until(EC.visibility_of_element_located((By.ID, "myId1")))
+        WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.ID, "myId1")))
         
         arquivo = driver.find_element(by=By.ID, value="myId1").text
         log.info(f"arquivos {arquivo}")
@@ -239,16 +240,13 @@ def reimbursement(valor):
     return contrato
 
 
-def close_browser():
-    driver.close()
-
-
 def run(incidents):
     try:
-        login_status = login()
+        driver = create_webdriver()
+        login_status = login(driver)
         if not login_status:
             raise Exception("Falha no login")
-        transports = get_incidents_data(incidents)
+        transports = get_incidents_data(driver, incidents)
         if not transports:
             raise Exception("Falha ao obter o incidente")
         driver.close()
