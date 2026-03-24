@@ -1,20 +1,97 @@
 import requests
 from typing import Literal
 from src.shared.logger import logger
+
+from dataclasses import dataclass
 from dotenv import load_dotenv
 import os
+import time
 load_dotenv()
+
+@dataclass
+class PipefyToken:
+    access_token: str
+    expires_in: int
+    token_type: str = "Bearer"
+    created_at: float = time.time()
+
+    @property
+    def expires_at(self) -> float:
+        return self.created_at + self.expires_in
+
+    def is_expired(self, safety_margin: int = 60) -> bool:
+        """
+        Considera o token expirado alguns segundos antes do tempo real
+        para evitar falhas em chamadas no limite da validade.
+        """
+        return time.time() >= (self.expires_at - safety_margin)
 
 class API:
 
     def __init__(self):
+        self.token_url = os.getenv("PIPEFY_AUTH_URL")
+        self._token: PipefyToken | None = None
         self.url: str = 'https://api.pipefy.com/graphql'
-        self.headers: dict = {
-            'Authorization': f'Bearer {os.getenv("PIPEFY_TOKEN")}',
-            'Content-Type': 'application/json'
-        }
+        self.headers = self._get_headers()
         self.log = logger.bind(service='arcelor')
 
+    def _request_new_token(self) -> PipefyToken:
+        """
+        Faz a autenticação OAuth2 via client_credentials.
+        """
+        payload = {
+            "grant_type": "client_credentials",
+            "client_id": os.getenv("PIPEFY_CLIENT_ID"),
+            "client_secret": os.getenv("PIPEFY_CLIENT_SECRET"),
+        }
+
+        response = requests.post(
+            self.token_url,
+            data=payload
+        )
+
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            raise Exception(
+                f"Falha ao obter token. Status: {response.status_code} | Resposta: {response.text}"
+            ) from exc
+
+        data = response.json()
+
+        access_token = data.get("access_token")
+        expires_in = data.get("expires_in")
+
+        if not access_token or not expires_in:
+            raise Exception(
+                f"Resposta de autenticação inválida: {data}"
+            )
+
+        return PipefyToken(
+            access_token=access_token,
+            expires_in=int(expires_in),
+            token_type=data.get("token_type", "Bearer"),
+            created_at=time.time(),
+        )
+
+    def get_valid_token(self) -> str:
+        """
+        Retorna um token válido.
+        Se não houver token em memória ou ele estiver expirado,
+        solicita um novo.
+        """
+        if self._token is None or self._token.is_expired():
+            self._token = self._request_new_token()
+
+        return self._token.access_token
+
+    def _get_headers(self) -> dict[str, str]:
+        token = self.get_valid_token()
+
+        return {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
 
     def _get_phase_id(self):
 
@@ -178,3 +255,4 @@ class API:
             return phase['name']
         else:
             self.log.erro(f"Erro: {response.status_code}")
+
