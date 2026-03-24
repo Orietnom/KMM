@@ -246,7 +246,7 @@ def run(incidents):
         login_status = login(driver)
         if not login_status:
             raise Exception("Falha no login")
-        transports = get_incidents_data(driver, incidents)
+        transports = get_incidents_data(incidents)
         if not transports:
             raise Exception("Falha ao obter o incidente")
         driver.close()
