@@ -41,7 +41,7 @@ def login(driver):
         log.exception(f'Falha ao logar. Erro -> {str(e)}')
         return False
 
-def get_incidents_data(incidents):
+def get_incidents_data(driver, incidents):
 
     try:
         transports = []
@@ -74,14 +74,14 @@ def get_incidents_data(incidents):
                 transports.append(incident)
                 continue
 
-            incident["motorista"] = get_driver_name(transport_number=incident['Transporte'])
+            incident["motorista"] = get_driver_name(driver, transport_number=incident['Transporte'])
 
             if type(incident["motorista"]) == dict or not incident['motorista']:
                 log.exception("Falha ao encontrar o nome do motorista")
                 continue
 
             incident["cte_levolog"], incident["serie_levolog"], incident["cte_fretolog"], incident[
-                "serie_fretolog"] = get_cte_value()
+                "serie_fretolog"] = get_cte_value(driver)
 
             if not incident['cte_fretolog']:
                 log.warning("Cte da freto não econtrado no documento")
@@ -246,7 +246,7 @@ def run(incidents):
         login_status = login(driver)
         if not login_status:
             raise Exception("Falha no login")
-        transports = get_incidents_data(incidents)
+        transports = get_incidents_data(driver, incidents)
         if not transports:
             raise Exception("Falha ao obter o incidente")
         driver.close()
