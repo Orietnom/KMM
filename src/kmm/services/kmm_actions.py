@@ -621,7 +621,12 @@ class KMMActions:
                     alert = self.driver.wait_alert(180)
 
                     if not alert:
-                        raise Exception("Pop-up não apareceu")
+                        logger.warning("Pop-Up de confirmação não apareceu após 60 segundos, tentando novamente")
+                        self.driver.switch_to_frame(principal=True)
+                        self.driver.safe_click('id:btn_confirmar')
+                        alert = self.driver.wait_alert(180)
+                        if not alert:
+                            raise Exception("Pop-up não apareceu")
 
                     alert_text = alert.text.lower()
                     alert.accept()
