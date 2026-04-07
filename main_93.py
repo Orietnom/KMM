@@ -48,7 +48,7 @@ if __name__ == '__main__':
             resultados = email_handler.read_emails(max_results=10, not_set_read=['arcelor', 'jmendes'])
             if not resultados:
                 logger.debug("Sem novos emails")
-                time.sleep(60)
+                time.sleep(30)
             else:
                 for resultado in resultados:
                     if resultado['subject'] not in ['jmendes', 'jjmendes', 'arcelor', 'belgo']:

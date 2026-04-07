@@ -1,4 +1,3 @@
-import json
 import os
 from dotenv import load_dotenv
 from datetime import datetime
@@ -19,7 +18,8 @@ def process_case() -> None:
     try:
         db = DB()
         cases = db.get_data(
-            table="complementar_belgo2"
+            table="complementar_belgo2",
+            date_range=True
         )
     except Exception as e:
         log.exception("Falha ao obter os casos do banco de dados")
@@ -41,7 +41,7 @@ def process_case() -> None:
             db.update(
                 table='complementar_belgo2',
                 column='RETENTATIVA',
-                value=0,
+                value=retry,
                 id=case["ID"]
             )
 
@@ -66,7 +66,8 @@ def process_case() -> None:
                     complement_cte_fretolog=case.get('CTE_FRETOLOG_COMPLEMENTAR'),
                     complement_cte_levolog=case.get('CTE_LEVOLOG_COMPLEMENTAR'),
                     contract=case.get('CONTRATO'),
-                    complement_cte_fretolog_date=case.get('DATA_EMISSAO_CTE_FRETO')
+                    complement_cte_fretolog_date=case.get('DATA_EMISSAO_CTE_FRETO'),
+                    edicao_caso=case.get('EDICAO_CASO')
                 )
             )
             if processed:
@@ -85,10 +86,11 @@ def process_case() -> None:
             else:
                 raise Exception(f"Falha ao processar o caso de transporte {case.get('TRANSPORTE')}")
         except pe.KMMProcess as pe_error:
+
             db.update(
                 table='complementar_belgo2',
                 column='STATUS_',
-                value='Falha no KMM',
+                value=f'Falha no KMM. {type(pe_error).__name__}',
                 id=case["ID"]
             )
             log.exception(pe_error)

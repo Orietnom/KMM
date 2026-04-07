@@ -18,8 +18,10 @@ INPUT_DIR = f"{os.getcwd()}/input"
 class Main:
 
     def __init__(self):
-        self.incidents = API().get_card_data()
         self.logger = logger.bind(service='arcelor')
+        self.api = API()
+        self.incidents = self.api.get_card_data()
+        logger.info(f"Incidentes obtidos => {len(self.incidents)}")
 
     def run(self):
         try:
@@ -42,7 +44,7 @@ class Main:
                         self.logger.error("Faltam informações relevantes para prosseguir")
                         continue
 
-                    if not incident.get("motorista") or not incident.get("cte_levolog"):
+                    if not incident.get("motorista") or not incident.get("cte_fretolog"):
                         self.logger.error("Falta informação do motorista ou do cte")
                         continue
                     else:

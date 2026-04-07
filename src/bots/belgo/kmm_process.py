@@ -2,8 +2,9 @@ from src.shared.logger import logger
 from src.kmm.services.kmm_actions import KMMActions, LoginParams
 from src.shared.db_handler.db_handler import DB
 from src.bots.belgo.models import BelgoItemProcess
-from src.bots.belgo.bba_portal import BelgoPortal
+from src.bots.belgo.bba_portal import BelgoXML
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 import src.exceptions.personalized_exceptions as pe
 from pathlib import Path
@@ -16,7 +17,7 @@ def process(queue_item: BelgoItemProcess):
     db = DB()
     log = logger.bind(service='belgo')
 
-    with KMMActions(service='Belgo Freto') as freto_kmm:
+    with KMMActions(service='Belgo Freto', evidence_dir=BASE_DIR / 'output' / 'evidence') as freto_kmm:
 
         log.info(f"Iniciando o caso {queue_item} pela filial Fretolog")
         log.info(f"url = {os.getenv('KMM_URL')} -- username = {os.getenv('KMM_BELGO_USERNAME')} -- pass = {os.getenv('KMM_BELGO_PASSWORD')}")
@@ -58,6 +59,12 @@ def process(queue_item: BelgoItemProcess):
                 value=fretolog_cte_complement,
                 id=queue_item.bd_id
             )
+            db.update(
+                table='complementar_belgo2',
+                column='DATA_EMISSAO_CTE_FRETO',
+                value=datetime.now(),
+                id=queue_item.bd_id
+            )
 
         else:
             fretolog_cte_complement = queue_item.complement_cte_fretolog
@@ -72,7 +79,7 @@ def process(queue_item: BelgoItemProcess):
                 contract_number = freto_kmm.emitting_contract_repomfreted(
                     contract_value=queue_item.contract_value,
                     complement_cte=fretolog_cte_complement,
-                    serie=queue_item.serie_fretolog,
+                    serie=queue_item.freto_serie,
                     transport=queue_item.transport,
                     liberation_user=os.getenv("KMM_CONTRACT_LIBERATION_USER"),
                     control_number=int(os.getenv("KMM_BELGO_CONTROL_NUMBER"))
@@ -98,11 +105,14 @@ def process(queue_item: BelgoItemProcess):
                 log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
                 raise pe.KMMPaymentError()
             log.success(f"Sucesso ao quitar o caso {queue_item}")
+
+            if not queue_item.edicao_caso:
+                BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
             return True
         else:
             log.info("Fim da etapa Fretolog")
 
-    with KMMActions(service='Belgo Levo') as levo_kmm:
+    with KMMActions(service='Belgo Levo', evidence_dir=BASE_DIR / 'output' / 'evidence') as levo_kmm:
 
         log.info(f"Iniciando o caso {queue_item} pela filial Levolog")
         levo_kmm.login(
@@ -177,6 +187,14 @@ def process(queue_item: BelgoItemProcess):
             log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
             raise pe.KMMPaymentError()
 
-        BelgoPortal().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+        if not queue_item.edicao_caso:
+            BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+        log.success(f"Caso editado com sucesso -> {fretolog_cte_complement}")
+        db.update(
+            table='complementar_belgo2',
+            column='EDICAO_CASO',
+            value=True,
+            id=queue_item.bd_id
+        )
         log.success(f"Sucesso ao quitar o caso {queue_item}")
         return True

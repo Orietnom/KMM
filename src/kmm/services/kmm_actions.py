@@ -122,7 +122,7 @@ class KMMActions:
         except Exception as e:
             raise pe.KMMArcelorLoadUserProfileError(
                 f"Falha ao realizar lotação para o usuário {user} filial {management}"
-            ) from e
+            )
 
     def jmendes_load_user_profile(self, user: str, center:str):
         if 'matriz' in center.lower():
@@ -598,10 +598,6 @@ class KMMActions:
                             break
 
                     self.log.info(f"Placa => {license_plate}")
-                    if submotive:
-                        self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
-                    else:
-                        self.driver.safe_type('id:OBSERVACAO', ".")
 
                     time.sleep(9)
                     self._fill_contract_value(contract_value)
@@ -613,16 +609,24 @@ class KMMActions:
                     kmm_pass = password_generate(license_plate=license_plate[-2::], control_number=control_number,
                                                  p6=False)
                     self.driver.safe_type('id:SENHA_LIBERACAO', kmm_pass)
-
+                    if submotive:
+                        self.driver.safe_type('id:OBSERVACAO', f"TR: {transport} \nMOTIVO: {submotive.upper()}")
+                    else:
+                        self.driver.safe_type('id:OBSERVACAO', ".")
                     self.driver.switch_to_frame(principal=True)
                     self.driver.safe_click('id:btn_confirmar')
 
                     self.log.info("Formulário preenchido e botão de confirmar clicado com sucesso.")
 
-                    alert = self.driver.wait_alert(180)
+                    alert = self.driver.wait_alert(60)
 
                     if not alert:
-                        raise Exception("Pop-up não apareceu")
+                        logger.warning("Pop-Up de confirmação não apareceu após 60 segundos, tentando novamente")
+                        self.driver.switch_to_frame(principal=True)
+                        self.driver.safe_click('id:btn_confirmar')
+                        alert = self.driver.wait_alert(60)
+                        if not alert:
+                            raise Exception("Pop-up não apareceu")
 
                     alert_text = alert.text.lower()
                     alert.accept()
@@ -817,6 +821,9 @@ class KMMActions:
         if not emitted_date:
             emitted_date = datetime.now()
 
+        # xml_file = Path(__file__).resolve().parent / "downloads" / f"CTE {complement_cte}.xml"
+        # if xml_file.is_file():
+        #     return xml_file
         self.quick_access('DACTE')
         self.driver.switch_to_frame(principal=False)
 

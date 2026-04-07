@@ -38,7 +38,7 @@ class DB:
 
     def get_data(self, table: str, date_range: bool = False) -> list[dict]:
         if date_range:
-            dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=7)
+            dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=15)
         else:
             dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 

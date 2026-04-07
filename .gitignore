@@ -16,3 +16,6 @@ evidence/
 logs/
 *.log
 output/
+
+.idea/
+downloads/

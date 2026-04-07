@@ -171,8 +171,7 @@ class KMMIEDriver:
         caps["pageLoadStrategy"] = self.config.page_load_strategy
         caps["ignoreProtectedModeSettings"] = True
         caps["ignoreZoomSetting"] = True
-        caps["requireWindowFocus"] = True
-        caps["nativeEvents"] = False
+        caps["requireWindowFocus"] = False
         caps["ie.ensureCleanSession"] = True
         caps["ie.browserCommandLineSwitches"] = "-private"
 
