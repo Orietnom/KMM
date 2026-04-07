@@ -43,12 +43,11 @@ def login(driver):
 
 def get_incidents_data(driver, incidents):
 
-    try:
-        transports = []
-        log.info("Inicio da obtencao dos dados dos incidentes")
+    transports = []
+    log.info("Inicio da obtencao dos dados dos incidentes")
 
-        for incident in incidents:
-
+    for incident in incidents:
+        try:
             if not incident['Transporte']:
                 continue
 
@@ -68,7 +67,7 @@ def get_incidents_data(driver, incidents):
 
             if float(incident["Valor a pagar (Contrato)"]) >= 7000.00:
                 log.info(f"Valor do contrato excedeu R$7.000,00. Valor -> {incident['Valor a pagar (Contrato)']}")
-                
+
                 incident["motorista"] = None
                 incident["Cte"] = None
                 transports.append(incident)
@@ -95,10 +94,9 @@ def get_incidents_data(driver, incidents):
 
             transports.append(incident)
 
-    except Exception as e:
-        log.exception(f"Falha ao obter dados do incidente. Erro: {e}")
-    finally:
-        return transports
+        except Exception as e:
+            log.exception(f"Falha ao obter dados do incidente. Erro: {e}")
+    return transports
 
 def get_driver_name(driver, transport_number):
     try:
@@ -234,8 +232,8 @@ def get_cte_value(driver):
 
 
 def reimbursement(valor):
-    inss = (float(valor) * float(os.getenv("Taxa1"))) * float(os.getenv("Taxa2"))
-    sest_sesnat = (float(valor) * float(os.getenv("Taxa3"))) * float(os.getenv("Taxa4"))
+    inss = (float(valor) * float(os.getenv("TAX1"))) * float(os.getenv("TAX2"))
+    sest_sesnat = (float(valor) * float(os.getenv("TAX3"))) * float(os.getenv("TAX4"))
     contrato = round((float(valor) + float(inss) + float(sest_sesnat)), 2)
     return contrato
 

@@ -44,7 +44,7 @@ class Main:
                         self.logger.error("Faltam informações relevantes para prosseguir")
                         continue
 
-                    if not incident.get("motorista") or not incident.get("cte_levolog"):
+                    if not incident.get("motorista") or not incident.get("cte_fretolog"):
                         self.logger.error("Falta informação do motorista ou do cte")
                         continue
                     else:
