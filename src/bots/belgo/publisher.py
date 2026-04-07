@@ -1,14 +1,15 @@
-from src.shared.db_handler.db_handler import DB
+#from src.shared.db_handler.db_handler import DB
 from src.bots.belgo.bba_portal import BelgoPortal
 import pandas as pd
 
 class Main:
     def __init__(self):
-        self.db=DB()
+        #self.db=DB()
+        pass
 
     def get_incidents(self):
-        incidents = self.db.get_data('complementar_belgo2')
-        bba = BelgoPortal(incidents)
+        # incidents = self.db.get_data('complementar_belgo2')
+        bba = BelgoPortal([])
         new_incidents = bba.get_incidents_in_bba_portal()
         if not new_incidents:
             return
