@@ -570,7 +570,14 @@ class KMMActions:
                     self.log.info(f"Tentativa {attempt} de gerar o contrato")
 
                     self.driver.switch_to_frame(principal=False)
-                    self.driver.wait_present('id:TIPO_DIARIA', 180)
+                    
+                    try:
+                        self.driver.wait_present('id:TIPO_DIARIA', 180)
+                    except Exception as e:
+                        self.log.error(f"Página de contrato não carregou após 180 segundos. Tentativa {attempt}/{max_retries}")
+                        if attempt == max_retries:
+                            raise pe.KMMEmittingContractError("Página REPOMFRETED não carregou após 180 segundos em todas as tentativas") from e
+                        raise
 
                     self.log.info("Preenchendo formulário do contrato")
 

@@ -107,7 +107,10 @@ def process(queue_item: BelgoItemProcess):
             log.success(f"Sucesso ao quitar o caso {queue_item}")
 
             if not queue_item.edicao_caso:
-                BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+                xml_result = BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+                if not xml_result:
+                    log.error(f"Falha ao finalizar incidente {queue_item.incident_id} no portal BBA. Incidente não será marcado como completo.")
+                    raise Exception("Falha ao finalizar incidente no portal - insert_xml retornou False")
             return True
         else:
             log.info("Fim da etapa Fretolog")
@@ -188,7 +191,10 @@ def process(queue_item: BelgoItemProcess):
             raise pe.KMMPaymentError()
 
         if not queue_item.edicao_caso:
-            BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+            xml_result = BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
+            if not xml_result:
+                log.error(f"Falha ao finalizar incidente {queue_item.incident_id} no portal BBA. Incidente não será marcado como completo.")
+                raise Exception("Falha ao finalizar incidente no portal - insert_xml retornou False")
         log.success(f"Caso editado com sucesso -> {fretolog_cte_complement}")
         db.update(
             table='complementar_belgo2',

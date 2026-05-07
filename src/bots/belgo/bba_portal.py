@@ -21,7 +21,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-
+from selenium.common.exceptions import StaleElementReferenceException
+import time
 from src.shared.logger import logger
 from src.shared.sharepoint import wait_file
 load_dotenv()
@@ -798,18 +799,60 @@ class BelgoXML:
         self.driver.get(url_edit_incident)
 
     def _edit_info(self, complement_cte, file_path):
-        self.driver.find_element(By.ID, 'incidente_workflow_campos_numero_cte').send_keys(complement_cte)
-        for btn in self.driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
-            if btn.text.lower() == 'adicionar anexo':
-                btn.click()
-        inp = self.wait.until(EC.presence_of_element_located((
-            By.CSS_SELECTOR, "input[type='file'][id$='_anexo']"
-        )))
-        inp.send_keys(str(file_path))
-        for btn in self.driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
-            if btn.text.lower() == 'enviar':
-                btn.click()
-        print("OK")
+        
+        
+        try:
+            # Preencher CTE
+            self.driver.find_element(By.ID, 'incidente_workflow_campos_numero_cte').send_keys(complement_cte)
+            time.sleep(2)
+            
+            # Buscar botao adicionar anexo com retry
+            for _ in range(3):
+                try:
+                    for btn in self.driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
+                        try:
+                            if 'adicionar' in btn.text.lower() and 'anexo' in btn.text.lower():
+                                btn.click()
+                                break
+                        except StaleElementReferenceException:
+                            continue
+                    break
+                except StaleElementReferenceException:
+                    time.sleep(1)
+                    continue
+            
+            time.sleep(2)
+            
+            # Aguardar campo de arquivo
+            inp = self.wait.until(EC.presence_of_element_located((
+                By.CSS_SELECTOR, "input[type='file'][id$='_anexo']"
+            )))
+            inp.send_keys(str(file_path))
+            
+            time.sleep(2)
+            
+            # Buscar botao enviar com retry (FRESH, nao reutilizar referencias)
+            for _ in range(3):
+                try:
+                    buttons_found = False
+                    for btn in self.driver.find_elements(By.XPATH, '//*[contains(@class,"btn")]'):
+                        try:
+                            if btn.text.lower() == 'enviar':
+                                btn.click()
+                                buttons_found = True
+                                break
+                        except StaleElementReferenceException:
+                            continue
+                    if buttons_found:
+                        break
+                except StaleElementReferenceException:
+                    time.sleep(1)
+                    continue
+            
+            self.log.info("Dados editados com sucesso no portal")
+        except Exception as e:
+            self.log.exception(f"Erro ao editar informacoes do incidente: {str(e)}")
+            raise
 
     def extrair_cte_xml_do_zip(
             self,
@@ -883,12 +926,14 @@ class BelgoXML:
             access = self.access()
             if not access:
                 self.log.error("Falha ao acessar o portal BBA")
-                raise Exception
+                raise Exception("Falha ao acessar o portal BBA")
             self._go_to_incident_page(id_)
             self._edit_info(complement_cte, xml_path)
+            self.log.info(f"Incidente {id_} finalizado com sucesso no portal BBA")
+            return True
         except Exception as e:
-            self.log.exception(f"Erro na edição dos dados.")
-            return None
+            self.log.exception(f"Erro na edição dos dados para incidente {id_}. Erro: {str(e)}")
+            return False
         finally:
             self.driver.close()
 
