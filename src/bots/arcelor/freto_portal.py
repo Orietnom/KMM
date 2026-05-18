@@ -179,11 +179,18 @@ def get_cte_value(driver):
                 time.sleep(2)
                 if not url_pdf:
                     continue
+                
+                response = requests.get(url_pdf)
 
+                log.info(f"Status code: {response.status_code}")
+                log.info(f"Content-Type: {response.headers.get('Content-Type')}")
+                log.info(f"Tamanho do arquivo: {len(response.content)} bytes")
+                log.info(f"Início do conteúdo: {response.content[:30]}")
+                
                 file_data = {
                     "name": documento,
                     "url": url_pdf,
-                    "response": requests.get(url_pdf)
+                    "response": response
                 }
 
                 pdfs.append(file_data)
