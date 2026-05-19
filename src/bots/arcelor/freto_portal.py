@@ -180,10 +180,18 @@ def get_cte_value(driver):
                 if not url_pdf:
                     continue
 
+                session = selenium_cookies_to_requests(driver)
+                response = session.get(url_pdf)
+
+                log.info(f"Status code: {response.status_code}")
+                log.info(f"Content-Type: {response.headers.get('Content-Type')}")
+                log.info(f"Tamanho do arquivo: {len(response.content)} bytes")
+                log.info(f"Início do conteúdo: {response.content[:30]}")
+                
                 file_data = {
                     "name": documento,
                     "url": url_pdf,
-                    "response": requests.get(url_pdf)
+                    "response": response
                 }
 
                 pdfs.append(file_data)
@@ -230,6 +238,15 @@ def get_cte_value(driver):
         log.exception(f"Falha ao obter as informações do cte {str(e)}")
         return None, None, None, None
 
+def selenium_cookies_to_requests(driver):
+    session = requests.Session()
+    for cookie in driver.get_cookies():
+        session.cookies.set(
+            cookie["name"],
+            cookie["value"],
+            domain=cookie.get("domain")
+        )
+    return session
 
 def reimbursement(valor):
     inss = (float(valor) * float(os.getenv("TAX1"))) * float(os.getenv("TAX2"))
