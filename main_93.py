@@ -9,6 +9,30 @@ import time
 load_dotenv()
 
 ROOT_DIR = Path.cwd()
+
+def run_module(module_name: str):
+    logger.info(f"Executando módulo: {module_name}")
+
+    result = subprocess.run(
+        ["uv", "run", "-m", module_name],
+        cwd=ROOT_DIR,
+        capture_output=True,
+        text=True
+    )
+
+    if result.stdout:
+        logger.info(f"STDOUT {module_name}:\n{result.stdout}")
+
+    if result.stderr:
+        logger.error(f"STDERR {module_name}:\n{result.stderr}")
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Módulo {module_name} finalizou com erro. Código: {result.returncode}"
+        )
+
+    logger.info(f"Módulo finalizado com sucesso: {module_name}")
+
 if __name__ == '__main__':
     logger.info("Iniciando trigger")
     last_exec = None
@@ -30,12 +54,12 @@ if __name__ == '__main__':
                     body=f"Foi iniciado a automação Belgo"
                 )
                 subprocess.run(
-                    ["uv", "run", "-m", f"src.bots.belgo.publisher"],
+                    ["uv", "run", "-m", "src.bots.belgo.publisher"],
                     cwd=ROOT_DIR,
                     check=True
                 )
                 subprocess.run(
-                    ["uv", "run", "-m", f"src.bots.belgo.worker"],
+                    ["uv", "run", "-m", "src.bots.belgo.worker"],
                     cwd=ROOT_DIR,
                     check=True
                 )
@@ -76,16 +100,18 @@ if __name__ == '__main__':
                         body=f"Foi iniciado a automação {bot}"
                     )
                     try:
-                        subprocess.run(
-                            ["uv", "run", "-m", f"src.bots.{bot}.publisher"],
-                            cwd=ROOT_DIR,
-                            check=True
-                        )
-                        subprocess.run(
-                            ["uv", "run", "-m", f"src.bots.{bot}.worker"],
-                            cwd=ROOT_DIR,
-                            check=True
-                        )
+                        run_module("src.bots.belgo.publisher")
+                        run_module("src.bots.belgo.worker")
+                        # subprocess.run(
+                        #     ["uv", "run", "-m", f"src.bots.{bot}.publisher"],
+                        #     cwd=ROOT_DIR,
+                        #     check=True
+                        # )
+                        # subprocess.run(
+                        #     ["uv", "run", "-m", f"src.bots.{bot}.worker"],
+                        #     cwd=ROOT_DIR,
+                        #     check=True
+                        # )
                         logger.info(f"Fim da automação {bot}")
                     except Exception as e:
                         logger.exception(f"Falha ao executar o bot {bot}. {e}")
@@ -97,7 +123,7 @@ if __name__ == '__main__':
                         )
         except Exception as e:
             logger.exception(f"Erro no trigger (vai continuar rodando): {e}")
-            time.sleep(60)  # evita loop insano em caso de erro repetido
+            time.sleep(30)  # evita loop insano em caso de erro repetido
 
         finally:
             time.sleep(1)

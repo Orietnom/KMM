@@ -406,10 +406,10 @@ class BelgoPortal:
             if not valor_cte:
                 raise ValueError('CTE')
             valor_cte = self.ajusta_valor_moeda(valor=str(valor_cte))
+            return valor_cte
         except ValueError as e:
             self.log.exception(f"Problema ao procurar o valor do {e}")
             valor_cte = None
-        finally:
             return valor_cte
 
     def get_contract_value(self, historic):
@@ -425,11 +425,10 @@ class BelgoPortal:
                     return None
 
             valor_contrato = valor_contrato[-1]
-
+            return valor_contrato
         except Exception as e:
             valor_contrato = None
             self.log.exception(f"Problema ao obter o valor do contrato no histórico do caso.")
-        finally:
             return valor_contrato
 
     def get_incident_nf(self, incident):
@@ -586,7 +585,6 @@ class BelgoPortal:
         finally:
             if os.path.isfile(file_path):
                 os.remove(os.path.join(DOWNLOAD_DIR, "download.pdf"))
-            return nf_data
 
     def get_number_of_incidents(self, incident):
 
@@ -701,13 +699,17 @@ class BelgoPortal:
             final_data = self.get_incidents_number_of_incidents(enriched_nf_data_incidents)
 
             self.log.info("Fim da obtenção dos casos, inserindo-os na fila.")
-
+            return final_data
         except Exception as e:
             self.log.exception(f"Erro na obtenção dos dados.")
             return None
         finally:
-            self.driver.close()
-            return final_data
+            self.log.info("Entrou no finally. Fechando driver...")
+            try:
+                self.driver.quit()
+                self.log.info("Driver fechado com close().")
+            except Exception:
+                self.log.exception("Erro ao executar driver.close()")
 
 
 class BelgoXML:
