@@ -130,7 +130,7 @@ def process(queue_item: BelgoItemProcess):
         levo_kmm.arcelor_load_user_profile(
             user=os.getenv('KMM_BELGO_USERNAME'),
             management='levo',
-            center=queue_item.levo_cte
+            center=queue_item.levo_lot
         )
 
         if not queue_item.complement_cte_levolog:
