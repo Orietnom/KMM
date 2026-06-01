@@ -47,6 +47,9 @@ class IEDriverConfig:
 
     # Evidências
     evidence_dir: str = "output/evidence"
+    evidence_maximize_before_screenshot: bool = True
+    evidence_expand_to_full_page: bool = True
+    evidence_max_screenshot_height: int = 12000
 
     # Políticas IE (ajuste conforme seu ambiente)
     ignore_zoom_level: bool = True
@@ -174,11 +177,13 @@ class KMMIEDriver:
         caps["requireWindowFocus"] = False
         caps["ie.ensureCleanSession"] = True
         caps["ie.browserCommandLineSwitches"] = "-private"
+        caps["ie.enableFullPageScreenshot"] = True
 
         # Opções do IE (Selenium 3)
         options = webdriver.IeOptions()
         options.ignore_zoom_level = self.config.ignore_zoom_level
         options.ignore_protected_mode_settings = self.config.ignore_protected_mode_settings
+        options.full_page_screenshot = True
 
         # Cria driver
         try:
@@ -650,6 +655,88 @@ class KMMIEDriver:
                 except Exception:
                     pass
 
+    _PAGE_DIMENSIONS_JS = """
+        return {
+            width: Math.max(
+                document.body.scrollWidth || 0,
+                document.documentElement.scrollWidth || 0,
+                document.body.offsetWidth || 0,
+                document.documentElement.offsetWidth || 0
+            ),
+            height: Math.max(
+                document.body.scrollHeight || 0,
+                document.documentElement.scrollHeight || 0,
+                document.body.offsetHeight || 0,
+                document.documentElement.offsetHeight || 0
+            )
+        };
+    """
+
+    def _save_evidence_screenshot(self, png_path: str) -> None:
+        """
+        Captura PNG da janela/página inteira: maximiza temporariamente,
+        expande para scrollHeight quando configurado e restaura tamanho/posição.
+        """
+        drv = self._driver
+        if drv is None:
+            return
+
+        saved_pos = None
+        saved_size = None
+        try:
+            saved_pos = drv.get_window_position()
+            saved_size = drv.get_window_size()
+        except Exception:
+            pass
+
+        try:
+            if self.config.evidence_maximize_before_screenshot:
+                try:
+                    drv.maximize_window()
+                    time.sleep(0.3)
+                except Exception:
+                    pass
+
+            if self.config.evidence_expand_to_full_page:
+                try:
+                    dims = drv.execute_script(self._PAGE_DIMENSIONS_JS)
+                    if dims:
+                        page_w = int(dims.get("width") or 0)
+                        page_h = int(dims.get("height") or 0)
+                        max_h = self.config.evidence_max_screenshot_height
+                        if page_h > max_h:
+                            page_h = max_h
+
+                        cur = drv.get_window_size()
+                        cur_w = int(cur.get("width") or 0)
+                        cur_h = int(cur.get("height") or 0)
+
+                        chrome_fudge = 120
+                        target_w = max(cur_w, page_w + chrome_fudge)
+                        target_h = max(cur_h, page_h + chrome_fudge)
+
+                        if target_w > cur_w or target_h > cur_h:
+                            drv.set_window_size(target_w, target_h)
+                            time.sleep(0.2)
+                except Exception:
+                    pass
+
+            try:
+                drv.save_screenshot(png_path)
+            except Exception:
+                pass
+        finally:
+            if saved_size is not None:
+                try:
+                    drv.set_window_size(saved_size["width"], saved_size["height"])
+                except Exception:
+                    pass
+            if saved_pos is not None:
+                try:
+                    drv.set_window_position(saved_pos["x"], saved_pos["y"])
+                except Exception:
+                    pass
+
     def dump_state(self, label: str = "state", evidence_dir: str = None) -> dict:
         """
         Gera evidências no evidence_dir:
@@ -671,7 +758,7 @@ class KMMIEDriver:
             pass
 
         try:
-            self.driver.save_screenshot(png_path)
+            self._save_evidence_screenshot(png_path)
         except Exception:
             pass
 

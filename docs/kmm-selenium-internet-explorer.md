@@ -42,6 +42,9 @@ Dataclass em [`ie_driver.py`](../src/kmm/ie_driver/ie_driver.py) (valores padrã
 | `page_load_timeout` / `script_timeout` | Limites em segundos para `get` e scripts. |
 | `default_wait` | Timeout padrão dos `WebDriverWait`. |
 | `evidence_dir` | Diretório para screenshots/HTML em falhas ou `dump_state`. |
+| `evidence_maximize_before_screenshot` | Se `true`, maximiza a janela IE antes do PNG e restaura tamanho/posição depois. |
+| `evidence_expand_to_full_page` | Se `true`, redimensiona a janela para `scrollWidth`/`scrollHeight` (limitado por `evidence_max_screenshot_height`). |
+| `evidence_max_screenshot_height` | Altura máxima em pixels ao expandir para página com scroll (padrão `12000`). |
 | `ignore_zoom_level` / `ignore_protected_mode_settings` | Refletidos em `IeOptions` e ajudam em ambientes com zoom ≠ 100% ou zonas de segurança desalinhadas. |
 | `page_load_strategy` | Padrão `"normal"` (comentário no código: mais previsível no IE). |
 | `kill_processes_on_stop` | Após `quit`, executa `taskkill` em `iexplore.exe` e `IEDriverServer.exe`. |
@@ -56,7 +59,7 @@ Na construção do driver, o código força **`implicitly_wait(0)`**: **não** u
 Em `start()`:
 
 - `DesiredCapabilities.INTERNETEXPLORER` com `pageLoadStrategy`, `ignoreProtectedModeSettings`, `ignoreZoomSetting`, `requireWindowFocus` (capabilities), `ie.ensureCleanSession`, `ie.browserCommandLineSwitches` = `-private`.
-- `IeOptions`: `ignore_zoom_level` e `ignore_protected_mode_settings` a partir do config.
+- `IeOptions`: `ignore_zoom_level`, `ignore_protected_mode_settings` e `full_page_screenshot` (`ie.enableFullPageScreenshot`) a partir do config.
 
 Compatibilidade: se a assinatura `webdriver.Ie(executable_path=..., capabilities=..., options=...)` falhar com `TypeError`, o código faz fallback para a API mais antiga (`executable_path` posicional, sem `options`), típico de **Selenium 3**.
 
@@ -91,14 +94,17 @@ Frames KMM: `switch_to_frame` assume frame `id:principal` e, se não for só o p
 
 ## Evidências e limpeza
 
-- **`dump_state(label)`:** grava PNG, HTML da página e ficheiro de meta (URL) com nome único sob `evidence_dir`.
+- **`dump_state(label)`:** grava PNG, HTML da página e ficheiro de meta (URL) com nome único sob `evidence_dir`. O PNG usa `_save_evidence_screenshot`: maximiza temporariamente a janela (evita corte quando não está maximizada), expande para o tamanho do documento quando `evidence_expand_to_full_page` está ativo e restaura posição/tamanho da janela no `finally`.
+- **`full_page_screenshot`:** ativado em `start()` (`ie.enableFullPageScreenshot`) para o IEDriverServer capturar o canvas completo da página.
 - **`cleanup_old_evidences(days=10)`:** no `__init__` do driver, remove ficheiros de evidência mais antigos que o limiar.
+
+Se o PNG continuar truncado em Windows 64-bit, confirme que a arquitetura do `IEDriverServer.exe` (32 vs 64 bits) corresponde ao IE instalado — limitação conhecida do driver legado.
 
 ---
 
 ## Checklist operacional (Windows + IE)
 
-1. **IEDriverServer** compatível com a versão do Selenium e arquitetura (32/64 bits) alinhada ao IE instalado.
+1. **IEDriverServer** compatível com a versão do Selenium e arquitetura (32/64 bits) alinhada ao IE instalado (relevante também para screenshots completos).
 2. **Zoom 100%** em todas as zonas; o código tenta `ignoreZoomSetting`, mas evitar zoom evita surpresas.
 3. **Protected Mode** consistente entre zonas de segurança do IE, ou confiar nas flags `ignoreProtectedModeSettings` (já ativas no código).
 4. **Sessão limpa:** `ensure_cleanSession` e `-private` reduzem estado residual entre execuções.
