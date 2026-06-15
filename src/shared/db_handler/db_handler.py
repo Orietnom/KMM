@@ -38,7 +38,7 @@ class DB:
 
     def get_data(self, table: str, date_range: bool = False) -> list[dict]:
         if date_range:
-            dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=15)
+            dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=10)
         else:
             dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -46,7 +46,7 @@ class DB:
             SELECT *
             FROM Ergondata_Robo.dbo.{table}
             WHERE CRIADO_EM >= :dt_min
-              AND RETENTATIVA < 3
+              AND RETENTATIVA < 5
               AND STATUS_ <> 'OK'
         """)
 

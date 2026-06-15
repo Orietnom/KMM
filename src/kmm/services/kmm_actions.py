@@ -581,7 +581,6 @@ class KMMActions:
 
                     self.log.info("Preenchendo formulário do contrato")
 
-
                     self.driver.select_by_value('id:TIPO_DIARIA', '1')
                     self.driver.execute_js('f_muda_tipo_diaria();')
                     self.driver.safe_type("id:DIARIA_NUM_CTRC", complement_cte)
@@ -589,8 +588,11 @@ class KMMActions:
                     self.driver.select_by_value('id:CTRC_DIARIA_SERIE', serie)
                     # self._force_CC()
                     self.driver.safe_type("id:ROTA_ID", '15')
+                    self.driver.switch_to_frame(principal=False)
                     self.driver.execute_js('f_busca_rota()')
                     self.driver.execute_js('f_atualiza_valor_pedagio_qualp_rota();')
+                    self.driver.select_by_value('id:UTILIZA_VALE_PEDAGIO', '0')
+
                     time.sleep(5)
 
                     license_plate = None
