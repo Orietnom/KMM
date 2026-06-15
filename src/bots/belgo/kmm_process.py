@@ -184,7 +184,6 @@ def process(queue_item: BelgoItemProcess):
         else:
             levo_contract_number = queue_item.contract
 
-        xml_result = BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
         ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
 
         if not ok:
