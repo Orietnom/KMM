@@ -800,8 +800,7 @@ class BelgoXML:
         url_edit_incident = os.getenv("BBA_PORTAL_EDIT_INCIDENTS_URL").format(incident_id)
         self.driver.get(url_edit_incident)
 
-    def _edit_info(self, complement_cte, file_path):
-        
+    def _edit_info(self, complement_cte, file_path) -> bool:
         
         try:
             # Preencher CTE
@@ -850,8 +849,20 @@ class BelgoXML:
                 except StaleElementReferenceException:
                     time.sleep(1)
                     continue
-            
+            try:
+                erros = [
+                    elemento.text
+                    for elemento in self.driver.find_elements(
+                        By.XPATH,
+                        "//div[contains(@class, 'alert-danger')]//ul/li"
+                    )
+                ]
+                logger.error(erros)
+                return False
+            except:
+                pass
             self.log.info("Dados editados com sucesso no portal")
+            return True
         except Exception as e:
             self.log.exception(f"Erro ao editar informacoes do incidente: {str(e)}")
             raise
@@ -914,6 +925,7 @@ class BelgoXML:
 
     def insert_xml(self, id_, complement_cte, file_path):
         try:
+            status = False
             if 'xml' in str(file_path):
                 xml_path = file_path
             else:
@@ -930,9 +942,9 @@ class BelgoXML:
                 self.log.error("Falha ao acessar o portal BBA")
                 raise Exception("Falha ao acessar o portal BBA")
             self._go_to_incident_page(id_)
-            self._edit_info(complement_cte, xml_path)
+            status = self._edit_info(complement_cte, xml_path)
             self.log.info(f"Incidente {id_} finalizado com sucesso no portal BBA")
-            return True
+            return status
         except Exception as e:
             self.log.exception(f"Erro na edição dos dados para incidente {id_}. Erro: {str(e)}")
             return False
