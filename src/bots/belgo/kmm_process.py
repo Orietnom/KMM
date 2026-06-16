@@ -184,13 +184,21 @@ def process(queue_item: BelgoItemProcess):
         else:
             levo_contract_number = queue_item.contract
 
-        if not queue_item.edicao_caso:
+        if not queue_item.quitado:
             ok = levo_kmm.payment(contract_number=levo_contract_number, management='levolog')
-
             if not ok:
                 log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
                 raise pe.KMMPaymentError()
+            else:
+                log.success(f"Caso quitado com sucesso no levolog -> {levo_contract_number}")
+                db.update(
+                    table='complementar_belgo2',
+                    column='QUITADO',
+                    value=True,
+                    id=queue_item.bd_id
+                )
 
+        if not queue_item.edicao_caso:
             xml_result = BelgoXML().insert_xml(queue_item.incident_id, fretolog_cte_complement, file_path)
             if not xml_result:
                 log.error(f"Falha ao finalizar incidente {queue_item.incident_id} no portal BBA. Incidente não será marcado como completo.")

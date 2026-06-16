@@ -25,3 +25,4 @@ class BelgoItemProcess(BaseModel):
     contract: Optional[str] = None
     complement_cte_fretolog_date: Optional[datetime] = None
     edicao_caso: Optional[bool] = None
+    quitado: Optional[bool] = None

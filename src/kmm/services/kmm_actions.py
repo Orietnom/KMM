@@ -756,15 +756,31 @@ class KMMActions:
         emitted_date = emitted_date.strftime("%d/%m/%Y")
         for row in range(1, (rows + 1)):
             status = self.driver.safe_get_text(
-                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[3]',
+                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[@title="Status CT-e"]',
                 timeout=120
             )
             if not 'autorizado' in status.lower():
                 self.log.info(f"XML não autorizado => {status}")
                 continue
 
+            user = self.driver.safe_get_text(
+                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[@title="Usuário"]',
+                timeout=60
+            )
+            if not 'emissao.automatica' in user.lower():
+                self.log.info(f"XML não foi emitido pelo emissao.automatica => {user}")
+                continue
+
+            type_ = self.driver.safe_get_text(
+                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[@title="Tipo"]',
+                timeout=60
+            )
+            if not 'conhecimento de complemento' in type_.lower():
+                self.log.info(f"XML não foi emitido pelo emissao.automatica => {user}")
+                continue
+
             cte_date = self.driver.safe_get_text(
-                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[5]',
+                f'xpath://*[@id="tb_colunas_CTE_LISTA_MDFE"]/tr[{row}]/td[@title="Data de Emissão CT-e"]',
                 timeout=60
             )
 

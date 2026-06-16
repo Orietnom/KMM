@@ -67,7 +67,8 @@ def process_case() -> None:
                     complement_cte_levolog=case.get('CTE_LEVOLOG_COMPLEMENTAR'),
                     contract=case.get('CONTRATO'),
                     complement_cte_fretolog_date=case.get('DATA_EMISSAO_CTE_FRETO'),
-                    edicao_caso=case.get('EDICAO_CASO')
+                    edicao_caso=case.get('EDICAO_CASO'),
+                    quitado=case.get("QUITADO")
                 )
             )
             if processed:
