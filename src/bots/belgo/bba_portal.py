@@ -23,6 +23,7 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.common.exceptions import StaleElementReferenceException
 import time
+from src.shared import email_handler
 from src.shared.logger import logger
 from src.shared.sharepoint import wait_file
 load_dotenv()
@@ -173,14 +174,15 @@ class BelgoPortal:
         n_itens = itens_ate - itens_de + 1
         return n_itens
 
-    def get_incidents(self) -> None | list[dict]:
+    def get_incidents(self) -> tuple[list[dict], list[dict]]:
 
         self.log.info("Iniciando a obtenção da lista de incidentes")
         incidents = []
+        errors =  []
         validation = self.driver.find_element(By.TAG_NAME, 'tbody').text
         if validation == "Nenhum registro encontrado":
             self.log.warning("Nenhum registro encontrado")
-            return None
+            return [], []
 
         line_path = "//*[@id='incidente_workflows_datatable']/tbody/tr[{0}]/td[{1}]"
         itens = self.driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
@@ -222,10 +224,10 @@ class BelgoPortal:
                         time.sleep(6)
                         self.log.info("Fim da paginação")
                         continue
-
                     n_itens = self._get_table_size()
                     break
-
+            
+            
             for item in range(1, n_itens + 1):
                 if (item + 1) == 26:
                     i += 1
@@ -244,6 +246,12 @@ class BelgoPortal:
                 # Se no campo de tentativas CTE não estiver em branco
                 if cte_attempt:
                     self.log.warning(f"ID {cte_attempt} possui tentativa de CTe")
+                    errors.append({
+                        "id": id_,
+                        "transport": transport,
+                        "subreason": subreason,
+                        "error": "Tentativa de CTe diferente de 0"
+                    })
                     continue
 
                 reason = self.driver.find_element(By.XPATH, line_path.format(item, headers['Submotivo'])).text
@@ -276,10 +284,18 @@ class BelgoPortal:
                     self.log.info(f"Dados obtidos: {item_data}")
                 else:
                     self.log.warning(f"O motivo {reason} do id {id_} esta fora do escopo da automação")
+                    errors.append({
+                        "id": id_,
+                        "transport": transport,
+                        "subreason": subreason,
+                        "cte_attempt": cte_attempt,
+                        "branch": branch,
+                        "error": f"Motivo fora do escopo da automação {reason}"
+                    })
                     continue
 
-        self.log.info(f"{len(self.incidents)} incidentes são elegíveis para automação tratar")
-        return incidents
+        self.log.info(f"{len(incidents)} incidentes são elegíveis para automação tratar")
+        return incidents, errors
 
     def get_additional_incident_data(self, incident) -> None | dict:
 
@@ -296,9 +312,18 @@ class BelgoPortal:
             nf = self.driver.find_element(By.ID, nf_element).get_attribute('value')
 
             cte_value = self.get_cte_value(historic=historic)
+            if not cte_value:
+                self.log.error(f"Falha ao encontrar valor do CTE para o ID {incident['id']}")
+                return None
 
             full_contract_value =self.get_contract_value(historic=historic)
+            if not full_contract_value:
+                self.log.error(f"Falha ao encontrar valor do contrato para o ID {incident['id']}")
+                return None
             contract_value = self.ajusta_valor_moeda(valor=str(full_contract_value))
+            if not contract_value:
+                self.log.error(f"Falha ao ajustar valor do contrato para o ID {incident['id']}")
+                return None
             driver_value = self.get_driver_reimbursement_value(valor=float(contract_value))
 
             if not driver_value or not cte_value or not contract_value:
@@ -648,36 +673,102 @@ class BelgoPortal:
         self.log.info(f"Foram obtidos {counter} incidentes")
         return counter
 
-    def get_values_and_nf_data(self, incidents: list[dict]):
+    def get_values_and_nf_data(self, incidents: list[dict], errors: list[dict]):
+        
         new_incidents = []
         for incident in incidents:
             additional_data = self.get_additional_incident_data(incident)
             if not additional_data:
                 self.log.error(f"Não foi possível obter todas as informações para o id {incident['id']}")
+                errors.append({
+                    "id": incident['id'],
+                    "transport": incident['transport'],
+                    "subreason": incident['subreason'],
+                    "error": "Não foi possível obter informações de histórico e/ou número NF"
+                })
                 continue
-            new_incidents.append({**additional_data, **incident})
-            print(new_incidents)
+            else:
+                new_incidents.append({**additional_data, **incident})
+        self.log.info(f"Foram obtidos {len(new_incidents)} incidentes com valores e NF")
 
-        return new_incidents
+        return new_incidents, errors
 
-    def get_nfs_data(self, incidents: list[dict]):
+    def get_nfs_data(self, incidents: list[dict], errors: list[dict]):
         nf_data = []
         for incident in incidents:
             nfs_data = self.get_incident_nf(incident)
             if nfs_data:
                 nf_data.append({**incident, **nfs_data})
-            print(nfs_data)
-        return nf_data
+            else:
+                errors.append({
+                    "id": incident['id'],
+                    "transport": incident['transport'],
+                    "subreason": incident['subreason'],
+                    "error": "Não foi possível obter informações de NF ou documento não existe"
+                })
+        return nf_data, errors
 
-    def get_incidents_number_of_incidents(self, incidents: list[dict]):
+    def get_incidents_number_of_incidents(self, incidents: list[dict], errors: list[dict]):
         final_data = []
         for incident in incidents:
             number_of_incidents = self.get_number_of_incidents(incident=incident)
             if number_of_incidents:
                 final_data.append({**incident, "number_of_incidents": number_of_incidents})
+            else:
+                errors.append({
+                    "id": incident['id'],
+                    "transport": incident['transport'],
+                    "subreason": incident['subreason'],
+                    "error": "Não foi possível obter informações de número de incidentes"
+                })
+        return final_data, errors
 
-        return final_data
+    @staticmethod
+    def _get_error_email_recipients() -> list[str]:
+        raw = os.getenv("BBA_PORTAL_EMAIL_TO") or os.getenv("BELGO_RECIPIENTS")
+        if not raw:
+            return []
+        return [email.strip() for email in raw.split(",") if email.strip()]
 
+    @staticmethod
+    def _build_incident_errors_email(
+        errors: list[dict],
+        total_found: int,
+        total_success: int,
+    ) -> tuple[str, str]:
+        timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        subject = f"Belgo BBA — {len(errors)} caso(s) com falha na ingestão"
+
+        lines = [
+            "Automação Belgo — Publisher (Portal BBA)",
+            f"Execução: {timestamp}",
+            "",
+            "Resumo",
+            "------",
+            f"Incidentes encontrados no portal: {total_found}",
+            f"Incidentes prontos para a fila: {total_success}",
+            f"Casos com falha: {len(errors)}",
+        ]
+
+        by_error: dict[str, list[dict]] = {}
+        for item in errors:
+            by_error.setdefault(item["error"], []).append(item)
+
+        lines.extend(["", "Falhas por tipo", "--------------"])
+        for error_msg, items in by_error.items():
+            lines.append(f"• {error_msg}: {len(items)} caso(s)")
+
+        lines.extend(["", "Detalhes dos casos", "------------------"])
+        for index, item in enumerate(errors, start=1):
+            lines.extend([
+                f"{index}. ID incidente: {item.get('id', '-')}",
+                f"   Transporte: {item.get('transport', '-')}",
+                f"   Submotivo: {item.get('subreason', '-')}",
+                f"   Erro: {item.get('error', '-')}",
+                "",
+            ])
+
+        return subject, "\n".join(lines).rstrip()
 
     def get_incidents_in_bba_portal(self) -> None | list:
         final_data = []
@@ -689,16 +780,34 @@ class BelgoPortal:
                 self.log.error("Falha ao acessar o portal BBA")
                 raise Exception
             self.search_for(term="emissão de cte")
-            incidents = self.get_incidents()
+            incidents, errors = self.get_incidents()
             if not incidents:
                 self.log.info(f"Nenhum Registro encontrado")
                 return
 
-            enriched_incidents = self.get_values_and_nf_data(incidents)
-            enriched_nf_data_incidents = self.get_nfs_data(enriched_incidents)
-            final_data = self.get_incidents_number_of_incidents(enriched_nf_data_incidents)
+            enriched_incidents, errors = self.get_values_and_nf_data(incidents, errors)
+            enriched_nf_data_incidents, errors = self.get_nfs_data(enriched_incidents, errors)
+            final_data, errors = self.get_incidents_number_of_incidents(enriched_nf_data_incidents, errors)
 
             self.log.info("Fim da obtenção dos casos, inserindo-os na fila.")
+            if errors:
+                subject, body = self._build_incident_errors_email(
+                    errors=errors,
+                    total_found=len(incidents),
+                    total_success=len(final_data),
+                )
+                recipients = self._get_error_email_recipients()
+                if recipients:
+                    email_handler.send_email(
+                        to=recipients,
+                        subject=subject,
+                        body=body,
+                    )
+                else:
+                    self.log.warning(
+                        "Casos com erro no BBA, mas nenhum destinatário configurado "
+                        "(BBA_PORTAL_EMAIL_TO ou BELGO_RECIPIENTS)."
+                    )
             return final_data
         except Exception as e:
             self.log.exception(f"Erro na obtenção dos dados.")
