@@ -57,7 +57,7 @@ def create_chrome_driver(download_dir: Path) -> webdriver.Chrome:
 
 class BelgoPortal:
 
-    def __init__(self, itens_in_bd: list = None) -> None:
+    def __init__(self, itens_in_bd: list[int] = []) -> None:
         self.itens_in_bd = itens_in_bd
         self.br = mechanize.Browser()
         self.driver = create_chrome_driver(DOWNLOAD_DIR)

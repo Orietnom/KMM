@@ -5,11 +5,10 @@ import pandas as pd
 class Main:
     def __init__(self):
         self.db=DB()
-        pass
 
     def get_incidents(self):
-        # incidents = self.db.get_data('complementar_belgo2')
-        bba = BelgoPortal([])
+        incidents = self.db.get_data('complementar_belgo2', date_range=True)
+        bba = BelgoPortal(itens_in_bd=incidents)
         new_incidents = bba.get_incidents_in_bba_portal()
         if not new_incidents:
             return
