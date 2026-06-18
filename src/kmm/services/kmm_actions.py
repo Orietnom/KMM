@@ -761,6 +761,7 @@ class KMMActions:
             )
             if not 'autorizado' in status.lower():
                 self.log.info(f"XML não autorizado => {status}")
+                counter += 1
                 continue
 
             user = self.driver.safe_get_text(
@@ -769,6 +770,7 @@ class KMMActions:
             )
             if not 'emissao.automatica' in user.lower():
                 self.log.info(f"XML não foi emitido pelo emissao.automatica => {user}")
+                counter += 1
                 continue
 
             type_ = self.driver.safe_get_text(
@@ -777,6 +779,7 @@ class KMMActions:
             )
             if not 'conhecimento de complemento' in type_.lower():
                 self.log.info(f"XML não foi emitido pelo emissao.automatica => {user}")
+                counter += 1
                 continue
 
             cte_date = self.driver.safe_get_text(

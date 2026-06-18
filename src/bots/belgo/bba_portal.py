@@ -849,18 +849,19 @@ class BelgoXML:
                 except StaleElementReferenceException:
                     time.sleep(1)
                     continue
-            try:
-                erros = [
-                    elemento.text
-                    for elemento in self.driver.find_elements(
-                        By.XPATH,
-                        "//div[contains(@class, 'alert-danger')]//ul/li"
-                    )
-                ]
-                logger.error(erros)
+            erros = [
+                elemento.text.strip()
+                for elemento in self.driver.find_elements(
+                    By.XPATH,
+                    "//div[contains(@class, 'alert-danger')]//ul/li"
+                )
+                if elemento.text.strip()
+            ]
+
+            if erros:
+                self.log.error(f"Erros encontrados no portal: {erros}")
                 return False
-            except:
-                pass
+
             self.log.info("Dados editados com sucesso no portal")
             return True
         except Exception as e:
