@@ -283,15 +283,15 @@ class BelgoPortal:
                     incidents.append(item_data)
                     self.log.info(f"Dados obtidos: {item_data}")
                 else:
-                    self.log.warning(f"O motivo {reason} do id {id_} esta fora do escopo da automação")
                     errors.append({
                         "id": id_,
                         "transport": transport,
                         "subreason": subreason,
                         "cte_attempt": cte_attempt,
                         "branch": branch,
-                        "error": f"Motivo fora do escopo da automação {reason}"
+                        "error": f"Motivo fora do escopo da automação {subreason}"
                     })
+                    self.log.warning(f"O motivo {reason} do id {id_} esta fora do escopo da automação")
                     continue
 
         self.log.info(f"{len(incidents)} incidentes são elegíveis para automação tratar")
@@ -659,7 +659,7 @@ class BelgoPortal:
                 phase = splited_text[1].replace("Etapa: ", "")
                 status = splited_text[2].replace("Status: ", "")
 
-                if id_ == incident['id'] and phase.lower() == 'emissão de cte' and status.lower() == 'em aberto':
+                if (phase.lower() == 'emissão de cte' or phase.lower() == 'finalizado') and (status.lower() == 'em aberto' or status.lower() == 'aprovado'):
                     counter += 1
                     self.log.info(f"Incidente encontrado para o ID buscado. Id => {id_} - Nome => {name} - "
                                 f"Fase => {phase} - Status => {status}")

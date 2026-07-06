@@ -99,11 +99,19 @@ def process(queue_item: BelgoItemProcess):
             else:
                 contract_number = queue_item.contract
 
-            ok = freto_kmm.payment(contract_number=contract_number)
-
-            if not ok:
-                log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
-                raise pe.KMMPaymentError()
+            if not queue_item.quitado:
+                ok = freto_kmm.payment(contract_number=contract_number)
+                if not ok:
+                    log.error(f"Falha ao realizar a quitação do contrato para o caso {queue_item}")
+                    raise pe.KMMPaymentError()
+                else:
+                    log.success(f"Caso quitado com sucesso no levolog -> {contract_number}")
+                    db.update(
+                        table='complementar_belgo2',
+                        column='QUITADO',
+                        value=True,
+                        id=queue_item.bd_id
+                    )
             log.success(f"Sucesso ao quitar o caso {queue_item}")
 
             if not queue_item.edicao_caso:

@@ -38,7 +38,7 @@ class Main:
             "number_of_incidents": "N_INCIDENTES"
         })
         df_renamed['STATUS_'] = "Pendente"
-        self.db.insert_ignore_df(table='complementar_belgo2', df=df_renamed, unique_keys=['CTE_FRETOLOG'])
+        self.db.insert_ignore_df(table='complementar_belgo2', df=df_renamed, unique_keys=['ID_INCIDENTE'])
 
 if __name__ == '__main__':
     main = Main()
