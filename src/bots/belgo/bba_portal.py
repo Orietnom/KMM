@@ -13,7 +13,6 @@ from pathlib import Path
 from datetime import datetime
 
 import pdfplumber
-import math
 import re
 import time
 import pygetwindow as gw
@@ -167,6 +166,25 @@ class BelgoPortal:
         n_itens = itens_ate - itens_de + 1
         return n_itens
 
+    def _get_page_row_count(self):
+        """Conta as linhas reais de dados na página atual.
+
+        O portal tem um bug em que exibe páginas extras (com o botão 'próxima'
+        ativo) porém sem nenhum registro. Nesses casos o DataTables renderiza a
+        linha placeholder 'Nenhum registro encontrado' (td.dataTables_empty).
+        """
+        empty = driver.find_elements(
+            By.XPATH,
+            "//*[@id='incidente_workflows_datatable']/tbody/tr/td[contains(@class,'dataTables_empty')]"
+        )
+        if empty:
+            return 0
+        rows = driver.find_elements(
+            By.XPATH,
+            "//*[@id='incidente_workflows_datatable']/tbody/tr"
+        )
+        return len(rows)
+
     def get_incidents(self) -> None | list[dict]:
 
         self.log.info("Iniciando a obtenção da lista de incidentes")
@@ -177,13 +195,10 @@ class BelgoPortal:
             return None
 
         line_path = "//*[@id='incidente_workflows_datatable']/tbody/tr[{0}]/td[{1}]"
-        itens = driver.find_element(By.ID, 'incidente_workflows_datatable_info').text
-        total_itens = int(re.search("\d+ registro", itens).group().replace("registro", "").strip())
 
-        n_itens = self._get_table_size()
+        n_itens = self._get_page_row_count()
         self.log.info(f"{n_itens} incidentes encontrados. Filtrando...")
 
-        first_id_previous_page = None
         headers = self._get_table_headers("incidente_workflows_datatable")
         if len(headers) < 12:
             headers = {
@@ -200,30 +215,17 @@ class BelgoPortal:
                 'Status': 11,
             }
 
-        for i in range(1, math.ceil((total_itens / 25) + 1)):
+        page = 1
+        while True:
 
-            self.log.info(f"Página {i}")
-            if i > 1:
-                try:
-                    first_id_previous_page = driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
-                    driver.find_element(By.ID, 'incidente_workflows_datatable_next').click()
-                except:
-                    driver.find_element(By.ID, 'incident_workflows_datatable_next').click()
+            self.log.info(f"Página {page}")
+            n_itens = self._get_page_row_count()
 
-                for _ in range(20):
-                    first_id_actual_page = driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
-                    if first_id_previous_page == first_id_actual_page:
-                        time.sleep(6)
-                        self.log.info("Fim da paginação")
-                        continue
-
-                    n_itens = self._get_table_size()
-                    break
+            if n_itens == 0:
+                self.log.info("Página sem registros. Fim da paginação.")
+                break
 
             for item in range(1, n_itens + 1):
-                if (item + 1) == 26:
-                    i += 1
-                    break
 
                 id_ = driver.find_element(By.XPATH, line_path.format(item, headers["Id"])).text
                 transport = driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).text
@@ -272,7 +274,35 @@ class BelgoPortal:
                     self.log.warning(f"O motivo {reason} do id {id_} esta fora do escopo da automação")
                     continue
 
-        self.log.info(f"{len(self.incidents)} incidentes são elegíveis para automação tratar")
+            next_btn = driver.find_element(By.ID, 'incidente_workflows_datatable_next')
+            if 'disabled' in (next_btn.get_attribute('class') or ''):
+                self.log.info("Fim da paginação")
+                break
+
+            first_id_previous_page = driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
+            next_btn.click()
+
+            page_changed = False
+            for _ in range(20):
+                time.sleep(1)
+                if self._get_page_row_count() == 0:
+                    page_changed = True
+                    break
+                try:
+                    first_id_actual_page = driver.find_element(By.XPATH, line_path.format(1, headers['Id'])).text
+                except Exception:
+                    continue
+                if first_id_actual_page != first_id_previous_page:
+                    page_changed = True
+                    break
+
+            if not page_changed:
+                self.log.info("Fim da paginação (página não mudou)")
+                break
+
+            page += 1
+
+        self.log.info(f"{len(incidents)} incidentes são elegíveis para automação tratar")
         return incidents
 
     def get_additional_incident_data(self, incident) -> None | dict:
@@ -287,7 +317,8 @@ class BelgoPortal:
             driver.get(url_edit_incident)
             historic_el = wait.until(EC.presence_of_element_located((By.ID, historic_element)))
             historic = historic_el.text
-            nf = driver.find_element(By.ID, nf_element).get_attribute('value')
+            nf_el = wait.until(EC.presence_of_element_located((By.ID, nf_element)))
+            nf = nf_el.get_attribute('value')
 
             cte_value = self.get_cte_value(historic=historic)
 

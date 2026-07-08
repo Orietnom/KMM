@@ -16,3 +16,4 @@ evidence/
 logs/
 *.log
 output/
+.vscode/
