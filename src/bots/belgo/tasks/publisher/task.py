@@ -22,6 +22,8 @@ from src.bots.belgo.tasks.publisher.idempotency import (
     ClaimState,
 )
 from src.bots.belgo.tasks.publisher.schemas import (
+    ALL_PROCESSABLE_FIELD_KEYS,
+    GLOBAL_WORKFLOW_FIELD_KEYS,
     BelgoIncident,
     CaptureRoute,
     platform_field_map,
@@ -110,20 +112,46 @@ class TaskBelgoPublisher(ProducerTask):
         previous_route: str,
     ) -> None:
         items = self._platform_items(connector)
+        is_promotion = (
+            incident.route is CaptureRoute.PROCESSABLE
+            and previous_route != CaptureRoute.PROCESSABLE.value
+        )
+        if is_promotion:
+            field_map = platform_field_map()
+            global_names = {
+                field_map[logical_name]
+                for logical_name in GLOBAL_WORKFLOW_FIELD_KEYS
+            }
+            global_values = {
+                name: value
+                for name, value in (result.field_values or {}).items()
+                if name in global_names
+            }
+            items.update(
+                platform_item_id,
+                title=result.title,
+                field_values=global_values,
+                **result.extra_fields,
+            )
+            current_phase_id = self._current_phase_id(items, platform_item_id)
+            if current_phase_id != PROCESSABLE_PHASE_ID:
+                items.route(platform_item_id, to_phase_id=PROCESSABLE_PHASE_ID)
+            items.update(
+                platform_item_id,
+                title=result.title,
+                field_values=dict(result.field_values or {}),
+                **result.extra_fields,
+            )
+            assert self._ledger is not None
+            self._ledger.mark_route(incident.id, CaptureRoute.PROCESSABLE.value)
+            return
+
         items.update(
             platform_item_id,
             title=result.title,
             field_values=dict(result.field_values or {}),
             **result.extra_fields,
         )
-        if incident.route is not CaptureRoute.PROCESSABLE or previous_route == CaptureRoute.PROCESSABLE.value:
-            return
-
-        current_phase_id = self._current_phase_id(items, platform_item_id)
-        if current_phase_id != PROCESSABLE_PHASE_ID:
-            items.route(platform_item_id, to_phase_id=PROCESSABLE_PHASE_ID)
-        assert self._ledger is not None
-        self._ledger.mark_route(incident.id, CaptureRoute.PROCESSABLE.value)
 
     def handle_prepare_success(
         self,
@@ -225,11 +253,12 @@ class TaskBelgoPublisher(ProducerTask):
     def _validate_platform_fields(self) -> None:
         if self._is_dry_run() or os.getenv("BELGO_VALIDATE_PLATFORM_FIELDS", "true").lower() != "true":
             return
-        expected = set(platform_field_map().values())
-        for connector, phase_id in (
-            (self.processable_connector, PROCESSABLE_PHASE_ID),
-            (self.pending_connector, PENDING_PHASE_ID),
+        field_map = platform_field_map()
+        for connector, phase_id, logical_fields in (
+            (self.processable_connector, PROCESSABLE_PHASE_ID, ALL_PROCESSABLE_FIELD_KEYS),
+            (self.pending_connector, PENDING_PHASE_ID, GLOBAL_WORKFLOW_FIELD_KEYS),
         ):
+            expected = {field_map[key] for key in logical_fields}
             fields = connector.list_phase_fields(phase_id, workflow_id=WORKFLOW_ID)
             available = self._field_identifiers(fields)
             missing = expected - available

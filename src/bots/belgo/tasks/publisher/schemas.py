@@ -116,10 +116,15 @@ class BelgoIncident(BaseModel):
             "incident_count": self.number_of_incidents,
         }
         field_map = platform_field_map()
+        allowed_fields = (
+            GLOBAL_WORKFLOW_FIELD_KEYS
+            if self.route is CaptureRoute.PENDING
+            else ALL_PROCESSABLE_FIELD_KEYS
+        )
         return {
             field_map[logical_name]: value
             for logical_name, value in values.items()
-            if value not in (None, "")
+            if logical_name in allowed_fields and value not in (None, "")
         }
 
 
@@ -150,6 +155,15 @@ DEFAULT_PLATFORM_FIELD_MAP = {
     "levolog_location": "Lotação Levolog",
     "incident_count": "N Incidentes",
 }
+
+GLOBAL_WORKFLOW_FIELD_KEYS = frozenset({
+    "incident_id",
+    "transport",
+    "subreason",
+})
+
+PROCESSABLE_PHASE_FIELD_KEYS = frozenset(DEFAULT_PLATFORM_FIELD_MAP) - GLOBAL_WORKFLOW_FIELD_KEYS
+ALL_PROCESSABLE_FIELD_KEYS = GLOBAL_WORKFLOW_FIELD_KEYS | PROCESSABLE_PHASE_FIELD_KEYS
 
 WORKFLOW_TO_SOURCE_FIELD: dict[str, str | None] = {
     "ID": "ID_INCIDENTE",

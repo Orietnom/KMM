@@ -13,6 +13,7 @@ from src.bots.belgo.tasks.publisher.idempotency import (
     ClaimState,
 )
 from src.bots.belgo.tasks.publisher.schemas import (
+    DEFAULT_PLATFORM_FIELD_MAP,
     WORKFLOW_TO_SOURCE_FIELD,
     BelgoIncident,
     BelgoPortalResult,
@@ -65,6 +66,7 @@ class FakeItems:
         self.items = {}
         self.updates = []
         self.routes = []
+        self.operations = []
         self.route_error_after_success = False
 
     def get(self, item_id):
@@ -72,10 +74,12 @@ class FakeItems:
 
     def update(self, item_id, **fields):
         self.updates.append((item_id, fields))
+        self.operations.append(("update", set(fields.get("field_values", {}))))
         self.items[item_id].update(fields)
 
     def route(self, item_id, *, to_phase_id):
         self.routes.append((item_id, to_phase_id))
+        self.operations.append(("route", to_phase_id))
         self.items[item_id]["phase_id"] = to_phase_id
         if self.route_error_after_success:
             raise TimeoutError("resposta da rota perdida")
@@ -125,13 +129,35 @@ def build_task(tmp_path: Path, connector: FakeConnector):
 
 
 def test_processable_contract_maps_sql_and_card_fields():
-    incident = complete_incident()
+    incident = complete_incident(
+        cte_levolog_code="987",
+        serie_levolog="2",
+        levo_lot="FILIAL SP",
+    )
 
     assert incident.route is CaptureRoute.PROCESSABLE
     assert incident.to_sql_record()["ID_INCIDENTE"] == "123"
     assert incident.to_sql_record()["STATUS_"] == "Pendente"
     assert incident.to_card_fields()["ID"] == "123"
     assert incident.to_card_fields()["Transporte"] == "TR-1"
+    assert set(incident.to_card_fields()) == set(DEFAULT_PLATFORM_FIELD_MAP.values())
+
+
+def test_pending_contract_sends_only_global_workflow_fields():
+    incident = BelgoIncident(
+        id="124",
+        transport="TR-2",
+        subreason="DESCARGA",
+        cte_value="100.00",
+        driver_value=90.00,
+        error_reasons=["NF ausente"],
+    )
+
+    assert incident.to_card_fields() == {
+        "ID": "124",
+        "Transporte": "TR-2",
+        "Submotivo": "DESCARGA",
+    }
 
 
 def test_real_portal_payload_accepts_numeric_driver_value():
@@ -274,6 +300,13 @@ def test_completed_pending_updates_routes_same_card_and_writes_sql(tmp_path):
     assert connector.items_api.routes == [
         ("card-1", "fa0472b7-80c4-47cc-81b0-bd5da388acf1")
     ]
+    assert connector.items_api.operations[0] == (
+        "update",
+        {"ID", "Transporte", "Submotivo"},
+    )
+    assert connector.items_api.operations[1][0] == "route"
+    assert connector.items_api.operations[2][0] == "update"
+    assert "Valor CT-e" in connector.items_api.operations[2][1]
     assert connector.items_api.updates[-1][1]["description"] == ""
     assert claim.route == CaptureRoute.PROCESSABLE.value
     assert claim.platform_item_id == "card-1"
@@ -388,3 +421,21 @@ def test_execute_uses_only_sql_ids_to_skip_portal_enrichment(tmp_path, monkeypat
 
     assert publisher.execute() == 0
     assert publisher.portal_service.skip_ids == {"10", "20", "30"}
+
+
+def test_platform_validation_respects_fields_available_in_each_phase(tmp_path):
+    processable = FakeConnector()
+    pending = FakeConnector()
+    processable.list_phase_fields = lambda *args, **kwargs: [
+        {"id": f"field-{index}", "name": name}
+        for index, name in enumerate(DEFAULT_PLATFORM_FIELD_MAP.values())
+    ]
+    pending.list_phase_fields = lambda *args, **kwargs: [
+        {"id": "field-id", "name": "ID"},
+        {"id": "field-transport", "name": "Transporte"},
+        {"id": "field-subreason", "name": "Submotivo"},
+    ]
+    publisher = build_task(tmp_path, processable)
+    publisher.pending_connector = pending
+
+    publisher._validate_platform_fields()
