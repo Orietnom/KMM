@@ -1,4 +1,4 @@
-from src.bots.belgo.tasks.worker.complementar_fretolog.config import run
+from src.bots.belgo.tasks.complementar_fretolog.config import run
 
 
 if __name__ == "__main__":

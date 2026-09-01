@@ -6,73 +6,83 @@ from unittest.mock import MagicMock
 import pytest
 from ergon.connector import Transaction
 
-from src.bots.belgo.tasks.worker.complementar_fretolog.schemas import (
+from src.bots.belgo.tasks.complementar_fretolog.connectors import (
+    BelgoFretologSQLConnector,
+)
+from src.bots.belgo.tasks.complementar_fretolog.schemas import (
     FretologComplementInput,
 )
-from src.bots.belgo.tasks.worker.complementar_fretolog.task import (
+from src.bots.belgo.tasks.complementar_fretolog.services import (
+    BelgoPlatformStateService,
+)
+from src.bots.belgo.tasks.complementar_fretolog.task import (
     FRETOLOG_COMPLEMENT_PHASE_ID,
     TaskBelgoFretologComplement,
 )
 from src.kmm.services.kmm_actions import CTeEmissionResult, KMMActions
+from src.shared.db_handler.db_handler import DB
 
 
-def card_payload(**changes):
-    fields = {
-        "ID": "163697",
-        "Filial": "FRETO LOG - MATRIZ",
-        "Lotação Fretolog": "MATRIZ",
-        "N CT-e Fretolog": "12345",
-        "Série CT-e Fretolog": "1",
-        "Valor CT-e": 100.0,
-        "N Incidentes": 1,
+def sql_payload(**changes):
+    payload = {
+        "ID": 42,
+        "ID_INCIDENTE": "163697",
+        "FILIAL": "FRETO LOG - MATRIZ",
+        "LOTACAO_FRETOLOG": "MATRIZ",
+        "CTE_FRETOLOG": "12345",
+        "SERIE_FRETOLOG": "1",
+        "VALOR_CTE": "100.00",
+        "N_INCIDENTES": 1,
+        "CTE_FRETOLOG_COMPLEMENTAR": None,
     }
-    fields.update(changes)
-    return {"field_values": fields}
-
-
-class FakeItems:
-    def __init__(self, events):
-        self.events = events
-        self.updates = []
-
-    def route(self, card_id, *, to_phase_id):
-        self.events.append(("route", card_id, to_phase_id))
-
-    def update(self, card_id, **fields):
-        self.events.append(("platform-update", card_id))
-        self.updates.append((card_id, fields))
-
-
-class FakeConnector:
-    def __init__(self, events):
-        self.events = events
-        self.items = FakeItems(events)
-        self.client = SimpleNamespace(
-            workflows=SimpleNamespace(items=self.items)
-        )
-        self.released = []
-
-    def release_item(self, card_id):
-        self.released.append(card_id)
+    payload.update(changes)
+    return payload
 
 
 class FakeDB:
-    def __init__(self, events, existing_cte=None):
+    def __init__(self, events):
         self.events = events
-        self.existing_cte = existing_cte
+        self.rows = [sql_payload()]
         self.saved = []
+        self.updates = []
 
-    def get_belgo_incident(self, incident_id):
-        self.events.append(("sql-read", incident_id))
-        return {
-            "ID": 42,
-            "ID_INCIDENTE": incident_id,
-            "CTE_FRETOLOG_COMPLEMENTAR": self.existing_cte,
-        }
+    def claim_belgo_fretolog_cases(self, limit):
+        self.events.append(("sql-fetch", limit))
+        return self.rows
+
+    def get_belgo_case_by_row_id(self, row_id):
+        return self.rows[0] if row_id == 42 else None
 
     def save_belgo_fretolog_complement(self, **fields):
         self.events.append(("sql-save", fields["cte_number"]))
         self.saved.append(fields)
+
+    def update(self, **fields):
+        self.updates.append(fields)
+
+    def close(self):
+        return None
+
+
+class FakePlatformState:
+    def __init__(self, events):
+        self.events = events
+        self.results = []
+        self.numbers = []
+
+    def find_card_id(self, incident_id):
+        self.events.append(("find-card", incident_id))
+        return "card-1"
+
+    def route_to(self, card_id, phase_id):
+        self.events.append(("route", card_id, phase_id))
+
+    def update_results(self, card_id, **fields):
+        self.events.append(("platform-update", card_id))
+        self.results.append((card_id, fields))
+
+    def update_cte_number(self, card_id, cte_number):
+        self.numbers.append((card_id, cte_number))
 
 
 class FakeKMM:
@@ -99,7 +109,7 @@ class FakeKMM:
         return CTeEmissionResult(number="98765", net_value=88.75)
 
 
-def build_task(monkeypatch, *, existing_cte=None):
+def build_task(monkeypatch):
     for name, value in {
         "KMM_URL": "http://kmm",
         "KMM_BELGO_USERNAME": "robot",
@@ -107,110 +117,135 @@ def build_task(monkeypatch, *, existing_cte=None):
     }.items():
         monkeypatch.setenv(name, value)
     events = []
-    connector = FakeConnector(events)
-    db = FakeDB(events, existing_cte=existing_cte)
+    db = FakeDB(events)
+    sql = BelgoFretologSQLConnector(db=db)
+    platform = FakePlatformState(events)
     kmm = FakeKMM(events)
     worker = TaskBelgoFretologComplement.__new__(TaskBelgoFretologComplement)
-    worker.platform_connector = connector
-    worker.db_service = db
+    worker.sql_connector = sql
+    worker.platform_state_service = platform
     worker.kmm_factory = lambda **kwargs: kmm
-    return worker, connector, db, kmm, events
+    return worker, sql, platform, kmm, events
 
 
-def test_card_adapter_accepts_platform_field_list():
-    payload = {
-        "field_values": [
-            {"field": {"name": name}, "value": value}
-            for name, value in card_payload()["field_values"].items()
-        ]
-    }
+def test_sql_connector_fetches_claimed_database_rows():
+    events = []
+    connector = BelgoFretologSQLConnector(db=FakeDB(events))
 
-    item = FretologComplementInput.from_platform_payload(payload)
+    transactions = connector.fetch_transactions(7)
 
+    assert events == [("sql-fetch", 7)]
+    assert transactions[0].id == "42"
+    assert transactions[0].payload["ID_INCIDENTE"] == "163697"
+
+
+def test_sql_claim_uses_worker_filters():
+    connection = MagicMock()
+    connection.execute.return_value.mappings.return_value.all.return_value = []
+    engine = MagicMock()
+    engine.begin.return_value.__enter__.return_value = connection
+    db = object.__new__(DB)
+    db.engine = engine
+
+    assert db.claim_belgo_fretolog_cases(10) == []
+
+    statement = str(connection.execute.call_args.args[0])
+    assert "CRIADO_EM >= :dt_min" in statement
+    assert "RETENTATIVA < 5" in statement
+    assert "STATUS_ <> 'OK'" in statement
+    assert "CTE_FRETOLOG_COMPLEMENTAR IS NULL" in statement
+    assert "CTE_FRETOLOG_COMPLEMENTAR = ''" in statement
+    assert "RETENTATIVA = RETENTATIVA + 1" in statement
+
+
+def test_sql_adapter_maps_database_columns():
+    item = FretologComplementInput.from_sql_payload(sql_payload())
+
+    assert item.row_id == 42
     assert item.incident_id == "163697"
     assert item.freto_cte == "12345"
     assert item.cte_value == 100.0
 
 
-def test_routes_emits_persists_sql_then_updates_card(monkeypatch):
-    worker, connector, db, kmm, events = build_task(monkeypatch)
-    transaction = Transaction(id="card-1", payload=card_payload())
+def test_routes_card_emits_persists_sql_then_updates_platform(monkeypatch):
+    worker, sql, platform, kmm, events = build_task(monkeypatch)
+    transaction = Transaction(id="42", payload=sql_payload())
 
     result = worker.process_transaction(transaction)
 
     assert result.cte_number == "98765"
-    assert result.net_value == 88.75
-    assert events[0] == ("route", "card-1", FRETOLOG_COMPLEMENT_PHASE_ID)
+    assert events[:2] == [
+        ("find-card", "163697"),
+        ("route", "card-1", FRETOLOG_COMPLEMENT_PHASE_ID),
+    ]
     assert events.index(("sql-save", "98765")) < events.index(
         ("platform-update", "card-1")
     )
-    assert kmm.emission_kwargs == {
-        "cte": "12345",
-        "serie": "1",
-        "cte_value": 100.0,
-        "management": "freto",
-        "incident_number": 1,
-        "taxes": True,
-        "belgo": True,
-        "return_details": True,
-    }
-    assert db.saved[0]["row_id"] == 42
-    assert connector.items.updates[0][1]["field_values"] == {
-        "Valor Complementar Fretolog": 88.75,
-        "N CT-e Complementar Fretolog": "98765",
-    }
+    assert kmm.emission_kwargs["management"] == "freto"
+    assert kmm.emission_kwargs["taxes"] is True
+    assert kmm.emission_kwargs["belgo"] is True
+    assert kmm.emission_kwargs["return_details"] is True
+    assert sql.db.saved[0]["row_id"] == 42
+    assert platform.results == [(
+        "card-1",
+        {"cte_number": "98765", "net_value": 88.75},
+    )]
 
 
-def test_existing_sql_cte_reconciles_card_without_kmm(monkeypatch):
-    worker, connector, db, _kmm, events = build_task(
-        monkeypatch,
-        existing_cte="77777",
-    )
+def test_existing_sql_cte_reconciles_platform_without_kmm(monkeypatch):
+    worker, _sql, platform, _kmm, _events = build_task(monkeypatch)
     worker.kmm_factory = lambda **kwargs: pytest.fail("KMM não deveria ser aberto")
-    transaction = Transaction(
-        id="card-2",
-        payload=card_payload(**{"Valor Complementar Fretolog": 75.5}),
-    )
 
-    result = worker.process_transaction(transaction)
+    result = worker.process_transaction(
+        Transaction(
+            id="42",
+            payload=sql_payload(CTE_FRETOLOG_COMPLEMENTAR="77777"),
+        )
+    )
 
     assert result.resumed_from_sql is True
-    assert result.cte_number == "77777"
-    assert not db.saved
-    assert ("emit", "freto") not in events
-    assert connector.items.updates[0][1]["field_values"] == {
-        "Valor Complementar Fretolog": 75.5,
-        "N CT-e Complementar Fretolog": "77777",
+    assert platform.numbers == [("card-1", "77777")]
+
+
+def test_failure_marks_sql_status(monkeypatch):
+    worker, sql, _platform, _kmm, _events = build_task(monkeypatch)
+    transaction = Transaction(id="42", payload=sql_payload())
+    error = RuntimeError("falha")
+
+    worker.handle_process_exception(transaction, error)
+
+    assert sql.db.updates == [{
+        "table": "complementar_belgo2",
+        "column": "STATUS_",
+        "value": "Falha no KMM. RuntimeError",
+        "id": 42,
+    }]
+
+
+def test_platform_state_requires_exactly_one_card():
+    item = {
+        "id": "card-1",
+        "field_values": [{"field_id": "field-id", "value": "163697"}],
     }
-
-
-def test_existing_sql_cte_without_net_value_requires_reconciliation(monkeypatch):
-    worker, _connector, db, _kmm, _events = build_task(
-        monkeypatch,
-        existing_cte="77777",
+    workflow = MagicMock()
+    workflow.fields.return_value = SimpleNamespace(
+        items=[{"id": "field-id", "name": "ID"}],
+        total=1,
     )
-    worker.kmm_factory = lambda **kwargs: pytest.fail("KMM não deveria ser aberto")
+    workflow.items.return_value = SimpleNamespace(items=[item], total=1)
+    client = MagicMock()
+    client.workflows.workflow.return_value = workflow
+    service = BelgoPlatformStateService(client=client)
 
-    with pytest.raises(RuntimeError, match="reconciliação manual"):
-        worker.process_transaction(
-            Transaction(id="card-3", payload=card_payload())
-        )
+    assert service.find_card_id("163697") == "card-1"
 
-    assert not db.saved
+    workflow.items.return_value = SimpleNamespace(items=[], total=0)
+    with pytest.raises(RuntimeError, match="encontrados 0"):
+        service.find_card_id("999")
 
-
-def test_failure_keeps_stage_and_releases_card(monkeypatch):
-    worker, connector, db, _kmm, events = build_task(monkeypatch)
-    db.get_belgo_incident = lambda _incident_id: None
-    transaction = Transaction(id="card-4", payload=card_payload())
-
-    with pytest.raises(RuntimeError) as raised:
-        worker.process_transaction(transaction)
-    worker.handle_process_exception(transaction, raised.value)
-
-    assert events[0] == ("route", "card-4", FRETOLOG_COMPLEMENT_PHASE_ID)
-    assert connector.released == ["card-4"]
-    assert not db.saved
+    workflow.items.return_value = SimpleNamespace(items=[item, item], total=2)
+    with pytest.raises(RuntimeError, match="encontrados 2"):
+        service.find_card_id("163697")
 
 
 def test_emitting_cte_can_return_number_and_net_value(monkeypatch):

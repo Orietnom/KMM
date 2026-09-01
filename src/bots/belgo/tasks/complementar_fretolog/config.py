@@ -3,10 +3,10 @@ import os
 from ergon import task
 
 from src.bots.belgo.tasks import constants, settings
-from src.bots.belgo.tasks.worker.complementar_fretolog.connectors import (
+from src.bots.belgo.tasks.complementar_fretolog.connectors import (
     build_worker_connector_config,
 )
-from src.bots.belgo.tasks.worker.complementar_fretolog.task import (
+from src.bots.belgo.tasks.complementar_fretolog.task import (
     TaskBelgoFretologComplement,
 )
 
@@ -24,7 +24,7 @@ WORKER_POLICY = task.policies.ConsumerPolicy(
         streaming=False,
     ),
     fetch=task.policies.FetchPolicy(
-        connector_name="platform",
+        connector_name="sql",
         retry=constants.default_retry_policy(),
         batch=task.policies.BatchPolicy(
             size=os.getenv("TASK_POLICY_BELGO_FRETOLOG_BATCH_SIZE", "10")
@@ -43,8 +43,8 @@ WORKER_POLICY = task.policies.ConsumerPolicy(
 TASK_BELGO_FRETOLOG_COMPLEMENT = task.TaskConfig(
     name="belgo-worker-complementar-fretolog",
     task=TaskBelgoFretologComplement,
-    connectors={"platform": build_worker_connector_config()},
-    services={"db": settings.BELGO_DB_SERVICE},
+    connectors={"sql": build_worker_connector_config()},
+    services={"platform_state": settings.BELGO_PLATFORM_STATE_SERVICE},
     policies=[WORKER_POLICY],
     logging=settings.LOGGING,
     tracing=settings.TRACING,

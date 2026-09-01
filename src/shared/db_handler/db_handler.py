@@ -103,6 +103,46 @@ class DB:
                 },
             )
 
+    def claim_belgo_fretolog_cases(self, limit: int) -> list[dict[str, Any]]:
+        now = datetime.now()
+        dt_min = now.replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=10)
+        stmt = text("""
+            ;WITH candidates AS (
+                SELECT TOP (:limit) *
+                FROM Ergondata_Robo.dbo.complementar_belgo2 WITH (UPDLOCK, READPAST, ROWLOCK)
+                WHERE CRIADO_EM >= :dt_min
+                  AND RETENTATIVA < 5
+                  AND STATUS_ <> 'OK'
+                  AND (
+                      CTE_FRETOLOG_COMPLEMENTAR IS NULL
+                      OR CTE_FRETOLOG_COMPLEMENTAR = ''
+                  )
+                ORDER BY ID
+            )
+            UPDATE candidates
+            SET STATUS_ = 'Processando',
+                RETENTATIVA = RETENTATIVA + 1,
+                ATUALIZADO_EM = :now
+            OUTPUT inserted.*;
+        """)
+        with self.engine.begin() as conn:
+            rows = conn.execute(
+                stmt,
+                {"limit": limit, "dt_min": dt_min, "now": now},
+            ).mappings().all()
+        return [dict(row) for row in rows]
+
+    def get_belgo_case_by_row_id(self, row_id: int) -> dict[str, Any] | None:
+        query = text("""
+            SELECT TOP 1 *
+            FROM Ergondata_Robo.dbo.complementar_belgo2
+            WHERE ID = :row_id
+        """)
+        df = pd.read_sql(query, self.engine, params={"row_id": row_id})
+        if df.empty:
+            return None
+        return df.iloc[0].where(pd.notna(df.iloc[0]), None).to_dict()
+
     def get_data_to_excel(self, table: str) -> list[dict]:
         dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         dt_max = dt_min + relativedelta(days=1)
