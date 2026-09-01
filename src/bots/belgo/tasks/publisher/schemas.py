@@ -30,6 +30,7 @@ class BelgoIncident(BaseModel):
     serie_levolog: str | None = None
     serie_fretolog: str | None = None
     date: Date | None = None
+    case_date: Date | None = None
     freto_lot: str | None = None
     levo_lot: str | None = None
     number_of_incidents: int | None = None
@@ -37,15 +38,20 @@ class BelgoIncident(BaseModel):
     incident_status: bool | None = None
     error_reasons: list[str] = Field(default_factory=list)
 
-    @field_validator("date", mode="before")
+    @field_validator("date", "case_date", mode="before")
     @classmethod
     def normalize_date(cls, value: Any) -> Any:
         if value in (None, ""):
             return None
-        if isinstance(value, (Date, datetime)):
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, Date):
             return value
-        day, month, year = (int(part) for part in str(value).split("/"))
-        return Date(year, month, day)
+        date_part = str(value).strip().split()[0]
+        if "/" in date_part:
+            day, month, year = (int(part) for part in date_part.split("/"))
+            return Date(year, month, day)
+        return Date.fromisoformat(date_part)
 
     @property
     def route(self) -> CaptureRoute:
@@ -102,8 +108,9 @@ class BelgoIncident(BaseModel):
             "transport": self.transport,
             "branch": self.center,
             "subreason": self.subreason,
-            "cte_value": self.cte_value,
-            "contract_value": self.contract_value,
+            "case_date": self.case_date.isoformat() if self.case_date else None,
+            "cte_value": float(self.cte_value) if self.cte_value is not None else None,
+            "contract_value": float(self.contract_value) if self.contract_value is not None else None,
             "driver_value": self.driver_value,
             "invoice": self.nf,
             "fretolog_cte": self.cte_fretolog_code,
@@ -114,6 +121,7 @@ class BelgoIncident(BaseModel):
             "fretolog_location": self.freto_lot,
             "levolog_location": self.levo_lot,
             "incident_count": self.number_of_incidents,
+            "incident_status": self.incident_status,
         }
         field_map = platform_field_map()
         allowed_fields = (
@@ -141,6 +149,7 @@ DEFAULT_PLATFORM_FIELD_MAP = {
     "incident_id": "ID",
     "transport": "Transporte",
     "subreason": "Submotivo",
+    "case_date": "Data Caso",
     "cte_value": "Valor CT-e",
     "contract_value": "Valor Contrato",
     "driver_value": "Valor Motorista",
@@ -154,12 +163,14 @@ DEFAULT_PLATFORM_FIELD_MAP = {
     "fretolog_location": "Lotação Fretolog",
     "levolog_location": "Lotação Levolog",
     "incident_count": "N Incidentes",
+    "incident_status": "Status do Incidente",
 }
 
 GLOBAL_WORKFLOW_FIELD_KEYS = frozenset({
     "incident_id",
     "transport",
     "subreason",
+    "case_date",
 })
 
 PROCESSABLE_PHASE_FIELD_KEYS = frozenset(DEFAULT_PLATFORM_FIELD_MAP) - GLOBAL_WORKFLOW_FIELD_KEYS
@@ -169,6 +180,7 @@ WORKFLOW_TO_SOURCE_FIELD: dict[str, str | None] = {
     "ID": "ID_INCIDENTE",
     "Transporte": "TRANSPORTE",
     "Submotivo": "SUBMOTIVO",
+    "Data Caso": None,
     "Valor CT-e": "VALOR_CTE",
     "Valor Contrato": "VALOR_CONTRATO",
     "Valor Motorista": "VALOR_MOTORISTA",
@@ -182,6 +194,7 @@ WORKFLOW_TO_SOURCE_FIELD: dict[str, str | None] = {
     "Lotação Fretolog": "LOTACAO_FRETOLOG",
     "Lotação Levolog": "LOTACAO_LEVOLOG",
     "N Incidentes": "N_INCIDENTES",
+    "Status do Incidente": None,
     "N CT-e Complementar Fretolog": None,
     "Valor Complementar Fretolog": None,
     "N CT-e Complementar Levolog": None,

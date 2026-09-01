@@ -35,8 +35,10 @@ def complete_incident(**changes) -> BelgoIncident:
         "cte_fretolog_code": "789",
         "serie_fretolog": "1",
         "date": "01/09/2026",
+        "case_date": "31/08/2026 14:30",
         "freto_lot": "MATRIZ",
         "number_of_incidents": 1,
+        "incident_status": True,
     }
     payload.update(changes)
     return BelgoIncident.model_validate(payload)
@@ -138,8 +140,19 @@ def test_processable_contract_maps_sql_and_card_fields():
     assert incident.route is CaptureRoute.PROCESSABLE
     assert incident.to_sql_record()["ID_INCIDENTE"] == "123"
     assert incident.to_sql_record()["STATUS_"] == "Pendente"
+    assert incident.to_sql_record()["VALOR_CTE"] == "100.00"
+    assert incident.to_sql_record()["VALOR_CONTRATO"] == "80.00"
+    assert incident.to_sql_record()["VALOR_MOTORISTA"] == 90.00
+    assert incident.to_sql_record()["N_INCIDENTES"] == 1
     assert incident.to_card_fields()["ID"] == "123"
     assert incident.to_card_fields()["Transporte"] == "TR-1"
+    assert incident.to_card_fields()["Data Caso"] == "2026-08-31"
+    assert incident.to_card_fields()["Data Nota"] == "2026-09-01"
+    assert incident.to_card_fields()["Valor CT-e"] == 100.00
+    assert incident.to_card_fields()["Valor Contrato"] == 80.00
+    assert incident.to_card_fields()["Valor Motorista"] == 90.00
+    assert incident.to_card_fields()["N Incidentes"] == 1
+    assert incident.to_card_fields()["Status do Incidente"] is True
     assert set(incident.to_card_fields()) == set(DEFAULT_PLATFORM_FIELD_MAP.values())
 
 
@@ -148,6 +161,7 @@ def test_pending_contract_sends_only_global_workflow_fields():
         id="124",
         transport="TR-2",
         subreason="DESCARGA",
+        case_date="31/08/2026 14:30:00",
         cte_value="100.00",
         driver_value=90.00,
         error_reasons=["NF ausente"],
@@ -157,6 +171,7 @@ def test_pending_contract_sends_only_global_workflow_fields():
         "ID": "124",
         "Transporte": "TR-2",
         "Submotivo": "DESCARGA",
+        "Data Caso": "2026-08-31",
     }
 
 
@@ -172,6 +187,9 @@ def test_real_portal_payload_accepts_numeric_driver_value():
     assert incident.driver_value == 1053.31
     assert incident.to_sql_record()["VALOR_MOTORISTA"] == 1053.31
     assert incident.to_card_fields()["Valor Motorista"] == 1053.31
+    assert isinstance(incident.to_card_fields()["Valor CT-e"], float)
+    assert isinstance(incident.to_card_fields()["Valor Contrato"], float)
+    assert isinstance(incident.to_card_fields()["N Incidentes"], int)
 
 
 def test_pending_contract_keeps_available_data_out_of_sql():
@@ -302,7 +320,7 @@ def test_completed_pending_updates_routes_same_card_and_writes_sql(tmp_path):
     ]
     assert connector.items_api.operations[0] == (
         "update",
-        {"ID", "Transporte", "Submotivo"},
+        {"ID", "Transporte", "Submotivo", "Data Caso"},
     )
     assert connector.items_api.operations[1][0] == "route"
     assert connector.items_api.operations[2][0] == "update"
@@ -434,6 +452,7 @@ def test_platform_validation_respects_fields_available_in_each_phase(tmp_path):
         {"id": "field-id", "name": "ID"},
         {"id": "field-transport", "name": "Transporte"},
         {"id": "field-subreason", "name": "Submotivo"},
+        {"id": "field-case-date", "name": "Data Caso"},
     ]
     publisher = build_task(tmp_path, processable)
     publisher.pending_connector = pending

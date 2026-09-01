@@ -238,6 +238,7 @@ class BelgoPortal:
                 transport = self.driver.find_element(By.XPATH, line_path.format(item, headers["Transporte"])).get_attribute('innerHTML')
                 subreason = self.driver.find_element(By.XPATH, line_path.format(item, headers["Submotivo"])).get_attribute('innerHTML')
                 cte_attempt = self.driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).get_attribute('innerHTML')
+                case_date = self.driver.find_element(By.XPATH, line_path.format(item, headers['Criado Em'])).text
                 branch = self.driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).get_attribute('innerHTML')
 
                 if str(id_).strip() in self.itens_in_bd:
@@ -252,6 +253,7 @@ class BelgoPortal:
                         "transport": transport,
                         "subreason": subreason,
                         "cte_attempt": cte_attempt,
+                        "case_date": case_date,
                         "error": "Tentativa de CTe diferente de 0"
                     })
                     continue
@@ -280,7 +282,8 @@ class BelgoPortal:
                         "id": id_,
                         "center": center,
                         "transport": transport,
-                        "subreason": subreason
+                        "subreason": subreason,
+                        "case_date": case_date,
                     }
                     incidents.append(item_data)
                     self.log.info(f"Dados obtidos: {item_data}")
@@ -290,6 +293,7 @@ class BelgoPortal:
                         "transport": transport,
                         "subreason": subreason,
                         "cte_attempt": cte_attempt,
+                        "case_date": case_date,
                         "branch": branch,
                         "error": f"Motivo fora do escopo da automação {subreason}"
                     })
