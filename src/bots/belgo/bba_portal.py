@@ -1,30 +1,29 @@
 from __future__ import annotations
 
-from datetime import datetime
-from pathlib import Path
-from typing import Any
-from zipfile import ZipFile
-
 import os
 import re
 import time
+from datetime import datetime
+from pathlib import Path
+from zipfile import ZipFile
 
 import mechanize
 import pdfplumber
 import pygetwindow as gw
 from dotenv import load_dotenv
 from selenium import webdriver
+from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import StaleElementReferenceException
-import time
+
+from src.bots.belgo.tasks.publisher.schemas import BelgoIncident, BelgoPortalResult
 from src.shared import email_handler
 from src.shared.logger import logger
 from src.shared.sharepoint import wait_file
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -56,8 +55,8 @@ def create_chrome_driver(download_dir: Path) -> webdriver.Chrome:
 
 class BelgoPortal:
 
-    def __init__(self, itens_in_bd: list[int] = []) -> None:
-        self.itens_in_bd = itens_in_bd
+    def __init__(self, itens_in_bd=None) -> None:
+        self.itens_in_bd = set(itens_in_bd or ())
         self.br = mechanize.Browser()
         self.driver = create_chrome_driver(DOWNLOAD_DIR)
         self.wait = WebDriverWait(self.driver, 30)
@@ -241,7 +240,7 @@ class BelgoPortal:
                 cte_attempt = self.driver.find_element(By.XPATH, line_path.format(item, headers['Tentativas CTE'])).get_attribute('innerHTML')
                 branch = self.driver.find_element(By.XPATH, line_path.format(item, headers['Centro'])).get_attribute('innerHTML')
 
-                if int(id_) in self.itens_in_bd:
+                if str(id_).strip() in self.itens_in_bd:
                     self.log.info("Caso já existe no banco de dados")
                     continue
 
@@ -252,6 +251,7 @@ class BelgoPortal:
                         "id": id_,
                         "transport": transport,
                         "subreason": subreason,
+                        "cte_attempt": cte_attempt,
                         "error": "Tentativa de CTe diferente de 0"
                     })
                     continue
@@ -345,21 +345,25 @@ class BelgoPortal:
             cte_value = self.get_cte_value(historic=historic)
             if not cte_value:
                 self.log.error(f"Falha ao encontrar valor do CTE para o ID {incident['id']}")
+                incident["_error"] = "Valor do CTe não encontrado no histórico"
                 return None
 
             full_contract_value =self.get_contract_value(historic=historic)
             if not full_contract_value:
                 self.log.error(f"Falha ao encontrar valor do contrato para o ID {incident['id']}")
+                incident["_error"] = "Valor do contrato não encontrado no histórico"
                 return None
             contract_value = self.ajusta_valor_moeda(valor=str(full_contract_value))
             if not contract_value:
                 self.log.error(f"Falha ao ajustar valor do contrato para o ID {incident['id']}")
+                incident["_error"] = "Valor do contrato possui formato inválido"
                 return None
             driver_value = self.get_driver_reimbursement_value(valor=float(contract_value))
 
             if not driver_value or not cte_value or not contract_value:
                 self.log.error("Falha ao encontrar valor do motorista, cte ou contrato do histórico do caso para p "
                              f"ID: {incident['id']}")
+                incident["_error"] = "Valores de CTe, contrato ou motorista incompletos"
                 return None
 
             if float(cte_value) < 7000.00:
@@ -379,10 +383,12 @@ class BelgoPortal:
                            f'para o ID {incident["id"]}. Valor motorista: {driver_value} '
                            f'- Valor cte {cte_value} - N nf {nf}')
                 self.log.warning(message)
+                incident["_error"] = "Valor de CT-e é maior ou igual a R$ 7.000,00"
                 return None
 
         except Exception as error:
             self.log.exception(f"Falha ao obter dados do histórico para o caso {incident['id']}")
+            incident["_error"] = "Falha ao obter dados do histórico do incidente"
             return None
 
     def get_driver_reimbursement_value(self, valor):
@@ -712,10 +718,11 @@ class BelgoPortal:
             if not additional_data:
                 self.log.error(f"Não foi possível obter todas as informações para o id {incident['id']}")
                 errors.append({
-                    "id": incident['id'],
-                    "transport": incident['transport'],
-                    "subreason": incident['subreason'],
-                    "error": "Não foi possível obter informações de histórico e/ou número NF"
+                    **incident,
+                    "error": incident.pop(
+                        "_error",
+                        "Não foi possível obter informações de histórico e/ou número NF",
+                    ),
                 })
                 continue
             else:
@@ -732,9 +739,7 @@ class BelgoPortal:
                 nf_data.append({**incident, **nfs_data})
             else:
                 errors.append({
-                    "id": incident['id'],
-                    "transport": incident['transport'],
-                    "subreason": incident['subreason'],
+                    **incident,
                     "error": "Não foi possível obter informações de NF ou documento não existe"
                 })
         return nf_data, errors
@@ -747,9 +752,7 @@ class BelgoPortal:
                 final_data.append({**incident, "number_of_incidents": number_of_incidents})
             else:
                 errors.append({
-                    "id": incident['id'],
-                    "transport": incident['transport'],
-                    "subreason": incident['subreason'],
+                    **incident,
                     "error": "Não foi possível obter informações de número de incidentes"
                 })
         return final_data, errors
@@ -801,8 +804,17 @@ class BelgoPortal:
 
         return subject, "\n".join(lines).rstrip()
 
-    def get_incidents_in_bba_portal(self) -> None | list:
+    @staticmethod
+    def _pending_from_error(error: dict) -> BelgoIncident:
+        payload = {key: value for key, value in error.items() if key not in {"error", "_error", "branch"}}
+        if not payload.get("center") and error.get("branch"):
+            payload["center"] = error["branch"]
+        payload["error_reasons"] = [str(error.get("error") or "Pendência não especificada")]
+        return BelgoIncident.model_validate(payload)
+
+    def get_capture_result(self) -> BelgoPortalResult:
         final_data = []
+        errors = []
         try:
             self.config()
             self.open()
@@ -812,19 +824,21 @@ class BelgoPortal:
                 raise Exception
             self.search_for(term="emissão de cte")
             incidents, errors = self.get_incidents()
-            if not incidents:
+            total_found = len(incidents) + len(errors)
+            if not incidents and not errors:
                 self.log.info(f"Nenhum Registro encontrado")
-                return
+                return BelgoPortalResult()
 
-            enriched_incidents, errors = self.get_values_and_nf_data(incidents, errors)
-            enriched_nf_data_incidents, errors = self.get_nfs_data(enriched_incidents, errors)
-            final_data, errors = self.get_incidents_number_of_incidents(enriched_nf_data_incidents, errors)
+            if incidents:
+                enriched_incidents, errors = self.get_values_and_nf_data(incidents, errors)
+                enriched_nf_data_incidents, errors = self.get_nfs_data(enriched_incidents, errors)
+                final_data, errors = self.get_incidents_number_of_incidents(enriched_nf_data_incidents, errors)
 
-            self.log.info("Fim da obtenção dos casos, inserindo-os na fila.")
+            self.log.info("Fim da obtenção e classificação dos casos.")
             if errors:
                 subject, body = self._build_incident_errors_email(
                     errors=errors,
-                    total_found=len(incidents),
+                    total_found=total_found,
                     total_success=len(final_data),
                 )
                 recipients = self._get_error_email_recipients()
@@ -839,10 +853,13 @@ class BelgoPortal:
                         "Casos com erro no BBA, mas nenhum destinatário configurado "
                         "(BBA_PORTAL_EMAIL_TO ou BELGO_RECIPIENTS)."
                     )
-            return final_data
+            return BelgoPortalResult(
+                processable=[BelgoIncident.model_validate(item) for item in final_data],
+                pending=[self._pending_from_error(item) for item in errors],
+            )
         except Exception as e:
             self.log.exception(f"Erro na obtenção dos dados.")
-            return None
+            raise
         finally:
             self.log.info("Entrou no finally. Fechando driver...")
             try:
@@ -850,6 +867,13 @@ class BelgoPortal:
                 self.log.info("Driver fechado com close().")
             except Exception:
                 self.log.exception("Erro ao executar driver.close()")
+
+    def get_incidents_in_bba_portal(self) -> list[dict]:
+        """Compatibilidade com o publisher legado durante a migração."""
+        return [
+            item.model_dump(mode="python")
+            for item in self.get_capture_result().processable
+        ]
 
 
 class BelgoXML:

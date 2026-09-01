@@ -1,0 +1,1 @@
+"""Tasks da automação BELGO."""

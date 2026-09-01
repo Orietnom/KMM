@@ -53,6 +53,20 @@ class DB:
         df = pd.read_sql(query, self.engine, params={"dt_min": dt_min})
         return df.to_dict(orient="records")
 
+    def get_existing_belgo_incident_ids(self) -> set[str]:
+        """Retorna somente as chaves já materializadas na fila BELGO."""
+        query = text("""
+            SELECT DISTINCT ID_INCIDENTE
+            FROM Ergondata_Robo.dbo.complementar_belgo2
+            WHERE ID_INCIDENTE IS NOT NULL
+        """)
+        df = pd.read_sql(query, self.engine)
+        return {
+            str(value).strip()
+            for value in df["ID_INCIDENTE"].tolist()
+            if str(value).strip()
+        }
+
     def get_data_to_excel(self, table: str) -> list[dict]:
         dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         dt_max = dt_min + relativedelta(days=1)

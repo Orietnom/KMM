@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "ergon-framework-python>=0.2.4",
+    "ergon-platform-sdk>=0.3.0",
     "google-api-python-client>=2.188.0",
     "google-auth-httplib2>=0.3.0",
     "google-auth-oauthlib>=1.2.3",
@@ -25,3 +27,11 @@ dependencies = [
     "webdriver-manager>=4.0.2",
     "xlwings==0.33.1",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
