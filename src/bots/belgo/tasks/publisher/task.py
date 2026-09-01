@@ -51,9 +51,15 @@ class TaskBelgoPublisher(ProducerTask):
 
     def prepare_transaction(self, transaction: Transaction) -> CreateItemInput:
         incident = BelgoIncident.model_validate(transaction.payload)
+        description = ""
+        if incident.error_reasons:
+            description = "Motivo da pendência:\n" + "\n".join(
+                f"- {reason}" for reason in incident.error_reasons
+            )
         return CreateItemInput(
             title=incident.card_title(),
             field_values=incident.to_card_fields(),
+            extra_fields={"description": description},
         )
 
     def _insert_processable_sql(self, incident: BelgoIncident) -> None:
@@ -104,13 +110,11 @@ class TaskBelgoPublisher(ProducerTask):
         previous_route: str,
     ) -> None:
         items = self._platform_items(connector)
-        field_values = dict(result.field_values or {})
-        if incident.route is CaptureRoute.PROCESSABLE:
-            field_values[platform_field_map()["pending_reason"]] = ""
         items.update(
             platform_item_id,
             title=result.title,
-            field_values=field_values,
+            field_values=dict(result.field_values or {}),
+            **result.extra_fields,
         )
         if incident.route is not CaptureRoute.PROCESSABLE or previous_route == CaptureRoute.PROCESSABLE.value:
             return

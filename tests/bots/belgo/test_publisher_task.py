@@ -13,6 +13,7 @@ from src.bots.belgo.tasks.publisher.idempotency import (
     ClaimState,
 )
 from src.bots.belgo.tasks.publisher.schemas import (
+    WORKFLOW_TO_SOURCE_FIELD,
     BelgoIncident,
     BelgoPortalResult,
     CaptureRoute,
@@ -129,8 +130,8 @@ def test_processable_contract_maps_sql_and_card_fields():
     assert incident.route is CaptureRoute.PROCESSABLE
     assert incident.to_sql_record()["ID_INCIDENTE"] == "123"
     assert incident.to_sql_record()["STATUS_"] == "Pendente"
-    assert incident.to_card_fields()["ID_INCIDENTE"] == "123"
-    assert incident.to_card_fields()["SITUACAO_CAPTURA"] == "A Processar"
+    assert incident.to_card_fields()["ID"] == "123"
+    assert incident.to_card_fields()["Transporte"] == "TR-1"
 
 
 def test_real_portal_payload_accepts_numeric_driver_value():
@@ -144,7 +145,7 @@ def test_real_portal_payload_accepts_numeric_driver_value():
 
     assert incident.driver_value == 1053.31
     assert incident.to_sql_record()["VALOR_MOTORISTA"] == 1053.31
-    assert incident.to_card_fields()["VALOR_MOTORISTA"] == 1053.31
+    assert incident.to_card_fields()["Valor Motorista"] == 1053.31
 
 
 def test_pending_contract_keeps_available_data_out_of_sql():
@@ -156,9 +157,17 @@ def test_pending_contract_keeps_available_data_out_of_sql():
     )
 
     assert incident.route is CaptureRoute.PENDING
-    assert incident.to_card_fields()["MOTIVO_PENDENCIA"] == "Documento Viagem ausente"
+    assert "Documento Viagem ausente" in incident.error_reasons
     with pytest.raises(ValueError):
         incident.to_sql_record()
+
+
+def test_workflow_relation_registers_fields_without_producer_source():
+    assert WORKFLOW_TO_SOURCE_FIELD["ID"] == "ID_INCIDENTE"
+    assert WORKFLOW_TO_SOURCE_FIELD["N CT-e Complementar Fretolog"] is None
+    assert WORKFLOW_TO_SOURCE_FIELD["Valor Complementar Levolog"] is None
+    assert WORKFLOW_TO_SOURCE_FIELD["N Contrato"] is None
+    assert WORKFLOW_TO_SOURCE_FIELD["XML"] is None
 
 
 def test_ledger_allows_only_one_claim_per_incident(tmp_path):
@@ -213,7 +222,7 @@ def test_pending_creates_card_without_sql(tmp_path):
     )
 
     assert publisher.db_service.records == []
-    assert connector.transactions[0].payload.field_values["MOTIVO_PENDENCIA"] == "NF ausente"
+    assert connector.transactions[0].payload.extra_fields["description"] == "Motivo da pendência:\n- NF ausente"
 
 
 def test_repeated_pending_updates_same_card_without_duplicate(tmp_path):
@@ -239,7 +248,7 @@ def test_repeated_pending_updates_same_card_without_duplicate(tmp_path):
 
     assert len(connector.transactions) == 1
     assert connector.items_api.updates[0][0] == "card-1"
-    assert connector.items_api.updates[0][1]["field_values"]["TRANSPORTE"] == "TR-2"
+    assert connector.items_api.updates[0][1]["field_values"]["Transporte"] == "TR-2"
     assert publisher.db_service.records == []
 
 
@@ -265,7 +274,7 @@ def test_completed_pending_updates_routes_same_card_and_writes_sql(tmp_path):
     assert connector.items_api.routes == [
         ("card-1", "fa0472b7-80c4-47cc-81b0-bd5da388acf1")
     ]
-    assert connector.items_api.updates[-1][1]["field_values"]["MOTIVO_PENDENCIA"] == ""
+    assert connector.items_api.updates[-1][1]["description"] == ""
     assert claim.route == CaptureRoute.PROCESSABLE.value
     assert claim.platform_item_id == "card-1"
     assert publisher.db_service.records[0]["ID_INCIDENTE"] == "123"
@@ -366,7 +375,7 @@ def test_dry_run_never_writes_processable_incident_to_sql():
     )
 
     assert publisher.db_service.records == []
-    assert connector.created_cards[0]["field_values"]["ID_INCIDENTE"] == "123"
+    assert connector.created_cards[0]["field_values"]["ID"] == "123"
 
 
 def test_execute_uses_only_sql_ids_to_skip_portal_enrichment(tmp_path, monkeypatch):
