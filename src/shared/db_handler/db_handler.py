@@ -67,6 +67,42 @@ class DB:
             if str(value).strip()
         }
 
+    def get_belgo_incident(self, incident_id: str) -> dict[str, Any] | None:
+        query = text("""
+            SELECT TOP 1 *
+            FROM Ergondata_Robo.dbo.complementar_belgo2
+            WHERE ID_INCIDENTE = :incident_id
+            ORDER BY ID DESC
+        """)
+        df = pd.read_sql(query, self.engine, params={"incident_id": incident_id})
+        if df.empty:
+            return None
+        return df.iloc[0].where(pd.notna(df.iloc[0]), None).to_dict()
+
+    def save_belgo_fretolog_complement(
+        self,
+        *,
+        row_id: int,
+        cte_number: str,
+        emitted_at: datetime,
+    ) -> None:
+        stmt = text("""
+            UPDATE Ergondata_Robo.dbo.complementar_belgo2
+            SET CTE_FRETOLOG_COMPLEMENTAR = :cte_number,
+                DATA_EMISSAO_CTE_FRETO = :emitted_at,
+                ATUALIZADO_EM = :emitted_at
+            WHERE ID = :row_id
+        """)
+        with self.engine.begin() as conn:
+            conn.execute(
+                stmt,
+                {
+                    "cte_number": cte_number,
+                    "emitted_at": emitted_at,
+                    "row_id": row_id,
+                },
+            )
+
     def get_data_to_excel(self, table: str) -> list[dict]:
         dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         dt_max = dt_min + relativedelta(days=1)

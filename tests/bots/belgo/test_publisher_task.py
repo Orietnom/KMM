@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -35,7 +36,6 @@ def complete_incident(**changes) -> BelgoIncident:
         "cte_fretolog_code": "789",
         "serie_fretolog": "1",
         "date": "01/09/2026",
-        "case_date": "31/08/2026 14:30",
         "freto_lot": "MATRIZ",
         "number_of_incidents": 1,
         "incident_status": True,
@@ -146,7 +146,7 @@ def test_processable_contract_maps_sql_and_card_fields():
     assert incident.to_sql_record()["N_INCIDENTES"] == 1
     assert incident.to_card_fields()["ID"] == "123"
     assert incident.to_card_fields()["Transporte"] == "TR-1"
-    assert incident.to_card_fields()["Data Caso"] == "2026-08-31"
+    assert incident.to_card_fields()["Data Caso"] == date.today().isoformat()
     assert incident.to_card_fields()["Data Nota"] == "2026-09-01"
     assert incident.to_card_fields()["Valor CT-e"] == 100.00
     assert incident.to_card_fields()["Valor Contrato"] == 80.00
@@ -161,7 +161,6 @@ def test_pending_contract_sends_only_global_workflow_fields():
         id="124",
         transport="TR-2",
         subreason="DESCARGA",
-        case_date="31/08/2026 14:30:00",
         cte_value="100.00",
         driver_value=90.00,
         error_reasons=["NF ausente"],
@@ -171,7 +170,7 @@ def test_pending_contract_sends_only_global_workflow_fields():
         "ID": "124",
         "Transporte": "TR-2",
         "Submotivo": "DESCARGA",
-        "Data Caso": "2026-08-31",
+        "Data Caso": date.today().isoformat(),
     }
 
 

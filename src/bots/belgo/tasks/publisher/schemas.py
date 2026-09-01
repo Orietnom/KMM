@@ -30,7 +30,6 @@ class BelgoIncident(BaseModel):
     serie_levolog: str | None = None
     serie_fretolog: str | None = None
     date: Date | None = None
-    case_date: Date | None = None
     freto_lot: str | None = None
     levo_lot: str | None = None
     number_of_incidents: int | None = None
@@ -38,7 +37,7 @@ class BelgoIncident(BaseModel):
     incident_status: bool | None = None
     error_reasons: list[str] = Field(default_factory=list)
 
-    @field_validator("date", "case_date", mode="before")
+    @field_validator("date", mode="before")
     @classmethod
     def normalize_date(cls, value: Any) -> Any:
         if value in (None, ""):
@@ -108,7 +107,7 @@ class BelgoIncident(BaseModel):
             "transport": self.transport,
             "branch": self.center,
             "subreason": self.subreason,
-            "case_date": self.case_date.isoformat() if self.case_date else None,
+            "case_date": Date.today().isoformat(),
             "cte_value": float(self.cte_value) if self.cte_value is not None else None,
             "contract_value": float(self.contract_value) if self.contract_value is not None else None,
             "driver_value": self.driver_value,

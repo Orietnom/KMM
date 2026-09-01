@@ -25,6 +25,13 @@ class LoginParams:
     username: str
     password: str
 
+
+@dataclass(frozen=True)
+class CTeEmissionResult:
+    number: str
+    net_value: float
+
+
 class KMMActions:
     def __init__(self, service: str, driver: KMMIEDriver | None = None, config = None, evidence_dir = None):
         self.driver = driver or KMMIEDriver(config)
@@ -234,8 +241,9 @@ class KMMActions:
             taxes: bool = False,
             driver_name: Optional[str] = None,
             incident_number: Optional[int] = 1,
-            belgo: bool = False
-    ) -> str:
+            belgo: bool = False,
+            return_details: bool = False,
+    ) -> str | CTeEmissionResult:
 
         try:
             self.quick_access('ectecomp')
@@ -340,6 +348,11 @@ class KMMActions:
             cte_complement = self.driver.safe_get_text("xpath:/html/body/form/table/tbody/tr[1]/td[1]/fieldset/table/tbody/tr[2]/td[2]")
             self.driver.close_window()
             self.driver.switch_to_window(home_window=True)
+            if return_details:
+                return CTeEmissionResult(
+                    number=cte_complement,
+                    net_value=value_with_no_tax,
+                )
             return cte_complement
         except pe.KMMProcess:
             self.driver.dump_state(evidence_dir=self.evidence_dir)

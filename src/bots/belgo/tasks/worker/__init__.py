@@ -1,0 +1,1 @@
+"""Tasks do worker BELGO."""
