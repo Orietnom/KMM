@@ -288,6 +288,7 @@ class KMMActions:
             self._click_on_negotiation_menu()
 
             if 'freto' in management:
+                emitted_value = value_with_no_tax
                 str_value_with_no_tax = f"{value_with_no_tax:.2f}"
 
                 self.driver.execute_js(
@@ -310,6 +311,7 @@ class KMMActions:
                     markup /= 100
 
                 net_value = round(float(value_with_no_tax) * markup, 2)
+                emitted_value = net_value
                 str_net_value = f"{net_value:.2f}"
                 self.driver.execute_js(
                     f"""document.getElementById('VARIAVEL_FRETEPESO_CALC').value = '{str_net_value}';
@@ -351,7 +353,7 @@ class KMMActions:
             if return_details:
                 return CTeEmissionResult(
                     number=cte_complement,
-                    net_value=value_with_no_tax,
+                    net_value=emitted_value,
                 )
             return cte_complement
         except pe.KMMProcess:

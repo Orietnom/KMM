@@ -143,6 +143,100 @@ class DB:
             return None
         return df.iloc[0].where(pd.notna(df.iloc[0]), None).to_dict()
 
+    def claim_belgo_levolog_cases(self, limit: int) -> list[dict[str, Any]]:
+        now = datetime.now()
+        dt_min = now.replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=10)
+        stmt = text("""
+            ;WITH candidates AS (
+                SELECT TOP (:limit) *
+                FROM Ergondata_Robo.dbo.complementar_belgo2 WITH (UPDLOCK, READPAST, ROWLOCK)
+                WHERE CRIADO_EM >= :dt_min
+                  AND RETENTATIVA < 5
+                  AND STATUS_ <> 'OK'
+                  AND CTE_LEVOLOG IS NOT NULL
+                  AND CTE_LEVOLOG <> ''
+                  AND (
+                      CTE_LEVOLOG_COMPLEMENTAR IS NULL
+                      OR CTE_LEVOLOG_COMPLEMENTAR = ''
+                  )
+                ORDER BY ID
+            )
+            UPDATE candidates
+            SET STATUS_ = 'Processando',
+                ATUALIZADO_EM = :now
+            OUTPUT inserted.*;
+        """)
+        with self.engine.begin() as conn:
+            rows = conn.execute(
+                stmt,
+                {"limit": limit, "dt_min": dt_min, "now": now},
+            ).mappings().all()
+        return [dict(row) for row in rows]
+
+    def save_belgo_levolog_complement(
+        self,
+        *,
+        row_id: int,
+        cte_number: str,
+    ) -> None:
+        now = datetime.now()
+        stmt = text("""
+            UPDATE Ergondata_Robo.dbo.complementar_belgo2
+            SET CTE_LEVOLOG_COMPLEMENTAR = :cte_number,
+                ATUALIZADO_EM = :now
+            WHERE ID = :row_id
+        """)
+        with self.engine.begin() as conn:
+            conn.execute(
+                stmt,
+                {
+                    "cte_number": cte_number,
+                    "now": now,
+                    "row_id": row_id,
+                },
+            )
+
+    def fail_belgo_stage(self, *, row_id: int, message: str) -> None:
+        now = datetime.now()
+        stmt = text("""
+            UPDATE Ergondata_Robo.dbo.complementar_belgo2
+            SET STATUS_ = :message,
+                RETENTATIVA = RETENTATIVA + 1,
+                ATUALIZADO_EM = :now
+            WHERE ID = :row_id
+        """)
+        with self.engine.begin() as conn:
+            conn.execute(
+                stmt,
+                {"message": message, "now": now, "row_id": row_id},
+            )
+
+    def claim_belgo_xml_cases(self, limit: int) -> list[dict[str, Any]]:
+        now = datetime.now()
+        dt_min = now.replace(hour=0, minute=0, second=0, microsecond=0) - relativedelta(days=10)
+        stmt = text("""
+            ;WITH candidates AS (
+                SELECT TOP (:limit) *
+                FROM Ergondata_Robo.dbo.complementar_belgo2 WITH (UPDLOCK, READPAST, ROWLOCK)
+                WHERE CRIADO_EM >= :dt_min
+                  AND RETENTATIVA < 5
+                  AND STATUS_ <> 'OK'
+                  AND CTE_FRETOLOG_COMPLEMENTAR IS NOT NULL
+                  AND CTE_FRETOLOG_COMPLEMENTAR <> ''
+                ORDER BY ID
+            )
+            UPDATE candidates
+            SET STATUS_ = 'Processando',
+                ATUALIZADO_EM = :now
+            OUTPUT inserted.*;
+        """)
+        with self.engine.begin() as conn:
+            rows = conn.execute(
+                stmt,
+                {"limit": limit, "dt_min": dt_min, "now": now},
+            ).mappings().all()
+        return [dict(row) for row in rows]
+
     def get_data_to_excel(self, table: str) -> list[dict]:
         dt_min = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         dt_max = dt_min + relativedelta(days=1)

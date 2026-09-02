@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import mimetypes
 import os
+from pathlib import Path
 from typing import Any
 
+import httpx
 from ergon_platform import ErgonClient
 
 from src.bots.belgo.tasks.publisher.connectors import WORKFLOW_ID
@@ -54,6 +57,18 @@ class BelgoPlatformStateService:
             if (payload := self._as_dict(field)).get("id") and payload.get("name")
         }
         return self._field_names
+
+    def _workflow_field_id(self, field_name: str) -> str:
+        matches = [
+            field_id
+            for field_id, name in self._workflow_field_names().items()
+            if name == field_name
+        ]
+        if len(matches) != 1:
+            raise RuntimeError(
+                f"Esperado 1 campo BELGO chamado {field_name}, encontrados {len(matches)}"
+            )
+        return matches[0]
 
     def _item_field_values(self, item: Any) -> dict[str, Any]:
         payload = self._as_dict(item)
@@ -109,6 +124,51 @@ class BelgoPlatformStateService:
     def route_to(self, card_id: str, phase_id: str) -> None:
         self.client.workflows.items.route(card_id, to_phase_id=phase_id)
 
+    def card_has_attachment(self, card_id: str, field_name: str) -> bool:
+        item = self.client.workflows.items.get(card_id)
+        value = self._item_field_values(item).get(field_name)
+        if isinstance(value, dict):
+            for key in ("attachments", "files", "items", "value"):
+                nested = value.get(key)
+                if nested is not None:
+                    return bool(nested)
+        return bool(value)
+
+    def upload_attachment(
+        self,
+        card_id: str,
+        field_name: str,
+        file_path: str | Path,
+    ) -> None:
+        path = Path(file_path)
+        content_type = mimetypes.guess_type(path.name)[0] or "application/xml"
+        size = path.stat().st_size
+        field_id = self._workflow_field_id(field_name)
+        workflow = self.client.workflows.workflow(WORKFLOW_ID)
+        upload = workflow.item_attachment_upload_url(
+            item_id=card_id,
+            field_id=field_id,
+            filename=path.name,
+            content_type=content_type,
+            size=size,
+        )
+        upload_payload = self._as_dict(upload)
+        with path.open("rb") as file:
+            response = httpx.put(
+                upload_payload["upload_url"],
+                content=file.read(),
+                headers={"Content-Type": content_type},
+            )
+        response.raise_for_status()
+        workflow.confirm_item_attachment(
+            item_id=card_id,
+            field_id=field_id,
+            object_key=upload_payload["object_key"],
+            filename=path.name,
+            content_type=content_type,
+            size=size,
+        )
+
     def validate_phase_fields(self, phase_id: str, expected: set[str] | frozenset[str]) -> None:
         workflow_fields, _ = self._page_items(
             self.client.workflows.workflow(WORKFLOW_ID).fields()
@@ -128,18 +188,39 @@ class BelgoPlatformStateService:
             )
 
     def update_results(self, card_id: str, *, cte_number: str, net_value: float) -> None:
-        self.client.workflows.items.update(
-            card_id,
-            field_values={
-                "Valor Complementar Fretolog": net_value,
-                "N CT-e Complementar Fretolog": cte_number,
-            },
-        )
+        self.update_fields(card_id, {
+            "Valor Complementar Fretolog": net_value,
+            "N CT-e Complementar Fretolog": cte_number,
+        })
 
     def update_cte_number(self, card_id: str, cte_number: str) -> None:
+        self.update_fields(
+            card_id,
+            {"N CT-e Complementar Fretolog": cte_number},
+        )
+
+    def update_levolog_results(
+        self,
+        card_id: str,
+        *,
+        cte_number: str,
+        net_value: float,
+    ) -> None:
+        self.update_fields(card_id, {
+            "Valor Complementar Levolog": net_value,
+            "N CT-e Complementar Levolog": cte_number,
+        })
+
+    def update_levolog_cte_number(self, card_id: str, cte_number: str) -> None:
+        self.update_fields(
+            card_id,
+            {"N CT-e Complementar Levolog": cte_number},
+        )
+
+    def update_fields(self, card_id: str, field_values: dict[str, Any]) -> None:
         self.client.workflows.items.update(
             card_id,
-            field_values={"N CT-e Complementar Fretolog": cte_number},
+            field_values=field_values,
         )
 
     def close(self) -> None:

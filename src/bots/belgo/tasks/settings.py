@@ -1,9 +1,7 @@
 from dotenv import load_dotenv
 from ergon.service import ServiceConfig
 
-from src.bots.belgo.tasks.complementar_fretolog.services import (
-    BelgoPlatformStateService,
-)
+from src.bots.belgo.tasks.platform_state import BelgoPlatformStateService
 from src.bots.belgo.tasks.publisher.services import BelgoPortalService
 from src.shared.db_handler.db_handler import DB
 
